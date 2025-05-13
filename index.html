@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Gestor de Formaturas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Favicon (adicione um ícone de formatura aqui se tiver) -->
+    <!-- <link rel="icon" href="favicon.ico" type="image/x-icon"> -->
+
+    <style>
+        /* Reset Básico e Estilos Globais */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f0f2f5; /* Um cinza claro para o fundo */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px; /* Espaçamento para telas menores */
+        }
+
+        /* Container Principal do Login */
+        .login-container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+
+        .login-header h1 {
+            color: #0A2463; /* Azul Marinho Principal */
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+            font-weight: 700;
+        }
+
+        .login-header p {
+            color: #555;
+            margin-bottom: 30px;
+            font-size: 1rem;
+        }
+
+        /* Formulário */
+        .login-form .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .login-form label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #0A2463; /* Azul Marinho */
+            font-size: 0.9rem;
+        }
+
+        .login-form input[type="email"],
+        .login-form input[type="password"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .login-form input[type="email"]:focus,
+        .login-form input[type="password"]:focus {
+            border-color: #FFD700; /* Dourado/Amarelo para foco */
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.3);
+        }
+
+        .login-form .btn-login {
+            background-color: #0A2463; /* Azul Marinho Principal */
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            width: 100%;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .login-form .btn-login:hover {
+            background-color: #193A7A; /* Azul Marinho um pouco mais claro */
+            transform: translateY(-2px);
+        }
+        .login-form .btn-login:active {
+            transform: translateY(0);
+        }
+
+
+        .login-links {
+            margin-top: 25px;
+            font-size: 0.9rem;
+        }
+
+        .login-links a {
+            color: #0A2463; /* Azul Marinho */
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        .login-links a:hover {
+            text-decoration: underline;
+            color: #FFB400; /* Dourado/Amarelo no hover */
+        }
+
+        /* Mensagens de Erro/Sucesso */
+        .message {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            display: none; /* Oculto por padrão */
+        }
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .message.success { /* Para mensagens de sucesso, se necessário */
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        /* Loading spinner */
+        .loader {
+            border: 4px solid #f3f3f3; /* Light grey */
+            border-top: 4px solid #0A2463; /* Blue */
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none; /* Oculto por padrão */
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Logo (Exemplo - substitua por uma imagem se tiver) */
+        .logo-placeholder {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #0A2463;
+            margin-bottom: 20px;
+            /* Exemplo de ícone de formatura com Font Awesome */
+            /* display: flex;
+            align-items: center;
+            justify-content: center; */
+        }
+        .logo-placeholder i {
+            margin-right: 10px;
+            color: #FFD700; /* Dourado */
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .login-container {
+                padding: 30px;
+                margin: 20px;
+            }
+            .login-header h1 {
+                font-size: 1.8rem;
+            }
+            .login-header p {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 20px;
+            }
+            .login-form input[type="email"],
+            .login-form input[type="password"],
+            .login-form .btn-login {
+                font-size: 0.9rem;
+                padding: 10px 12px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo-placeholder">
+            <i class="fas fa-graduation-cap"></i> FormaGest
+        </div>
+        <div class="login-header">
+            <h1>Bem-vindo(a)!</h1>
+            <p>Acesse sua conta para gerenciar sua formatura.</p>
+        </div>
+
+        <div id="messageArea" class="message"></div>
+        <div id="loader" class="loader"></div>
+
+        <form id="loginForm" class="login-form">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required placeholder="seuemail@exemplo.com">
+            </div>
+            <div class="form-group">
+                <label for="password">Senha:</label>
+                <input type="password" id="password" name="password" required placeholder="Sua senha">
+            </div>
+            <button type="submit" class="btn-login">Entrar</button>
+        </form>
+
+        <div class="login-links">
+            <a href="#" id="forgotPasswordLink">Esqueceu a senha?</a>
+            <span>|</span>
+            <a href="#" id="createAccountLink">Criar conta</a>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs (use as versões mais recentes do SDK v9 modular ou v8 compat) -->
+    <!-- Para v9 modular (recomendado para novos projetos): -->
+    <!-- <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+        // Seu firebaseConfig aqui
+        // const firebaseApp = initializeApp(firebaseConfig);
+        // const auth = getAuth(firebaseApp);
+        // ... seu código JS aqui usando sintaxe modular
+    </script> -->
+
+    <!-- Para v8 compat (mais simples se você já usava v8): -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script> <!-- Se for usar RTDB nas próximas telas -->
+
+    <!-- SEU ARQUIVO DE CONFIGURAÇÃO DO FIREBASE (firebase-config.js) -->
+    <!-- <script src="firebase-config.js"></script> -->
+    <!-- OU COLE A CONFIGURAÇÃO DIRETAMENTE AQUI (MENOS RECOMENDADO) -->
+    <script>
+        // COLE AQUI O CONTEÚDO DO SEU firebase-config.js
+        // Exemplo:
+        const firebaseConfig = {
+            apiKey: "AIzaSyAQ3txJQ09muNi5xaBhOPwFztT1fCR1qmE",
+            authDomain: "formagest-a7591.firebaseapp.com",
+            databaseURL: "https://formagest-a7591-default-rtdb.firebaseio.com",
+            projectId: "formagest-a7591",
+            storageBucket: "formagest-a7591.firebasestorage.app",
+            messagingSenderId: "27539451532",
+            appId: "1:27539451532:web:6bea92d2e1df99dac115a9",
+            measurementId: "G-G3NDPYSQ9Z"
+        };
+        // Inicializa o Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const auth = firebase.auth();
+        // const database = firebase.database(); // Descomente se for usar RTDB aqui
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const loginForm = document.getElementById('loginForm');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const messageArea = document.getElementById('messageArea');
+            const loader = document.getElementById('loader');
+            const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+            const createAccountLink = document.getElementById('createAccountLink');
+
+            // Verificar se o usuário já está logado (opcional, mas bom para UX)
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    // Se já logado, pode redirecionar direto ou mostrar mensagem
+                    // Para este exemplo, vamos apenas logar e deixar que o usuário decida se quer sair
+                    console.log("Usuário já logado:", user.uid);
+                    // window.location.href = 'dashboard.html'; // Ou para a tela de seleção de eventos
+                }
+            });
+
+            loginForm.addEventListener('submit', function (event) {
+                event.preventDefault();
+                const email = emailInput.value.trim();
+                const password = passwordInput.value.trim();
+
+                if (!email || !password) {
+                    showMessage('Por favor, preencha todos os campos.', 'error');
+                    return;
+                }
+
+                showLoader(true);
+                showMessage('', ''); // Limpa mensagens anteriores
+
+                auth.signInWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        // Login bem-sucedido
+                        const user = userCredential.user;
+                        console.log('Login bem-sucedido:', user.uid);
+                        showMessage('Login realizado com sucesso! Redirecionando...', 'success');
+
+                        // AQUI VOCÊ DECIDE O FLUXO:
+                        // 1. Pegar o evento principal do usuário no DB e redirecionar para o dashboard dele
+                        // 2. Redirecionar para uma página de seleção/criação de eventos (ex: 'eventos.html')
+                        // Por agora, vamos redirecionar para um 'dashboard.html' genérico.
+                        // Você precisará da lógica no dashboard.html para carregar ou criar o evento.
+                        setTimeout(() => {
+                            window.location.href = 'dashboard.html';
+                        }, 1500);
+                    })
+                    .catch((error) => {
+                        console.error('Erro no login:', error);
+                        let friendlyMessage = 'Ocorreu um erro ao tentar fazer login. Verifique suas credenciais.';
+                        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+                            friendlyMessage = 'Email ou senha inválidos.';
+                        } else if (error.code === 'auth/invalid-email') {
+                            friendlyMessage = 'O formato do email é inválido.';
+                        }
+                        showMessage(friendlyMessage, 'error');
+                    })
+                    .finally(() => {
+                        showLoader(false);
+                    });
+            });
+
+            forgotPasswordLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                const email = emailInput.value.trim();
+                if (!email) {
+                    showMessage('Por favor, insira seu email para redefinir a senha.', 'error');
+                    emailInput.focus();
+                    return;
+                }
+                showLoader(true);
+                auth.sendPasswordResetEmail(email)
+                    .then(() => {
+                        showMessage('Email de redefinição de senha enviado para ' + email + '. Verifique sua caixa de entrada e spam.', 'success');
+                    })
+                    .catch((error) => {
+                        console.error("Erro ao enviar email de redefinição:", error);
+                        let friendlyMessage = 'Erro ao enviar email de redefinição.';
+                        if (error.code === 'auth/user-not-found') {
+                            friendlyMessage = 'Nenhuma conta encontrada com este email.';
+                        } else if (error.code === 'auth/invalid-email') {
+                            friendlyMessage = 'O formato do email é inválido.';
+                        }
+                        showMessage(friendlyMessage, 'error');
+                    })
+                    .finally(() => {
+                        showLoader(false);
+                    });
+            });
+
+            createAccountLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                // Redirecionar para uma página de criação de conta ou abrir um modal
+                // Para este exemplo simples, vamos apenas simular o fluxo de criação no console
+                // e pedir para o usuário usar o formulário de login para tentar criar (se sua config Firebase permitir)
+                // ou redirecionar para uma página específica.
+                // window.location.href = 'criar-conta.html';
+                showMessage('Para criar uma conta, preencha email e senha e clique em "Entrar". Se a conta não existir, e o sistema permitir, ela poderá ser criada. Ou clique no link específico de "Criar Conta" se disponível.', 'info');
+                // Idealmente, você teria um formulário de criação de conta separado.
+                // Ou, se seu Firebase estiver configurado para criar usuário no primeiro login:
+                const email = emailInput.value.trim();
+                const password = passwordInput.value.trim();
+
+                if (!email || !password) {
+                    showMessage('Preencha email e senha para criar uma conta.', 'error');
+                    return;
+                }
+                if (password.length < 6) {
+                    showMessage('A senha deve ter pelo menos 6 caracteres.', 'error');
+                    return;
+                }
+
+                showLoader(true);
+                auth.createUserWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        const user = userCredential.user;
+                        console.log('Conta criada com sucesso:', user.uid);
+                        showMessage('Conta criada com sucesso! Você será redirecionado.', 'success');
+                        // Aqui você pode adicionar dados iniciais para o usuário no Realtime Database ou Firestore
+                        // Ex: database.ref('usuariosPlataforma/' + user.uid).set({ email: user.email, dataCriacao: firebase.database.ServerValue.TIMESTAMP });
+                        setTimeout(() => {
+                            window.location.href = 'dashboard.html'; // Ou uma página de onboarding/criação de evento
+                        }, 1500);
+                    })
+                    .catch((error) => {
+                        console.error('Erro ao criar conta:', error);
+                        let friendlyMessage = 'Erro ao criar conta.';
+                        if (error.code === 'auth/email-already-in-use') {
+                            friendlyMessage = 'Este email já está em uso. Tente fazer login.';
+                        } else if (error.code === 'auth/invalid-email') {
+                            friendlyMessage = 'O formato do email é inválido.';
+                        } else if (error.code === 'auth/weak-password') {
+                            friendlyMessage = 'A senha é muito fraca. Use pelo menos 6 caracteres.';
+                        }
+                        showMessage(friendlyMessage, 'error');
+                    })
+                    .finally(() => {
+                        showLoader(false);
+                    });
+            });
+
+
+            function showMessage(text, type) {
+                messageArea.textContent = text;
+                messageArea.className = 'message'; // Reset
+                if (text) {
+                    messageArea.classList.add(type); // 'error', 'success', 'info'
+                    messageArea.style.display = 'block';
+                } else {
+                    messageArea.style.display = 'none';
+                }
+            }
+
+            function showLoader(show) {
+                loader.style.display = show ? 'block' : 'none';
+                loginForm.querySelector('.btn-login').disabled = show;
+            }
+        });
+    </script>
+</body>
+</html>
