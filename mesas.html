@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organização de Mesas - Gestor de Formaturas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- <link rel="icon" href="favicon-formatura.ico" type="image/x-icon"> -->
+
+    <style>
+        /* Reset Básico e Estilos Globais (COPIAR DO PAPEIS.HTML OU ANTERIORES) */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Montserrat', sans-serif; background-color: #f0f2f5; color: #333; line-height: 1.6; display: flex; min-height: 100vh; overflow-x: hidden; }
+        .app-container { display: flex; width: 100%; }
+
+        /* --- Sidebar --- (COPIAR DO PAPEIS.HTML) */
+        .sidebar { width: 260px; background-color: #0A2463; color: #e0e0e0; padding: 20px 0; display: flex; flex-direction: column; transition: transform 0.3s ease-in-out; z-index: 1000; position: fixed; left: -260px; height: 100%; overflow-y: auto; }
+        .sidebar.active { transform: translateX(260px); }
+        .sidebar .logo { text-align: center; margin-bottom: 30px; padding: 0 20px; }
+        .sidebar .logo a { color: #FFD700; font-size: 1.8rem; font-weight: 700; text-decoration: none; }
+        .sidebar .logo a i { margin-right: 8px; }
+        .sidebar nav ul { list-style: none; }
+        .sidebar nav ul li a { display: flex; align-items: center; padding: 12px 25px; color: #e0e0e0; text-decoration: none; font-size: 0.95rem; transition: background-color 0.2s ease, color 0.2s ease; border-left: 3px solid transparent; }
+        .sidebar nav ul li a:hover, .sidebar nav ul li a.active { background-color: rgba(255, 215, 0, 0.1); color: #FFD700; border-left-color: #FFD700; }
+        .sidebar nav ul li a .nav-icon { margin-right: 15px; width: 20px; text-align: center; }
+        .sidebar nav ul li a .nav-icon i { font-size: 1.1em; }
+        .sidebar .logout-btn-sidebar { margin-top: auto; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+
+        /* --- Content Wrapper --- (COPIAR DO PAPEIS.HTML) */
+        .content-wrapper { flex-grow: 1; display: flex; flex-direction: column; transition: margin-left 0.3s ease-in-out; margin-left: 0; }
+
+        /* --- Header --- (COPIAR DO PAPEIS.HTML) */
+        .app-header { background-color: #ffffff; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); position: sticky; top: 0; z-index: 900; }
+        .header-left { display: flex; align-items: center; }
+        .mobile-menu-toggle { background: none; border: none; font-size: 1.5rem; color: #0A2463; cursor: pointer; margin-right: 15px; display: none; }
+        .app-header h1 { font-size: 1.6rem; color: #0A2463; font-weight: 600; }
+        .user-info { display: flex; align-items: center; }
+        .user-avatar { width: 40px; height: 40px; background-color: #0A2463; color: #FFD700; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 600; margin-right: 10px; font-size: 0.9rem; }
+        .user-name { color: #333; font-weight: 500; margin-right: 20px; }
+        .logout-link { color: #0A2463; text-decoration: none; font-size: 1.2rem; }
+        .logout-link:hover { color: #dc3545; }
+        
+        /* --- Main Content --- (COPIAR DO PAPEIS.HTML) */
+        .main-app-content { padding: 30px; flex-grow: 1; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .page-header h2 { color: #0A2463; font-size: 1.8rem; }
+        .page-header h2 span { font-weight: 400; font-size: 1.1rem; color: #555; display: block; }
+        .btn-add { background-color: #FFB400; color: #0A2463; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; }
+        .btn-add i { margin-right: 8px; }
+        .btn-add:hover { background-color: #FFD700; }
+        .form-container, .list-container, .section-container { background-color: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        .form-container h3, .section-container h3 { color: #0A2463; margin-bottom: 20px; font-size: 1.5rem; }
+        .form-group, .form-actions, .btn-save, .btn-cancel { /* Mesmo estilo */ }
+        .form-group label { display: block; font-weight: 500; margin-bottom: 5px; font-size: 0.9rem;}
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 1rem; }
+        .form-actions { text-align: right; margin-top: 20px; }
+        .table-responsive, table, th, td, .actions-cell button, .empty-list { /* Mesmo estilo */ }
+        .actions-cell button { background: none; border: none; cursor: pointer; margin-right: 10px; color: #0A2463; font-size: 1.1rem; }
+        .actions-cell button.delete-btn { color: #dc3545; }
+        .actions-cell button:hover { opacity: 0.7; }
+        .empty-list { text-align:center; padding: 20px; color: #777;}
+        
+        /* Estilos Específicos da Página de Mesas */
+        .config-mesas-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .mesas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .mesa-card {
+            background-color: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-left: 5px solid #0A2463;
+            padding: 15px;
+            border-radius: 6px;
+            min-height: 150px; /* Para dar espaço */
+        }
+        .mesa-card h4 {
+            color: #0A2463;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .mesa-card h4 .mesa-actions button { font-size: 0.9rem; padding: 3px 6px;}
+        .mesa-card ul { list-style: none; padding-left: 0; font-size: 0.9rem; }
+        .mesa-card li { padding: 3px 0; border-bottom: 1px dashed #eee; }
+        .mesa-card li:last-child { border-bottom: none; }
+        .mesa-card .lugares-info { font-size: 0.85rem; color: #777; margin-top: 10px; text-align: right; }
+
+        /* Modal para Alocar Convidados */
+        .modal {
+            display: none; position: fixed; z-index: 1002; left: 0; top: 0;
+            width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5);
+            align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background-color: #fff; margin: auto; padding: 25px; border-radius: 8px;
+            width: 90%; max-width: 600px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h3 { color: #0A2463; }
+        .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close-btn:hover, .close-btn:focus { color: black; text-decoration: none; }
+        .convidados-disponiveis-list { max-height: 200px; overflow-y: auto; border: 1px solid #eee; padding: 10px; margin-bottom: 15px;}
+        .convidados-disponiveis-list label { display: block; margin-bottom: 5px; }
+
+        /* Loading Overlay, Overlay Sidebar, Responsividade (COPIAR DO PAPEIS.HTML) */
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.85); display: flex; justify-content: center; align-items: center; z-index: 9999; font-size: 1.5rem; color: #0A2463; }
+        .loader { border: 5px solid #f3f3f3; border-top: 5px solid #0A2463; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 999; display: none; transition: opacity 0.3s ease-in-out; }
+        .sidebar-overlay.active { display: block; opacity: 1; }
+        @media (min-width: 992px) { .sidebar { position: static; transform: translateX(0); height: 100vh; } .content-wrapper { margin-left: 260px; } .mobile-menu-toggle { display: none; } }
+        @media (max-width: 991px) { .mobile-menu-toggle { display: block; } .content-wrapper { width: 100%; } }
+        @media (max-width: 768px) { .app-header { padding: 15px 20px; } .app-header h1 { font-size: 1.3rem; } .main-app-content { padding: 20px; } .user-name { display: none; } }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay" style="display:none;">
+        <div class="loader"></div>  Carregando...
+    </div>
+
+    <div class="app-container">
+        <aside class="sidebar" id="appSidebar">
+            <div class="logo"><a href="dashboard.html"><i class="fas fa-graduation-cap"></i> FormaGest</a></div>
+            <nav>
+                <ul>
+                    <li><a href="dashboard.html" id="navDashboard"><span class="nav-icon"><i class="fas fa-tachometer-alt"></i></span>Dashboard</a></li>
+                    <li><a href="formandos.html" id="navFormandos"><span class="nav-icon"><i class="fas fa-users"></i></span>Formandos</a></li>
+                    <li><a href="financeiro.html" id="navFinanceiro"><span class="nav-icon"><i class="fas fa-wallet"></i></span>Financeiro</a></li>
+                    <li><a href="convites.html" id="navConvites"><span class="nav-icon"><i class="fas fa-envelope-open-text"></i></span>Convites/Check-In</a></li>
+                    <li><a href="papeis.html" id="navPapeis"><span class="nav-icon"><i class="fas fa-user-tag"></i></span>Divisão de Papéis</a></li>
+                    <li><a href="mesas.html" id="navMesas" class="active"><span class="nav-icon"><i class="fas fa-chair"></i></span>Organização de Mesas</a></li>
+                    <li><a href="playlists.html" id="navPlaylists"><span class="nav-icon"><i class="fas fa-music"></i></span>Playlists</a></li>
+                    <li><a href="linha-tempo.html" id="navLinhaTempo"><span class="nav-icon"><i class="fas fa-stream"></i></span>Linha do Tempo</a></li>
+                    <li><a href="documentacao.html" id="navDocumentacao"><span class="nav-icon"><i class="fas fa-file-alt"></i></span>Documentação</a></li>
+                    <li><a href="pos-evento.html" id="navPosEvento"><span class="nav-icon"><i class="fas fa-photo-video"></i></span>Pós-Evento</a></li>
+                    <li class="logout-btn-sidebar"><a href="#" id="logoutBtnSidebar"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span>Sair</a></li>
+                </ul>
+            </nav>
+        </aside>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <div class="content-wrapper" id="contentWrapper">
+            <header class="app-header">
+                <div class="header-left">
+                    <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Abrir menu"><i class="fas fa-bars"></i></button>
+                    <h1 id="pageTitle">Organização de Mesas</h1>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">--</div>
+                    <span class="user-name" id="userName">Carregando...</span>
+                    <a href="#" id="logoutBtnHeader" class="logout-link" title="Sair"><i class="fas fa-sign-out-alt"></i></a>
+                </div>
+            </header>
+
+            <main class="main-app-content">
+                <div class="page-header">
+                    <h2 id="eventoNomeDisplay">Organização de Mesas do Evento <span></span></h2>
+                </div>
+
+                <div class="section-container">
+                    <h3>Configuração Geral das Mesas</h3>
+                    <form id="configMesasForm">
+                        <div class="config-mesas-container">
+                            <div class="form-group">
+                                <label for="totalMesas">Total de Mesas Planejadas:</label>
+                                <input type="number" id="totalMesas" min="1" value="10">
+                            </div>
+                            <div class="form-group">
+                                <label for="lugaresPorMesa">Lugares por Mesa (Padrão):</label>
+                                <input type="number" id="lugaresPorMesa" min="1" value="8">
+                            </div>
+                        </div>
+                        <div class="form-actions" style="text-align: left;">
+                            <button type="submit" class="btn-save">Salvar Configuração</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="section-container">
+                    <div class="page-header" style="margin-bottom:10px;"> <!-- Reutilizando page-header para título e botão -->
+                        <h3>Alocação nas Mesas</h3>
+                        <button id="addMesaBtn" class="btn-add" style="font-size:0.9rem; padding: 8px 15px;"><i class="fas fa-plus"></i> Adicionar Mesa Individual</button>
+                    </div>
+                    <div id="mesasGrid" class="mesas-grid">
+                        <!-- Cards das mesas serão inseridos aqui -->
+                    </div>
+                    <p id="emptyMesasMessage" class="empty-list" style="display:none;">Nenhuma mesa configurada ou alocada ainda.</p>
+                </div>
+
+                <!-- Modal para Alocar Convidados -->
+                <div id="alocarConvidadosModal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3 id="modalMesaTitle">Alocar Convidados na Mesa X</h3>
+                            <span class="close-btn" id="closeAlocarModal">×</span>
+                        </div>
+                        <form id="alocarConvidadosForm">
+                            <input type="hidden" id="modalMesaId">
+                            <p>Selecione os convidados para esta mesa (máx. <span id="modalMaxLugares"></span> lugares):</p>
+                            <div id="convidadosDisponiveisList" class="convidados-disponiveis-list">
+                                <!-- Checkboxes dos convidados disponíveis -->
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn-save">Salvar Alocação</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAQ3txJQ09muNi5xaBhOPwFztT1fCR1qmE",
+            authDomain: "formagest-a7591.firebaseapp.com",
+            databaseURL: "https://formagest-a7591-default-rtdb.firebaseio.com",
+            projectId: "formagest-a7591",
+            storageBucket: "formagest-a7591.firebasestorage.app",
+            messagingSenderId: "27539451532",
+            appId: "1:27539451532:web:6bea92d2e1df99dac115a9",
+            measurementId: "G-G3NDPYSQ9Z"
+        };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const auth = firebase.auth();
+        const database = firebase.database();
+    </script>
+
+    <script>
+        // --- INÍCIO JS COMUM (COPIAR DO PAPEIS.HTML OU ANTERIORES) ---
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const userAvatar = document.getElementById('userAvatar');
+        const userName = document.getElementById('userName');
+        const logoutBtnSidebar = document.getElementById('logoutBtnSidebar');
+        const logoutBtnHeader = document.getElementById('logoutBtnHeader');
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const sidebar = document.getElementById('appSidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const contentWrapper = document.getElementById('contentWrapper');
+        const pageTitle = document.getElementById('pageTitle');
+
+        let globalCurrentUserId = null;
+        let globalSelectedEventoId = null;
+        let globalSelectedEventoNome = null;
+
+        function showLoading(show) {
+            loadingOverlay.style.display = show ? 'flex' : 'none';
+            const formButtons = document.querySelectorAll('form button');
+            formButtons.forEach(btn => btn.disabled = show);
+        }
+        function handleLogout() { /* ... (COPIE) ... */
+            showLoading(true); auth.signOut().then(() => { localStorage.removeItem('selectedEventoId'); localStorage.removeItem('selectedEventoNome'); window.location.href = 'index.html'; }).catch(error => { console.error("Erro logout:", error); alert("Erro sair."); showLoading(false); });
+        }
+        logoutBtnSidebar.addEventListener('click', handleLogout); logoutBtnHeader.addEventListener('click', handleLogout);
+        mobileMenuToggle.addEventListener('click', () => { /* ... (COPIE) ... */
+            sidebar.classList.toggle('active'); sidebarOverlay.classList.toggle('active'); const icon = mobileMenuToggle.querySelector('i'); icon.classList.toggle('fa-bars'); icon.classList.toggle('fa-times');
+        });
+        sidebarOverlay.addEventListener('click', () => { /* ... (COPIE) ... */
+            sidebar.classList.remove('active'); sidebarOverlay.classList.remove('active'); mobileMenuToggle.querySelector('i').classList.remove('fa-times'); mobileMenuToggle.querySelector('i').classList.add('fa-bars');
+        });
+        function updateUserInfo(user) { /* ... (COPIE) ... */
+            if (user) { userName.textContent = user.displayName || user.email; const initials = (user.displayName ? user.displayName.charAt(0) : user.email.charAt(0)).toUpperCase(); userAvatar.textContent = initials; } else { userName.textContent = 'Usuário'; userAvatar.textContent = 'U'; }
+        }
+        function adjustLayout() { /* ... (COPIE) ... */
+            if (window.innerWidth >= 992) { contentWrapper.style.marginLeft = '260px'; sidebar.classList.remove('active'); sidebarOverlay.classList.remove('active'); } else { contentWrapper.style.marginLeft = '0'; }
+        }
+        window.addEventListener('resize', adjustLayout); adjustLayout();
+
+        auth.onAuthStateChanged(user => {
+            showLoading(true);
+            if (user) {
+                globalCurrentUserId = user.uid; updateUserInfo(user);
+                globalSelectedEventoId = localStorage.getItem('selectedEventoId');
+                globalSelectedEventoNome = localStorage.getItem('selectedEventoNome');
+                if (!globalSelectedEventoId) { alert("Nenhum evento selecionado."); window.location.href = 'dashboard.html'; return; }
+                document.querySelectorAll('#appSidebar nav a[id^="nav"]').forEach(link => { if (link.href.includes('.html') && !link.href.includes('dashboard.html')) { link.href = `${link.href.split('?')[0]}?eventoId=${globalSelectedEventoId}`; } });
+                if (typeof loadPageData === "function") { loadPageData(globalCurrentUserId, globalSelectedEventoId, globalSelectedEventoNome); } else { showLoading(false); }
+            } else { localStorage.removeItem('selectedEventoId'); localStorage.removeItem('selectedEventoNome'); window.location.href = 'index.html'; }
+        });
+        // --- FIM JS COMUM ---
+
+        // JS Específico da Página de Mesas
+        const eventoNomeDisplaySpan = document.querySelector('#eventoNomeDisplay span');
+        const configMesasForm = document.getElementById('configMesasForm');
+        const totalMesasInput = document.getElementById('totalMesas');
+        const lugaresPorMesaInput = document.getElementById('lugaresPorMesa');
+        const mesasGrid = document.getElementById('mesasGrid');
+        const emptyMesasMessage = document.getElementById('emptyMesasMessage');
+        const addMesaBtn = document.getElementById('addMesaBtn');
+
+        const alocarConvidadosModal = document.getElementById('alocarConvidadosModal');
+        const modalMesaTitle = document.getElementById('modalMesaTitle');
+        const modalMesaIdInput = document.getElementById('modalMesaId');
+        const modalMaxLugaresSpan = document.getElementById('modalMaxLugares');
+        const convidadosDisponiveisListDiv = document.getElementById('convidadosDisponiveisList');
+        const alocarConvidadosForm = document.getElementById('alocarConvidadosForm');
+        const closeAlocarModalBtn = document.getElementById('closeAlocarModal');
+
+        let configGeralMesas = { totalMesasDisponiveis: 10, lugaresPorMesa: 8 }; // Padrões
+        let convidadosDoEvento = []; // Cache dos convites (nome, id)
+
+        function loadPageData(userId, eventoId, eventoNome) {
+            if (!eventoId) { showLoading(false); return; }
+            eventoNomeDisplaySpan.textContent = eventoNome || "Evento Selecionado";
+            document.getElementById('navMesas').classList.add('active');
+            
+            loadConfiguracaoMesas();
+            loadConvidadosDoEvento(); // Carrega para o modal
+            loadAlocacoesMesas();
+            // showLoading(false) é chamado dentro das funções de load
+        }
+
+        function loadConfiguracaoMesas() {
+            if (!globalSelectedEventoId) return;
+            showLoading(true);
+            const configRef = database.ref(`eventos/${globalSelectedEventoId}/mesas/configuracao`);
+            configRef.once('value').then(snapshot => {
+                if (snapshot.exists()) {
+                    configGeralMesas = snapshot.val();
+                    totalMesasInput.value = configGeralMesas.totalMesasDisponiveis || 10;
+                    lugaresPorMesaInput.value = configGeralMesas.lugaresPorMesa || 8;
+                }
+                showLoading(false);
+            }).catch(() => showLoading(false));
+        }
+
+        configMesasForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (!globalSelectedEventoId) return;
+            const newConfig = {
+                totalMesasDisponiveis: parseInt(totalMesasInput.value) || 10,
+                lugaresPorMesa: parseInt(lugaresPorMesaInput.value) || 8
+            };
+            showLoading(true);
+            database.ref(`eventos/${globalSelectedEventoId}/mesas/configuracao`).set(newConfig)
+                .then(() => {
+                    configGeralMesas = newConfig; // Atualiza cache local
+                    alert("Configuração salva!");
+                    // Opcional: Redesenhar mesas se a lógica depender disso
+                })
+                .catch(err => alert("Erro ao salvar: " + err.message))
+                .finally(() => showLoading(false));
+        });
+
+        async function loadConvidadosDoEvento() {
+            if (!globalSelectedEventoId) return;
+            const convitesRef = database.ref(`eventos/${globalSelectedEventoId}/convites`);
+            const snapshot = await convitesRef.once('value');
+            convidadosDoEvento = [];
+            if (snapshot.exists()) {
+                snapshot.forEach(child => {
+                    convidadosDoEvento.push({ id: child.key, nome: child.val().nomeNoConvite });
+                });
+            }
+        }
+
+        addMesaBtn.addEventListener('click', () => {
+            if (!globalSelectedEventoId) return;
+            // Adiciona uma nova mesa com um ID/número sequencial ou permite nomear
+            const nomeNovaMesa = prompt("Nome/Número da nova mesa (ex: Mesa 1, Mesa dos Noivos):");
+            if (nomeNovaMesa) {
+                const mesaKey = nomeNovaMesa.replace(/\s+/g, '_').toLowerCase(); // Chave simples
+                showLoading(true);
+                // Cria a estrutura da mesa se não existir, sem alocações ainda
+                database.ref(`eventos/${globalSelectedEventoId}/mesas/alocacoes/${mesaKey}`).set({})
+                .then(() => {
+                    // loadAlocacoesMesas(); // O 'on' já fará isso
+                })
+                .catch(err => alert("Erro ao adicionar mesa: " + err.message))
+                .finally(() => showLoading(false));
+            }
+        });
+
+        function loadAlocacoesMesas() {
+            if (!globalSelectedEventoId) return;
+            showLoading(true);
+            const alocacoesRef = database.ref(`eventos/${globalSelectedEventoId}/mesas/alocacoes`);
+            alocacoesRef.on('value', snapshot => {
+                mesasGrid.innerHTML = '';
+                if (snapshot.exists()) {
+                    emptyMesasMessage.style.display = 'none';
+                    snapshot.forEach(mesaSnapshot => {
+                        const mesaId = mesaSnapshot.key; // Ex: "mesa_1", "mesa_noivos"
+                        const alocadosNaMesa = mesaSnapshot.val() || {}; // Objeto com conviteId: true
+                        const nomesAlocados = [];
+                        let countAlocados = 0;
+                        for (const convidadoId in alocadosNaMesa) {
+                            countAlocados++;
+                            const convidadoInfo = convidadosDoEvento.find(c => c.id === convidadoId);
+                            nomesAlocados.push(convidadoInfo ? convidadoInfo.nome : `ID:${convidadoId.substring(0,5)}...`);
+                        }
+
+                        const card = document.createElement('div');
+                        card.className = 'mesa-card';
+                        card.innerHTML = `
+                            <h4>
+                                ${mesaId.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                <span class="mesa-actions">
+                                    <button onclick="openAlocarModal('${mesaId}')" title="Alocar/Editar Convidados"><i class="fas fa-users-cog"></i></button>
+                                    <button onclick="deleteMesa('${mesaId}')" class="delete-btn" title="Excluir Mesa"><i class="fas fa-trash"></i></button>
+                                </span>
+                            </h4>
+                            <ul>${nomesAlocados.map(nome => `<li>${nome}</li>`).join('') || '<li><i>Mesa vazia</i></li>'}</ul>
+                            <div class="lugares-info">${countAlocados} / ${configGeralMesas.lugaresPorMesa} lugares</div>
+                        `;
+                        mesasGrid.appendChild(card);
+                    });
+                } else {
+                    emptyMesasMessage.style.display = 'block';
+                }
+                showLoading(false);
+            }, err => { console.error(err); showLoading(false); });
+        }
+        
+        function deleteMesa(mesaId) {
+            if (!globalSelectedEventoId || !confirm(`Tem certeza que deseja excluir a "${mesaId}" e todas as suas alocações?`)) return;
+            showLoading(true);
+            database.ref(`eventos/${globalSelectedEventoId}/mesas/alocacoes/${mesaId}`).remove()
+            .catch(err => alert("Erro ao excluir mesa: " + err.message))
+            .finally(() => showLoading(false)); // O 'on' atualiza a UI
+        }
+
+
+        closeAlocarModalBtn.onclick = function() {
+            alocarConvidadosModal.style.display = "none";
+        }
+        window.onclick = function(event) { // Fecha se clicar fora
+            if (event.target == alocarConvidadosModal) {
+                alocarConvidadosModal.style.display = "none";
+            }
+        }
+
+        async function openAlocarModal(mesaId) {
+            modalMesaIdInput.value = mesaId;
+            modalMesaTitle.textContent = `Alocar Convidados na ${mesaId.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}`;
+            modalMaxLugaresSpan.textContent = configGeralMesas.lugaresPorMesa;
+            
+            // Recarregar convidados caso tenham mudado (ou usar cache mais robusto)
+            if (convidadosDoEvento.length === 0) await loadConvidadosDoEvento(); 
+
+            convidadosDisponiveisListDiv.innerHTML = '';
+            const alocadosNestaMesaSnapshot = await database.ref(`eventos/${globalSelectedEventoId}/mesas/alocacoes/${mesaId}`).once('value');
+            const alocadosNestaMesa = alocadosNestaMesaSnapshot.val() || {};
+
+            // Idealmente, também verificar convidados já alocados em OUTRAS mesas para não duplicar.
+            // Para simplificar, mostramos todos. A lógica de validação no submit seria mais complexa.
+
+            convidadosDoEvento.forEach(convidado => {
+                const label = document.createElement('label');
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.value = convidado.id;
+                checkbox.name = 'convidadoParaMesa';
+                checkbox.checked = !!alocadosNestaMesa[convidado.id]; // Marca se já está alocado nesta mesa
+
+                label.appendChild(checkbox);
+                label.appendChild(document.createTextNode(` ${convidado.nome}`));
+                convidadosDisponiveisListDiv.appendChild(label);
+            });
+
+            alocarConvidadosModal.style.display = "flex";
+        }
+
+        alocarConvidadosForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const mesaId = modalMesaIdInput.value;
+            if (!globalSelectedEventoId || !mesaId) return;
+
+            const checkboxes = alocarConvidadosForm.querySelectorAll('input[name="convidadoParaMesa"]:checked');
+            if (checkboxes.length > configGeralMesas.lugaresPorMesa) {
+                alert(`Limite de ${configGeralMesas.lugaresPorMesa} lugares por mesa excedido!`);
+                return;
+            }
+
+            const novaAlocacao = {};
+            checkboxes.forEach(cb => {
+                novaAlocacao[cb.value] = true; // { conviteId1: true, conviteId2: true }
+            });
+
+            showLoading(true);
+            database.ref(`eventos/${globalSelectedEventoId}/mesas/alocacoes/${mesaId}`).set(novaAlocacao)
+                .then(() => {
+                    alocarConvidadosModal.style.display = "none";
+                    // loadAlocacoesMesas(); // O 'on' já atualiza
+                })
+                .catch(err => alert("Erro ao salvar alocação: " + err.message))
+                .finally(() => showLoading(false));
+        });
+
+    </script>
+</body>
+</html>

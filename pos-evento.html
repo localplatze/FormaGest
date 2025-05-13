@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pós-Evento (Mídias) - Gestor de Formaturas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- <link rel="icon" href="favicon-formatura.ico" type="image/x-icon"> -->
+
+    <style>
+        /* Reset Básico e Estilos Globais (COPIAR DO PAPEIS.HTML OU ANTERIORES) */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Montserrat', sans-serif; background-color: #f0f2f5; color: #333; line-height: 1.6; display: flex; min-height: 100vh; overflow-x: hidden; }
+        .app-container { display: flex; width: 100%; }
+
+        /* --- Sidebar --- (COPIAR DO PAPEIS.HTML) */
+        .sidebar { width: 260px; background-color: #0A2463; color: #e0e0e0; padding: 20px 0; display: flex; flex-direction: column; transition: transform 0.3s ease-in-out; z-index: 1000; position: fixed; left: -260px; height: 100%; overflow-y: auto; }
+        .sidebar.active { transform: translateX(260px); }
+        .sidebar .logo { text-align: center; margin-bottom: 30px; padding: 0 20px; }
+        .sidebar .logo a { color: #FFD700; font-size: 1.8rem; font-weight: 700; text-decoration: none; }
+        .sidebar .logo a i { margin-right: 8px; }
+        .sidebar nav ul { list-style: none; }
+        .sidebar nav ul li a { display: flex; align-items: center; padding: 12px 25px; color: #e0e0e0; text-decoration: none; font-size: 0.95rem; transition: background-color 0.2s ease, color 0.2s ease; border-left: 3px solid transparent; }
+        .sidebar nav ul li a:hover, .sidebar nav ul li a.active { background-color: rgba(255, 215, 0, 0.1); color: #FFD700; border-left-color: #FFD700; }
+        .sidebar nav ul li a .nav-icon { margin-right: 15px; width: 20px; text-align: center; }
+        .sidebar nav ul li a .nav-icon i { font-size: 1.1em; }
+        .sidebar .logout-btn-sidebar { margin-top: auto; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+
+        /* --- Content Wrapper --- (COPIAR DO PAPEIS.HTML) */
+        .content-wrapper { flex-grow: 1; display: flex; flex-direction: column; transition: margin-left 0.3s ease-in-out; margin-left: 0; }
+
+        /* --- Header --- (COPIAR DO PAPEIS.HTML) */
+        .app-header { background-color: #ffffff; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); position: sticky; top: 0; z-index: 900; }
+        .header-left { display: flex; align-items: center; }
+        .mobile-menu-toggle { background: none; border: none; font-size: 1.5rem; color: #0A2463; cursor: pointer; margin-right: 15px; display: none; }
+        .app-header h1 { font-size: 1.6rem; color: #0A2463; font-weight: 600; }
+        .user-info { display: flex; align-items: center; }
+        .user-avatar { width: 40px; height: 40px; background-color: #0A2463; color: #FFD700; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 600; margin-right: 10px; font-size: 0.9rem; }
+        .user-name { color: #333; font-weight: 500; margin-right: 20px; }
+        .logout-link { color: #0A2463; text-decoration: none; font-size: 1.2rem; }
+        .logout-link:hover { color: #dc3545; }
+        
+        /* --- Main Content --- (COPIAR DO PAPEIS.HTML) */
+        .main-app-content { padding: 30px; flex-grow: 1; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .page-header h2 { color: #0A2463; font-size: 1.8rem; }
+        .page-header h2 span { font-weight: 400; font-size: 1.1rem; color: #555; display: block; }
+        .form-container, .list-container { background-color: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        .form-container h3, .list-container h3 { color: #0A2463; margin-bottom: 20px; font-size: 1.5rem; }
+        .form-group, .form-actions, .btn-save, .btn-cancel { /* Mesmo estilo */ }
+        .form-group label { display: block; font-weight: 500; margin-bottom: 5px; font-size: 0.9rem;}
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 1rem; }
+        .form-group textarea { min-height: 80px; resize: vertical; }
+        .form-actions { text-align: right; margin-top: 20px; }
+        .empty-list { text-align:center; padding: 20px; color: #777;}
+        
+        /* Estilos Específicos da Página Pós-Evento (semelhante a Documentação) */
+        .media-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .media-item:last-child { border-bottom: none; }
+        .media-info { display: flex; align-items: center; }
+        .media-info i { font-size: 1.5rem; color: #0A2463; margin-right: 15px; }
+        .media-info .name { font-weight: 500; } /* Usaremos descrição aqui */
+        .media-info .type { font-size: 0.85rem; color: #777; display: block; }
+        .media-actions a, .media-actions button {
+            margin-left: 10px;
+            text-decoration: none;
+            color: #0A2463;
+            padding: 5px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        .media-actions a:hover { background-color: #f0f0f0; }
+        .media-actions button { background: none; border: none; cursor: pointer; color: #dc3545;}
+        .media-actions button:hover { color: #a71d2a; }
+
+        progress { width: 100%; margin-top: 5px; display: none; }
+
+        /* Loading Overlay, Overlay Sidebar, Responsividade (COPIAR DO PAPEIS.HTML) */
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.85); display: flex; justify-content: center; align-items: center; z-index: 9999; font-size: 1.5rem; color: #0A2463; }
+        .loader { border: 5px solid #f3f3f3; border-top: 5px solid #0A2463; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 999; display: none; transition: opacity 0.3s ease-in-out; }
+        .sidebar-overlay.active { display: block; opacity: 1; }
+        @media (min-width: 992px) { .sidebar { position: static; transform: translateX(0); height: 100vh; } .content-wrapper { margin-left: 260px; } .mobile-menu-toggle { display: none; } }
+        @media (max-width: 991px) { .mobile-menu-toggle { display: block; } .content-wrapper { width: 100%; } }
+        @media (max-width: 768px) { .app-header { padding: 15px 20px; } .app-header h1 { font-size: 1.3rem; } .main-app-content { padding: 20px; } .user-name { display: none; } .media-item { flex-direction: column; align-items: flex-start;} .media-actions { margin-top: 10px; width: 100%; text-align: right;} }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay" style="display:none;">
+        <div class="loader"></div>  Carregando...
+    </div>
+
+    <div class="app-container">
+        <aside class="sidebar" id="appSidebar">
+            <div class="logo"><a href="dashboard.html"><i class="fas fa-graduation-cap"></i> FormaGest</a></div>
+            <nav>
+                <ul>
+                    <li><a href="dashboard.html" id="navDashboard"><span class="nav-icon"><i class="fas fa-tachometer-alt"></i></span>Dashboard</a></li>
+                    <li><a href="formandos.html" id="navFormandos"><span class="nav-icon"><i class="fas fa-users"></i></span>Formandos</a></li>
+                    <li><a href="financeiro.html" id="navFinanceiro"><span class="nav-icon"><i class="fas fa-wallet"></i></span>Financeiro</a></li>
+                    <li><a href="convites.html" id="navConvites"><span class="nav-icon"><i class="fas fa-envelope-open-text"></i></span>Convites/Check-In</a></li>
+                    <li><a href="papeis.html" id="navPapeis"><span class="nav-icon"><i class="fas fa-user-tag"></i></span>Divisão de Papéis</a></li>
+                    <li><a href="mesas.html" id="navMesas"><span class="nav-icon"><i class="fas fa-chair"></i></span>Organização de Mesas</a></li>
+                    <li><a href="playlists.html" id="navPlaylists"><span class="nav-icon"><i class="fas fa-music"></i></span>Playlists</a></li>
+                    <li><a href="linha-tempo.html" id="navLinhaTempo"><span class="nav-icon"><i class="fas fa-stream"></i></span>Linha do Tempo</a></li>
+                    <li><a href="documentacao.html" id="navDocumentacao"><span class="nav-icon"><i class="fas fa-file-alt"></i></span>Documentação</a></li>
+                    <li><a href="pos-evento.html" id="navPosEvento" class="active"><span class="nav-icon"><i class="fas fa-photo-video"></i></span>Pós-Evento</a></li>
+                    <li class="logout-btn-sidebar"><a href="#" id="logoutBtnSidebar"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span>Sair</a></li>
+                </ul>
+            </nav>
+        </aside>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <div class="content-wrapper" id="contentWrapper">
+            <header class="app-header">
+                <div class="header-left">
+                    <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Abrir menu"><i class="fas fa-bars"></i></button>
+                    <h1 id="pageTitle">Pós-Evento (Mídias)</h1>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">--</div>
+                    <span class="user-name" id="userName">Carregando...</span>
+                    <a href="#" id="logoutBtnHeader" class="logout-link" title="Sair"><i class="fas fa-sign-out-alt"></i></a>
+                </div>
+            </header>
+
+            <main class="main-app-content">
+                <div class="page-header">
+                    <h2 id="eventoNomeDisplay">Mídias do Evento <span></span></h2>
+                </div>
+
+                <div class="form-container">
+                    <h3>Enviar Nova Mídia</h3>
+                    <form id="uploadMediaForm">
+                        <div class="form-group">
+                            <label for="mediaFile">Selecione o Arquivo (Foto, Vídeo, ZIP):</label>
+                            <input type="file" id="mediaFile" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="mediaDescricao">Descrição da Mídia:</label>
+                            <input type="text" id="mediaDescricao" placeholder="Ex: Fotos Cerimônia, Vídeo Festa Completo, Álbum Formandos" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="mediaTipo">Tipo de Mídia:</label>
+                            <select id="mediaTipo">
+                                <option value="fotos">Fotos (álbum, .zip, etc.)</option>
+                                <option value="videos">Vídeos</option>
+                                <option value="outros">Outros Arquivos</option>
+                            </select>
+                        </div>
+                        <div class="form-actions" style="text-align: left;">
+                            <button type="submit" class="btn-save"><i class="fas fa-upload"></i> Enviar Mídia</button>
+                        </div>
+                        <progress id="uploadMediaProgress" value="0" max="100"></progress>
+                    </form>
+                </div>
+
+                <div id="mediaListContainer" class="list-container">
+                    <h3>Mídias Salvas</h3>
+                    <!-- Itens das mídias serão inseridos aqui -->
+                </div>
+                <p id="emptyMediaMessage" class="empty-list" style="display:none;">Nenhuma mídia enviada ainda.</p>
+
+            </main>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script> <!-- Firebase Storage SDK -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAQ3txJQ09muNi5xaBhOPwFztT1fCR1qmE",
+            authDomain: "formagest-a7591.firebaseapp.com",
+            databaseURL: "https://formagest-a7591-default-rtdb.firebaseio.com",
+            projectId: "formagest-a7591",
+            storageBucket: "formagest-a7591.firebasestorage.app",
+            messagingSenderId: "27539451532",
+            appId: "1:27539451532:web:6bea92d2e1df99dac115a9",
+            measurementId: "G-G3NDPYSQ9Z"
+        };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const auth = firebase.auth();
+        const database = firebase.database();
+        const storage = firebase.storage(); // Inicializa o Storage
+    </script>
+
+    <script>
+        // --- INÍCIO JS COMUM (COPIAR DO PAPEIS.HTML OU ANTERIORES) ---
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const userAvatar = document.getElementById('userAvatar');
+        const userName = document.getElementById('userName');
+        const logoutBtnSidebar = document.getElementById('logoutBtnSidebar');
+        const logoutBtnHeader = document.getElementById('logoutBtnHeader');
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const sidebar = document.getElementById('appSidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const contentWrapper = document.getElementById('contentWrapper');
+        const pageTitle = document.getElementById('pageTitle');
+
+        let globalCurrentUserId = null;
+        let globalSelectedEventoId = null;
+        let globalSelectedEventoNome = null;
+
+        function showLoading(show) {
+            loadingOverlay.style.display = show ? 'flex' : 'none';
+            const formButtons = document.querySelectorAll('form button');
+            formButtons.forEach(btn => btn.disabled = show);
+        }
+        function handleLogout() { /* ... (COPIE) ... */
+            showLoading(true); auth.signOut().then(() => { localStorage.removeItem('selectedEventoId'); localStorage.removeItem('selectedEventoNome'); window.location.href = 'index.html'; }).catch(error => { console.error("Erro logout:", error); alert("Erro sair."); showLoading(false); });
+        }
+        logoutBtnSidebar.addEventListener('click', handleLogout); logoutBtnHeader.addEventListener('click', handleLogout);
+        mobileMenuToggle.addEventListener('click', () => { /* ... (COPIE) ... */
+            sidebar.classList.toggle('active'); sidebarOverlay.classList.toggle('active'); const icon = mobileMenuToggle.querySelector('i'); icon.classList.toggle('fa-bars'); icon.classList.toggle('fa-times');
+        });
+        sidebarOverlay.addEventListener('click', () => { /* ... (COPIE) ... */
+            sidebar.classList.remove('active'); sidebarOverlay.classList.remove('active'); mobileMenuToggle.querySelector('i').classList.remove('fa-times'); mobileMenuToggle.querySelector('i').classList.add('fa-bars');
+        });
+        function updateUserInfo(user) { /* ... (COPIE) ... */
+            if (user) { userName.textContent = user.displayName || user.email; const initials = (user.displayName ? user.displayName.charAt(0) : user.email.charAt(0)).toUpperCase(); userAvatar.textContent = initials; } else { userName.textContent = 'Usuário'; userAvatar.textContent = 'U'; }
+        }
+        function adjustLayout() { /* ... (COPIE) ... */
+            if (window.innerWidth >= 992) { contentWrapper.style.marginLeft = '260px'; sidebar.classList.remove('active'); sidebarOverlay.classList.remove('active'); } else { contentWrapper.style.marginLeft = '0'; }
+        }
+        window.addEventListener('resize', adjustLayout); adjustLayout();
+
+        auth.onAuthStateChanged(user => {
+            showLoading(true);
+            if (user) {
+                globalCurrentUserId = user.uid; updateUserInfo(user);
+                globalSelectedEventoId = localStorage.getItem('selectedEventoId');
+                globalSelectedEventoNome = localStorage.getItem('selectedEventoNome');
+                if (!globalSelectedEventoId) { alert("Nenhum evento selecionado."); window.location.href = 'dashboard.html'; return; }
+                document.querySelectorAll('#appSidebar nav a[id^="nav"]').forEach(link => { if (link.href.includes('.html') && !link.href.includes('dashboard.html')) { link.href = `${link.href.split('?')[0]}?eventoId=${globalSelectedEventoId}`; } });
+                if (typeof loadPageData === "function") { loadPageData(globalCurrentUserId, globalSelectedEventoId, globalSelectedEventoNome); } else { showLoading(false); }
+            } else { localStorage.removeItem('selectedEventoId'); localStorage.removeItem('selectedEventoNome'); window.location.href = 'index.html'; }
+        });
+        // --- FIM JS COMUM ---
+
+        // JS Específico da Página Pós-Evento
+        const eventoNomeDisplaySpan = document.querySelector('#eventoNomeDisplay span');
+        const uploadMediaForm = document.getElementById('uploadMediaForm');
+        const mediaFileInput = document.getElementById('mediaFile');
+        const mediaDescricaoInput = document.getElementById('mediaDescricao');
+        const mediaTipoSelect = document.getElementById('mediaTipo');
+        const uploadMediaProgress = document.getElementById('uploadMediaProgress');
+        const mediaListContainer = document.getElementById('mediaListContainer');
+        const emptyMediaMessage = document.getElementById('emptyMediaMessage');
+
+        function loadPageData(userId, eventoId, eventoNome) {
+            if (!eventoId) { showLoading(false); return; }
+            eventoNomeDisplaySpan.textContent = eventoNome || "Evento Selecionado";
+            document.getElementById('navPosEvento').classList.add('active');
+            loadMedias();
+        }
+        
+        uploadMediaForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (!globalSelectedEventoId || !globalCurrentUserId) return;
+
+            const file = mediaFileInput.files[0];
+            const descricao = mediaDescricaoInput.value.trim();
+            const tipo = mediaTipoSelect.value;
+
+            if (!file) { alert("Por favor, selecione um arquivo de mídia."); return; }
+            if (!descricao) { alert("Por favor, forneça uma descrição para a mídia."); return; }
+
+            showLoading(true);
+            uploadMediaProgress.style.display = 'block';
+            uploadMediaProgress.value = 0;
+
+            // Usar um nome de arquivo que inclua timestamp para evitar colisões
+            const storagePath = `eventos/${globalSelectedEventoId}/midiasPosEvento/${Date.now()}_${file.name}`;
+            const storageRef = storage.ref(storagePath);
+            const uploadTask = storageRef.put(file);
+
+            uploadTask.on('state_changed', 
+                (snapshot) => { // Progresso
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    uploadMediaProgress.value = progress;
+                },
+                (error) => { // Erro
+                    console.error("Erro no upload da mídia:", error);
+                    alert("Erro ao enviar mídia: " + error.message);
+                    showLoading(false);
+                    uploadMediaProgress.style.display = 'none';
+                },
+                () => { // Sucesso
+                    uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                        const mediaData = {
+                            nomeArquivo: file.name, // Salva o nome original para referência
+                            descricao: descricao,
+                            tipo: tipo,
+                            urlStorage: downloadURL,
+                            pathStorage: storagePath,
+                            dataUpload: firebase.database.ServerValue.TIMESTAMP,
+                            uploaderId: globalCurrentUserId
+                        };
+                        database.ref(`eventos/${globalSelectedEventoId}/midiasPosEvento`).push(mediaData)
+                            .then(() => {
+                                alert("Mídia enviada com sucesso!");
+                                uploadMediaForm.reset();
+                            })
+                            .catch(dbError => alert("Erro ao salvar metadados da mídia: " + dbError.message))
+                            .finally(() => {
+                                showLoading(false);
+                                uploadMediaProgress.style.display = 'none';
+                            });
+                    });
+                }
+            );
+        });
+
+        function loadMedias() {
+            if (!globalSelectedEventoId) return;
+            showLoading(true);
+            const mediasRef = database.ref(`eventos/${globalSelectedEventoId}/midiasPosEvento`).orderByChild('dataUpload');
+            mediasRef.on('value', snapshot => {
+                const h3 = mediaListContainer.querySelector('h3');
+                mediaListContainer.innerHTML = ''; 
+                if (h3) mediaListContainer.appendChild(h3);
+
+                if (snapshot.exists()) {
+                    emptyMediaMessage.style.display = 'none';
+                    snapshot.forEach(childSnapshot => {
+                        const media = childSnapshot.val();
+                        const mediaKey = childSnapshot.key;
+                        renderMediaItem(mediaKey, media);
+                    });
+                } else {
+                    emptyMediaMessage.style.display = 'block';
+                }
+                showLoading(false);
+            }, err => { console.error(err); showLoading(false); });
+        }
+        
+        function getMediaIconClass(tipoMedia, fileName) {
+            if (tipoMedia === 'fotos') return 'fa-file-image';
+            if (tipoMedia === 'videos') return 'fa-file-video';
+            // Para 'outros', tentar pelo nome do arquivo
+            const extension = fileName.slice(fileName.lastIndexOf(".") + 1).toLowerCase();
+            switch (extension) {
+                case 'pdf': return 'fa-file-pdf';
+                case 'zip': case 'rar': return 'fa-file-archive';
+                default: return 'fa-file';
+            }
+        }
+
+        function renderMediaItem(mediaKey, mediaData) {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'media-item';
+            itemDiv.id = `media-${mediaKey}`;
+            
+            const iconClass = getMediaIconClass(mediaData.tipo, mediaData.nomeArquivo || '');
+
+            itemDiv.innerHTML = `
+                <div class="media-info">
+                    <i class="fas ${iconClass}"></i>
+                    <div>
+                        <span class="name">${mediaData.descricao}</span>
+                        <span class="type">Tipo: ${mediaData.tipo} | Arquivo: ${mediaData.nomeArquivo || 'N/A'} | Enviado em: ${new Date(mediaData.dataUpload).toLocaleDateString('pt-BR')}</span>
+                    </div>
+                </div>
+                <div class="media-actions">
+                    <a href="${mediaData.urlStorage}" target="_blank" title="Baixar Mídia"><i class="fas fa-download"></i> Baixar</a>
+                    <button onclick="deleteMedia('${mediaKey}', '${mediaData.pathStorage}')" title="Excluir Mídia"><i class="fas fa-trash-alt"></i> Excluir</button>
+                </div>
+            `;
+            mediaListContainer.appendChild(itemDiv);
+        }
+        
+        function deleteMedia(mediaKey, storagePath) {
+            if (!globalSelectedEventoId || !confirm("Tem certeza que deseja excluir esta mídia? Esta ação é irreversível.")) return;
+            
+            showLoading(true);
+            storage.ref(storagePath).delete()
+                .then(() => {
+                    return database.ref(`eventos/${globalSelectedEventoId}/midiasPosEvento/${mediaKey}`).remove();
+                })
+                .then(() => {
+                    alert("Mídia excluída com sucesso.");
+                })
+                .catch(err => {
+                    console.error("Erro ao excluir mídia:", err);
+                    alert("Erro ao excluir mídia: " + err.message);
+                })
+                .finally(() => showLoading(false));
+        }
+
+    </script>
+</body>
+</html>

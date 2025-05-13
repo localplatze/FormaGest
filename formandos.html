@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formandos - Gestor de Formaturas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- <link rel="icon" href="favicon-formatura.ico" type="image/x-icon"> -->
+
+    <style>
+        /* Reset Básico e Estilos Globais */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            width: 100%;
+        }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            width: 260px;
+            background-color: #0A2463;
+            color: #e0e0e0;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease-in-out;
+            z-index: 1000;
+            position: fixed;
+            left: -260px;
+            height: 100%;
+            overflow-y: auto;
+        }
+        .sidebar.active {
+            transform: translateX(260px);
+        }
+        .sidebar .logo {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 0 20px;
+        }
+        .sidebar .logo a {
+            color: #FFD700;
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .sidebar .logo a i { margin-right: 8px; }
+        .sidebar nav ul { list-style: none; }
+        .sidebar nav ul li a {
+            display: flex;
+            align-items: center;
+            padding: 12px 25px;
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+        .sidebar nav ul li a:hover,
+        .sidebar nav ul li a.active {
+            background-color: rgba(255, 215, 0, 0.1);
+            color: #FFD700;
+            border-left-color: #FFD700;
+        }
+        .sidebar nav ul li a .nav-icon { margin-right: 15px; width: 20px; text-align: center; }
+        .sidebar nav ul li a .nav-icon i { font-size: 1.1em; }
+        .sidebar .logout-btn-sidebar { margin-top: auto; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+
+        /* --- Content Wrapper --- */
+        .content-wrapper {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            transition: margin-left 0.3s ease-in-out;
+            margin-left: 0;
+        }
+
+        /* --- Header --- */
+        .app-header {
+            background-color: #ffffff;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 900;
+        }
+        .header-left { display: flex; align-items: center; }
+        .mobile-menu-toggle {
+            background: none; border: none; font-size: 1.5rem; color: #0A2463;
+            cursor: pointer; margin-right: 15px; display: none;
+        }
+        .app-header h1 { font-size: 1.6rem; color: #0A2463; font-weight: 600; }
+        .user-info { display: flex; align-items: center; }
+        .user-avatar {
+            width: 40px; height: 40px; background-color: #0A2463; color: #FFD700;
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            font-weight: 600; margin-right: 10px; font-size: 0.9rem;
+        }
+        .user-name { color: #333; font-weight: 500; margin-right: 20px; }
+        .logout-link { color: #0A2463; text-decoration: none; font-size: 1.2rem; }
+        .logout-link:hover { color: #dc3545; }
+
+        /* --- Main Content --- */
+        .main-app-content { padding: 30px; flex-grow: 1; }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .page-header h2 { color: #0A2463; font-size: 1.8rem; }
+        .page-header h2 span { font-weight: 400; font-size: 1.1rem; color: #555; display: block; }
+        .btn-add {
+            background-color: #FFB400; color: #0A2463; padding: 10px 20px;
+            border-radius: 6px; text-decoration: none; font-weight: 600;
+            display: inline-flex; align-items: center;
+        }
+        .btn-add i { margin-right: 8px; }
+        .btn-add:hover { background-color: #FFD700; }
+
+        .form-container, .list-container {
+            background-color: #fff; padding: 25px; border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 25px;
+        }
+        .form-container h3 { color: #0A2463; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: 500; margin-bottom: 5px; font-size: 0.9rem;}
+        .form-group input, .form-group select {
+            width: 100%; padding: 10px; border: 1px solid #ccc;
+            border-radius: 5px; font-size: 1rem;
+        }
+        .form-actions { text-align: right; margin-top: 20px; }
+        .btn-save { background-color: #0A2463; color: white; padding: 10px 20px; border:none; border-radius:5px; cursor:pointer; }
+        .btn-cancel { background-color: #6c757d; color: white; padding: 10px 20px; border:none; border-radius:5px; cursor:pointer; margin-right:10px; }
+
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px 15px; border-bottom: 1px solid #eee; text-align: left; font-size: 0.95rem; }
+        th { background-color: #f8f9fa; color: #0A2463; font-weight: 600; }
+        .actions-cell button {
+            background: none; border: none; cursor: pointer; margin-right: 10px;
+            color: #0A2463; font-size: 1.1rem;
+        }
+        .actions-cell button.delete-btn { color: #dc3545; }
+        .actions-cell button:hover { opacity: 0.7; }
+        .empty-list { text-align:center; padding: 20px; color: #777;}
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(255, 255, 255, 0.85); display: flex;
+            justify-content: center; align-items: center; z-index: 9999;
+            font-size: 1.5rem; color: #0A2463;
+        }
+        .loader {
+            border: 5px solid #f3f3f3; border-top: 5px solid #0A2463;
+            border-radius: 50%; width: 50px; height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Overlay para sidebar mobile */
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); z-index: 999; display: none;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .sidebar-overlay.active { display: block; opacity: 1; }
+
+        /* Responsividade */
+        @media (min-width: 992px) {
+            .sidebar { position: static; transform: translateX(0); height: 100vh; }
+            .content-wrapper { margin-left: 260px; }
+            .mobile-menu-toggle { display: none; }
+        }
+        @media (max-width: 991px) {
+            .mobile-menu-toggle { display: block; }
+            .content-wrapper { width: 100%; }
+        }
+        @media (max-width: 768px) {
+            .app-header { padding: 15px 20px; }
+            .app-header h1 { font-size: 1.3rem; }
+            .main-app-content { padding: 20px; }
+            .user-name { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay" style="display:none;">
+        <div class="loader"></div>  Carregando...
+    </div>
+
+    <div class="app-container">
+        <aside class="sidebar" id="appSidebar">
+            <div class="logo">
+                <a href="dashboard.html"><i class="fas fa-graduation-cap"></i> FormaGest</a>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="dashboard.html" id="navDashboard"><span class="nav-icon"><i class="fas fa-tachometer-alt"></i></span>Dashboard</a></li>
+                    <li><a href="formandos.html" id="navFormandos" class="active"><span class="nav-icon"><i class="fas fa-users"></i></span>Formandos</a></li>
+                    <li><a href="financeiro.html" id="navFinanceiro"><span class="nav-icon"><i class="fas fa-wallet"></i></span>Financeiro</a></li>
+                    <li><a href="convites.html" id="navConvites"><span class="nav-icon"><i class="fas fa-envelope-open-text"></i></span>Convites/Check-In</a></li>
+                    <li><a href="papeis.html" id="navPapeis"><span class="nav-icon"><i class="fas fa-user-tag"></i></span>Divisão de Papéis</a></li>
+                    <li><a href="mesas.html" id="navMesas"><span class="nav-icon"><i class="fas fa-chair"></i></span>Organização de Mesas</a></li>
+                    <li><a href="playlists.html" id="navPlaylists"><span class="nav-icon"><i class="fas fa-music"></i></span>Playlists</a></li>
+                    <li><a href="linha-tempo.html" id="navLinhaTempo"><span class="nav-icon"><i class="fas fa-stream"></i></span>Linha do Tempo</a></li>
+                    <li><a href="documentacao.html" id="navDocumentacao"><span class="nav-icon"><i class="fas fa-file-alt"></i></span>Documentação</a></li>
+                    <li><a href="pos-evento.html" id="navPosEvento"><span class="nav-icon"><i class="fas fa-photo-video"></i></span>Pós-Evento</a></li>
+                    <li class="logout-btn-sidebar"><a href="#" id="logoutBtnSidebar"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span>Sair</a></li>
+                </ul>
+            </nav>
+        </aside>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <div class="content-wrapper" id="contentWrapper">
+            <header class="app-header">
+                <div class="header-left">
+                    <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Abrir menu"><i class="fas fa-bars"></i></button>
+                    <h1 id="pageTitle">Formandos</h1>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">--</div>
+                    <span class="user-name" id="userName">Carregando...</span>
+                    <a href="#" id="logoutBtnHeader" class="logout-link" title="Sair"><i class="fas fa-sign-out-alt"></i></a>
+                </div>
+            </header>
+
+            <main class="main-app-content">
+                <div class="page-header">
+                    <h2 id="eventoNomeDisplay">Gerenciando Formandos <span></span></h2>
+                    <button id="showFormandoFormBtn" class="btn-add"><i class="fas fa-user-plus"></i> Adicionar Formando</button>
+                </div>
+
+                <div class="form-container" id="formandoFormContainer" style="display: none;">
+                    <h3 id="formTitle">Adicionar Novo Formando</h3>
+                    <form id="formandoForm">
+                        <input type="hidden" id="formandoId" value="">
+                        <div class="form-group">
+                            <label for="nomeCompleto">Nome Completo:</label>
+                            <input type="text" id="nomeCompleto" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email:</label>
+                            <input type="email" id="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="telefone">Telefone:</label>
+                            <input type="tel" id="telefone">
+                        </div>
+                        <div class="form-group">
+                            <label for="curso">Curso:</label>
+                            <input type="text" id="curso">
+                        </div>
+                        <div class="form-group">
+                            <label for="turma">Turma:</label>
+                            <input type="text" id="turma">
+                        </div>
+                        <div class="form-group">
+                            <label for="statusPagamento">Status Pagamento:</label>
+                            <select id="statusPagamento">
+                                <option value="pendente">Pendente</option>
+                                <option value="pago_parcial">Pago Parcial</option>
+                                <option value="pago_total">Pago Total</option>
+                                <option value="inadimplente">Inadimplente</option>
+                            </select>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" id="cancelFormBtn" class="btn-cancel">Cancelar</button>
+                            <button type="submit" class="btn-save">Salvar Formando</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="list-container">
+                    <h3>Formandos Cadastrados</h3>
+                    <div class="table-responsive">
+                        <table id="formandosTable">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Email</th>
+                                    <th>Curso</th>
+                                    <th>Status Pag.</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="formandosTableBody"></tbody>
+                        </table>
+                    </div>
+                    <p id="emptyListMessage" class="empty-list" style="display:none;">Nenhum formando cadastrado ainda.</p>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script>
+        const firebaseConfig = { /* ... SUAS CONFIGS ... */ };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const auth = firebase.auth();
+        const database = firebase.database();
+    </script>
+
+    <script>
+        // --- INÍCIO JS COMUM (ADAPTADO) ---
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const userAvatar = document.getElementById('userAvatar');
+        const userName = document.getElementById('userName');
+        const logoutBtnSidebar = document.getElementById('logoutBtnSidebar');
+        const logoutBtnHeader = document.getElementById('logoutBtnHeader');
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const sidebar = document.getElementById('appSidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const contentWrapper = document.getElementById('contentWrapper');
+        const pageTitle = document.getElementById('pageTitle');
+
+        let globalCurrentUserId = null;
+        let globalSelectedEventoId = null;
+        let globalSelectedEventoNome = null;
+
+        function showLoading(show) {
+            loadingOverlay.style.display = show ? 'flex' : 'none';
+            const formButtons = document.querySelectorAll('form button');
+            formButtons.forEach(btn => btn.disabled = show);
+        }
+        function handleLogout() { /* ... (COPIE DO PAPEIS.HTML) ... */
+            showLoading(true);
+            auth.signOut().then(() => {
+                localStorage.removeItem('selectedEventoId');
+                localStorage.removeItem('selectedEventoNome');
+                window.location.href = 'index.html';
+            }).catch(error => {
+                console.error("Erro ao fazer logout:", error);
+                alert("Erro ao tentar sair.");
+                showLoading(false);
+            });
+        }
+        logoutBtnSidebar.addEventListener('click', handleLogout);
+        logoutBtnHeader.addEventListener('click', handleLogout);
+        mobileMenuToggle.addEventListener('click', () => { /* ... (COPIE DO PAPEIS.HTML) ... */
+            sidebar.classList.toggle('active');
+            sidebarOverlay.classList.toggle('active');
+            const icon = mobileMenuToggle.querySelector('i');
+            icon.classList.toggle('fa-bars');
+            icon.classList.toggle('fa-times');
+        });
+        sidebarOverlay.addEventListener('click', () => { /* ... (COPIE DO PAPEIS.HTML) ... */
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+            mobileMenuToggle.querySelector('i').classList.remove('fa-times');
+            mobileMenuToggle.querySelector('i').classList.add('fa-bars');
+        });
+        function updateUserInfo(user) { /* ... (COPIE DO PAPEIS.HTML) ... */
+             if (user) {
+                userName.textContent = user.displayName || user.email;
+                const initials = (user.displayName ? user.displayName.charAt(0) : user.email.charAt(0)).toUpperCase();
+                userAvatar.textContent = initials;
+            } else {
+                userName.textContent = 'Usuário';
+                userAvatar.textContent = 'U';
+            }
+        }
+        function adjustLayout() { /* ... (COPIE DO PAPEIS.HTML) ... */
+            if (window.innerWidth >= 992) {
+                contentWrapper.style.marginLeft = '260px';
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+            } else {
+                contentWrapper.style.marginLeft = '0';
+            }
+        }
+        window.addEventListener('resize', adjustLayout);
+        adjustLayout();
+
+        auth.onAuthStateChanged(user => {
+            showLoading(true);
+            if (user) {
+                globalCurrentUserId = user.uid;
+                updateUserInfo(user);
+                globalSelectedEventoId = localStorage.getItem('selectedEventoId');
+                globalSelectedEventoNome = localStorage.getItem('selectedEventoNome');
+
+                if (!globalSelectedEventoId) {
+                    alert("Nenhum evento selecionado. Redirecionando...");
+                    window.location.href = 'dashboard.html'; return;
+                }
+                document.querySelectorAll('#appSidebar nav a[id^="nav"]').forEach(link => {
+                    if (link.href.includes('.html') && !link.href.includes('dashboard.html')) {
+                        link.href = `${link.href.split('?')[0]}?eventoId=${globalSelectedEventoId}`;
+                    }
+                });
+                if (typeof loadPageData === "function") {
+                    loadPageData(globalCurrentUserId, globalSelectedEventoId, globalSelectedEventoNome);
+                } else { showLoading(false); }
+            } else {
+                localStorage.removeItem('selectedEventoId'); localStorage.removeItem('selectedEventoNome');
+                window.location.href = 'index.html';
+            }
+        });
+        // --- FIM JS COMUM ---
+
+        // JS Específico da Página de Formandos
+        const showFormandoFormBtn = document.getElementById('showFormandoFormBtn');
+        const formandoFormContainer = document.getElementById('formandoFormContainer');
+        const formandoForm = document.getElementById('formandoForm');
+        const cancelFormBtn = document.getElementById('cancelFormBtn');
+        const formandosTableBody = document.getElementById('formandosTableBody');
+        const emptyListMessage = document.getElementById('emptyListMessage');
+        const eventoNomeDisplaySpan = document.querySelector('#eventoNomeDisplay span');
+        const formTitle = document.getElementById('formTitle');
+
+        function loadPageData(userId, eventoId, eventoNome) {
+            if (!eventoId) { showLoading(false); return; }
+            eventoNomeDisplaySpan.textContent = eventoNome || "Evento Selecionado";
+            // pageTitle já é setado no HTML, mas pode ser atualizado
+            // pageTitle.textContent = `Formandos: ${eventoNome || "Evento"}`;
+            document.getElementById('navFormandos').classList.add('active');
+            loadFormandos();
+            showLoading(false);
+        }
+
+        showFormandoFormBtn.addEventListener('click', () => {
+            formTitle.textContent = "Adicionar Novo Formando";
+            formandoForm.reset();
+            document.getElementById('formandoId').value = '';
+            formandoFormContainer.style.display = 'block';
+            showFormandoFormBtn.style.display = 'none';
+        });
+
+        cancelFormBtn.addEventListener('click', () => {
+            formandoFormContainer.style.display = 'none';
+            showFormandoFormBtn.style.display = 'inline-flex';
+        });
+
+        formandoForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            if (!globalSelectedEventoId) return;
+
+            const formandoId = document.getElementById('formandoId').value;
+            const data = {
+                nomeCompleto: document.getElementById('nomeCompleto').value,
+                email: document.getElementById('email').value,
+                telefone: document.getElementById('telefone').value,
+                curso: document.getElementById('curso').value,
+                turma: document.getElementById('turma').value,
+                statusPagamento: document.getElementById('statusPagamento').value,
+            };
+
+            showLoading(true);
+            const formandosRefPath = `eventos/${globalSelectedEventoId}/formandos`;
+            let promise;
+
+            if (formandoId) { // Editando
+                promise = database.ref(`${formandosRefPath}/${formandoId}`).update(data);
+            } else { // Criando
+                data.dataCadastro = firebase.database.ServerValue.TIMESTAMP;
+                promise = database.ref(formandosRefPath).push(data);
+            }
+
+            promise.then(() => {
+                formandoForm.reset();
+                formandoFormContainer.style.display = 'none';
+                showFormandoFormBtn.style.display = 'inline-flex';
+            }).catch(error => {
+                console.error("Erro ao salvar formando:", error);
+                alert("Erro ao salvar: " + error.message);
+            }).finally(() => {
+                showLoading(false);
+            });
+        });
+
+        function loadFormandos() {
+            if (!globalSelectedEventoId) return;
+            showLoading(true);
+            const formandosRef = database.ref(`eventos/${globalSelectedEventoId}/formandos`);
+
+            formandosRef.on('value', snapshot => {
+                formandosTableBody.innerHTML = '';
+                if (snapshot.exists()) {
+                    emptyListMessage.style.display = 'none';
+                    snapshot.forEach(childSnapshot => {
+                        const formando = childSnapshot.val();
+                        const formandoKey = childSnapshot.key;
+                        const row = formandosTableBody.insertRow();
+                        row.innerHTML = `
+                            <td>${formando.nomeCompleto || '-'}</td>
+                            <td>${formando.email || '-'}</td>
+                            <td>${formando.curso || '-'}</td>
+                            <td>${formando.statusPagamento ? formando.statusPagamento.replace(/_/g, ' ') : 'pendente'}</td>
+                            <td class="actions-cell">
+                                <button onclick="editFormando('${formandoKey}')" title="Editar"><i class="fas fa-edit"></i></button>
+                                <button onclick="deleteFormando('${formandoKey}')" class="delete-btn" title="Excluir"><i class="fas fa-trash-alt"></i></button>
+                            </td>
+                        `;
+                    });
+                } else {
+                    emptyListMessage.style.display = 'block';
+                }
+                showLoading(false);
+            }, error => {
+                console.error("Erro ao carregar formandos:", error);
+                alert("Erro ao carregar dados: " + error.message);
+                showLoading(false);
+            });
+        }
+
+        function editFormando(formandoKey) {
+            if (!globalSelectedEventoId) return;
+            const formandoRef = database.ref(`eventos/${globalSelectedEventoId}/formandos/${formandoKey}`);
+            showLoading(true);
+            formandoRef.once('value').then(snapshot => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    document.getElementById('formandoId').value = formandoKey;
+                    document.getElementById('nomeCompleto').value = data.nomeCompleto || '';
+                    document.getElementById('email').value = data.email || '';
+                    document.getElementById('telefone').value = data.telefone || '';
+                    document.getElementById('curso').value = data.curso || '';
+                    document.getElementById('turma').value = data.turma || '';
+                    document.getElementById('statusPagamento').value = data.statusPagamento || 'pendente';
+
+                    formTitle.textContent = "Editar Formando";
+                    formandoFormContainer.style.display = 'block';
+                    showFormandoFormBtn.style.display = 'none';
+                }
+                showLoading(false);
+            }).catch(() => showLoading(false));
+        }
+
+        function deleteFormando(formandoKey) {
+            if (!globalSelectedEventoId) return;
+            if (confirm("Tem certeza que deseja excluir este formando?")) {
+                showLoading(true);
+                database.ref(`eventos/${globalSelectedEventoId}/formandos/${formandoKey}`).remove()
+                    .catch(error => {
+                        console.error("Erro ao excluir:", error);
+                        alert("Erro ao excluir: " + error.message);
+                    }).finally(() => {
+                        showLoading(false);
+                    });
+            }
+        }
+    </script>
+</body>
+</html>

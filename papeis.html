@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Divisão de Papéis - Gestor de Formaturas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- <link rel="icon" href="favicon-formatura.ico" type="image/x-icon"> -->
+
+    <style>
+        /* Reset Básico e Estilos Globais */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f0f2f5; /* Cinza claro de fundo */
+            color: #333;
+            line-height: 1.6;
+            display: flex; /* Para layout com sidebar */
+            min-height: 100vh;
+            overflow-x: hidden; /* Prevenir scroll horizontal da sidebar em mobile */
+        }
+
+        .app-container {
+            display: flex;
+            width: 100%;
+        }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            width: 260px;
+            background-color: #0A2463; /* Azul Marinho Principal */
+            color: #e0e0e0;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease-in-out;
+            z-index: 1000;
+            position: fixed; /* Para mobile */
+            left: -260px; /* Escondida por padrão em mobile */
+            height: 100%;
+            overflow-y: auto;
+        }
+        .sidebar.active {
+            transform: translateX(260px);
+        }
+
+        .sidebar .logo {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 0 20px;
+        }
+        .sidebar .logo a {
+            color: #FFD700; /* Dourado */
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .sidebar .logo a i {
+            margin-right: 8px;
+        }
+
+        .sidebar nav ul {
+            list-style: none;
+        }
+        .sidebar nav ul li a {
+            display: flex;
+            align-items: center;
+            padding: 12px 25px;
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+        .sidebar nav ul li a:hover,
+        .sidebar nav ul li a.active {
+            background-color: rgba(255, 215, 0, 0.1); /* Dourado transparente */
+            color: #FFD700; /* Dourado */
+            border-left-color: #FFD700;
+        }
+        .sidebar nav ul li a .nav-icon {
+            margin-right: 15px;
+            width: 20px; /* Alinhar ícones */
+            text-align: center;
+        }
+        .sidebar nav ul li a .nav-icon i {
+            font-size: 1.1em;
+        }
+        .sidebar .logout-btn-sidebar {
+            margin-top: auto; /* Empurra para baixo */
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* --- Content Wrapper --- */
+        .content-wrapper {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            transition: margin-left 0.3s ease-in-out;
+            margin-left: 0; /* Ajustado por JS em telas maiores */
+        }
+
+        /* --- Header --- */
+        .app-header {
+            background-color: #ffffff;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 900;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+        .mobile-menu-toggle {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #0A2463; /* Azul Marinho */
+            cursor: pointer;
+            margin-right: 15px;
+            display: none; /* Escondido em desktop */
+        }
+        .app-header h1 {
+            font-size: 1.6rem;
+            color: #0A2463; /* Azul Marinho */
+            font-weight: 600;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background-color: #0A2463; /* Azul Marinho */
+            color: #FFD700; /* Dourado */
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 600;
+            margin-right: 10px;
+            font-size: 0.9rem;
+        }
+        .user-name {
+            color: #333;
+            font-weight: 500;
+            margin-right: 20px;
+        }
+        .logout-link {
+            color: #0A2463; /* Azul Marinho */
+            text-decoration: none;
+            font-size: 1.2rem;
+        }
+        .logout-link:hover {
+            color: #dc3545; /* Vermelho para logout */
+        }
+
+        /* --- Main Content --- */
+        .main-app-content {
+            padding: 30px;
+            flex-grow: 1;
+        }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .page-header h2 {
+            color: #0A2463;
+            font-size: 1.8rem;
+        }
+        .btn-add {
+            background-color: #FFB400; /* Dourado */
+            color: #0A2463;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+        }
+        .btn-add i { margin-right: 8px; }
+        .btn-add:hover { background-color: #FFD700; }
+
+        .form-container, .list-container {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+        }
+        .form-container h3 { color: #0A2463; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: 500; margin-bottom: 5px; font-size: 0.9rem;}
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="checkbox"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="email"] {
+             width: 100%;
+        }
+        .form-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        .form-group small { font-size: 0.8rem; color: #666; display: block; margin-top: 5px;}
+
+        .form-actions { text-align: right; margin-top: 20px; }
+        .btn-save { background-color: #0A2463; color: white; padding: 10px 20px; border:none; border-radius:5px; cursor:pointer; }
+        .btn-cancel { background-color: #6c757d; color: white; padding: 10px 20px; border:none; border-radius:5px; cursor:pointer; margin-right:10px; }
+
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px 15px; border-bottom: 1px solid #eee; text-align: left; font-size: 0.95rem; }
+        th { background-color: #f8f9fa; color: #0A2463; font-weight: 600; }
+        .actions-cell button {
+            background: none; border: none; cursor: pointer; margin-right: 10px;
+            color: #0A2463; font-size: 1.1rem;
+        }
+        .actions-cell button.delete-btn { color: #dc3545; }
+        .actions-cell button:hover { opacity: 0.7; }
+        .empty-list { text-align:center; padding: 20px; color: #777;}
+
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(255, 255, 255, 0.85); display: flex;
+            justify-content: center; align-items: center; z-index: 9999;
+            font-size: 1.5rem; color: #0A2463;
+        }
+        .loader { /* Spinner simples */
+            border: 5px solid #f3f3f3; border-top: 5px solid #0A2463;
+            border-radius: 50%; width: 50px; height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Overlay para sidebar mobile */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none; /* Controlado por JS */
+            transition: opacity 0.3s ease-in-out;
+        }
+        .sidebar-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Responsividade */
+        @media (min-width: 992px) {
+            .sidebar {
+                position: static; /* Fica fixa à esquerda */
+                transform: translateX(0); /* Sempre visível */
+                height: 100vh;
+            }
+            .content-wrapper {
+                margin-left: 260px; /* Abre espaço para a sidebar */
+            }
+            .mobile-menu-toggle {
+                display: none;
+            }
+        }
+
+        @media (max-width: 991px) {
+            .mobile-menu-toggle {
+                display: block;
+            }
+             .content-wrapper {
+                width: 100%; /* Ocupa toda a largura quando a sidebar está fechada */
+            }
+        }
+        @media (max-width: 768px) {
+            .app-header { padding: 15px 20px; }
+            .app-header h1 { font-size: 1.3rem; }
+            .main-app-content { padding: 20px; }
+            .user-name { display: none; } /* Oculta nome em telas pequenas para mais espaço */
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay" style="display:none;">
+        <div class="loader"></div>  Carregando...
+    </div>
+
+    <div class="app-container">
+        <aside class="sidebar" id="appSidebar">
+            <div class="logo">
+                <a href="dashboard.html"><i class="fas fa-graduation-cap"></i> FormaGest</a>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="dashboard.html" id="navDashboard"><span class="nav-icon"><i class="fas fa-tachometer-alt"></i></span>Dashboard</a></li>
+                    <li><a href="formandos.html" id="navFormandos"><span class="nav-icon"><i class="fas fa-users"></i></span>Formandos</a></li>
+                    <li><a href="financeiro.html" id="navFinanceiro"><span class="nav-icon"><i class="fas fa-wallet"></i></span>Financeiro</a></li>
+                    <li><a href="convites.html" id="navConvites"><span class="nav-icon"><i class="fas fa-envelope-open-text"></i></span>Convites/Check-In</a></li>
+                    <li><a href="papeis.html" id="navPapeis" class="active"><span class="nav-icon"><i class="fas fa-user-tag"></i></span>Divisão de Papéis</a></li>
+                    <!-- Outros links da sidebar como em dashboard.html -->
+                    <li><a href="mesas.html" id="navMesas"><span class="nav-icon"><i class="fas fa-chair"></i></span>Organização de Mesas</a></li>
+                    <li><a href="playlists.html" id="navPlaylists"><span class="nav-icon"><i class="fas fa-music"></i></span>Playlists</a></li>
+                    <li><a href="linha-tempo.html" id="navLinhaTempo"><span class="nav-icon"><i class="fas fa-stream"></i></span>Linha do Tempo</a></li>
+                    <li><a href="documentacao.html" id="navDocumentacao"><span class="nav-icon"><i class="fas fa-file-alt"></i></span>Documentação</a></li>
+                    <li><a href="pos-evento.html" id="navPosEvento"><span class="nav-icon"><i class="fas fa-photo-video"></i></span>Pós-Evento</a></li>
+                    <li class="logout-btn-sidebar"><a href="#" id="logoutBtnSidebar"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span>Sair</a></li>
+                </ul>
+            </nav>
+        </aside>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <div class="content-wrapper" id="contentWrapper">
+            <header class="app-header">
+                <div class="header-left">
+                    <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Abrir menu">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 id="pageTitle">Divisão de Papéis</h1>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">--</div>
+                    <span class="user-name" id="userName">Carregando...</span>
+                    <a href="#" id="logoutBtnHeader" class="logout-link" title="Sair"><i class="fas fa-sign-out-alt"></i></a>
+                </div>
+            </header>
+
+            <main class="main-app-content">
+                <div class="page-header">
+                    <h2 id="eventoNomeHeader">Comissão Organizadora do Evento: <span>Carregando...</span></h2>
+                    <button id="showPapelFormBtn" class="btn-add"><i class="fas fa-user-plus"></i> Adicionar Membro</button>
+                </div>
+
+                <!-- Formulário de Papel (Oculto) -->
+                <div class="form-container" id="papelFormContainer" style="display: none;">
+                    <h3 id="papelFormTitle">Adicionar Membro à Comissão</h3>
+                    <form id="papelForm">
+                        <div class="form-group">
+                            <label for="papelUsuarioEmail">Email do Usuário na Plataforma:</label>
+                            <input type="email" id="papelUsuarioEmail" placeholder="Email para buscar usuário">
+                            <small>O usuário deve ter uma conta na plataforma FormaGest.</small>
+                        </div>
+                        <!-- Este campo será preenchido após busca e não editável diretamente -->
+                        <input type="hidden" id="papelUsuarioId" value="">
+
+                        <div class="form-group">
+                            <label for="papelNomeExibicao">Nome de Exibição no Evento (Opcional):</label>
+                            <input type="text" id="papelNomeExibicao" placeholder="Será usado o nome do perfil se em branco">
+                        </div>
+                        <div class="form-group">
+                            <label for="papelFuncao">Função/Papel na Comissão:</label>
+                            <input type="text" id="papelFuncao" required placeholder="Ex: Presidente, Financeiro, Cerimonial">
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="papelAtivo" checked>
+                                Membro Ativo neste Evento
+                            </label>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" id="cancelPapelBtn" class="btn-cancel">Cancelar</button>
+                            <button type="submit" class="btn-save">Salvar Membro</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Lista de Membros da Comissão -->
+                <div class="list-container">
+                    <h3>Membros da Comissão</h3>
+                    <div class="table-responsive">
+                        <table id="papeisTable">
+                            <thead><tr><th>Nome/Email</th><th>Papel</th><th>Ativo</th><th>Ações</th></tr></thead>
+                            <tbody id="papeisTableBody"></tbody>
+                        </table>
+                    </div>
+                    <p id="emptyPapeisMessage" class="empty-list" style="display:none;">Nenhum membro na comissão ainda.</p>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Cole aqui suas chaves e inicialização do Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script>
+        // COLE AQUI O CONTEÚDO DO SEU firebase-config.js ou o objeto de configuração
+        const firebaseConfig = {
+            apiKey: "AIzaSyAQ3txJQ09muNi5xaBhOPwFztT1fCR1qmE",
+            authDomain: "formagest-a7591.firebaseapp.com",
+            databaseURL: "https://formagest-a7591-default-rtdb.firebaseio.com",
+            projectId: "formagest-a7591",
+            storageBucket: "formagest-a7591.firebasestorage.app",
+            messagingSenderId: "27539451532",
+            appId: "1:27539451532:web:6bea92d2e1df99dac115a9",
+            measurementId: "G-G3NDPYSQ9Z"
+        };
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const auth = firebase.auth();
+        const database = firebase.database();
+    </script>
+
+    <script>
+        // --- INÍCIO JS COMUM (ADAPTADO) ---
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const userAvatar = document.getElementById('userAvatar');
+        const userName = document.getElementById('userName');
+        const logoutBtnSidebar = document.getElementById('logoutBtnSidebar');
+        const logoutBtnHeader = document.getElementById('logoutBtnHeader');
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const sidebar = document.getElementById('appSidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const contentWrapper = document.getElementById('contentWrapper');
+        const pageTitle = document.getElementById('pageTitle'); // Definido no header
+
+        let globalCurrentUserId = null;
+        let globalSelectedEventoId = null;
+        let globalSelectedEventoNome = null;
+
+        function showLoading(show) {
+            loadingOverlay.style.display = show ? 'flex' : 'none';
+            // Desabilitar botões de formulário durante o loading, se aplicável
+            const formButtons = document.querySelectorAll('form button');
+            formButtons.forEach(btn => btn.disabled = show);
+        }
+
+        function handleLogout() {
+            showLoading(true);
+            auth.signOut().then(() => {
+                localStorage.removeItem('selectedEventoId');
+                localStorage.removeItem('selectedEventoNome');
+                window.location.href = 'index.html';
+            }).catch(error => {
+                console.error("Erro ao fazer logout:", error);
+                alert("Erro ao tentar sair.");
+                showLoading(false);
+            });
+        }
+
+        logoutBtnSidebar.addEventListener('click', handleLogout);
+        logoutBtnHeader.addEventListener('click', handleLogout);
+
+        mobileMenuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            sidebarOverlay.classList.toggle('active');
+            const icon = mobileMenuToggle.querySelector('i');
+            icon.classList.toggle('fa-bars');
+            icon.classList.toggle('fa-times');
+        });
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+            mobileMenuToggle.querySelector('i').classList.remove('fa-times');
+            mobileMenuToggle.querySelector('i').classList.add('fa-bars');
+        });
+
+        function updateUserInfo(user) {
+            if (user) {
+                userName.textContent = user.displayName || user.email;
+                const initials = (user.displayName ? user.displayName.charAt(0) : user.email.charAt(0)).toUpperCase();
+                userAvatar.textContent = initials;
+            } else {
+                userName.textContent = 'Usuário';
+                userAvatar.textContent = 'U';
+            }
+        }
+        
+        function adjustLayout() {
+            if (window.innerWidth >= 992) {
+                contentWrapper.style.marginLeft = '260px';
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+            } else {
+                contentWrapper.style.marginLeft = '0';
+            }
+        }
+        window.addEventListener('resize', adjustLayout);
+        adjustLayout(); // Chamada inicial
+
+        auth.onAuthStateChanged(user => {
+            showLoading(true);
+            if (user) {
+                globalCurrentUserId = user.uid;
+                updateUserInfo(user);
+
+                globalSelectedEventoId = localStorage.getItem('selectedEventoId');
+                globalSelectedEventoNome = localStorage.getItem('selectedEventoNome');
+
+                if (!globalSelectedEventoId) {
+                    alert("Nenhum evento selecionado. Redirecionando para o Dashboard.");
+                    window.location.href = 'dashboard.html';
+                    return; // Impede a execução de loadPageData
+                }
+                // Atualiza links da sidebar com o eventoId
+                document.querySelectorAll('#appSidebar nav a[id^="nav"]').forEach(link => {
+                    if (link.href.includes('.html') && !link.href.includes('dashboard.html')) { // Evita adicionar a dashboard
+                        link.href = `${link.href.split('?')[0]}?eventoId=${globalSelectedEventoId}`;
+                    }
+                });
+                // Chama a função específica de carregamento da página
+                if (typeof loadPageData === "function") {
+                    loadPageData(globalCurrentUserId, globalSelectedEventoId, globalSelectedEventoNome);
+                } else {
+                    console.warn("Função loadPageData não definida nesta página.");
+                    showLoading(false);
+                }
+            } else {
+                localStorage.removeItem('selectedEventoId');
+                localStorage.removeItem('selectedEventoNome');
+                window.location.href = 'index.html';
+            }
+            // showLoading(false) é chamado dentro de loadPageData ou após o redirecionamento
+        });
+        // --- FIM JS COMUM ---
+
+
+        // JS Específico da Página de Divisão de Papéis
+        const eventoNomeHeaderSpan = document.querySelector('#eventoNomeHeader span');
+        const showPapelFormBtn = document.getElementById('showPapelFormBtn');
+        const papelFormContainer = document.getElementById('papelFormContainer');
+        const papelForm = document.getElementById('papelForm');
+        const cancelPapelBtn = document.getElementById('cancelPapelBtn');
+        const papeisTableBody = document.getElementById('papeisTableBody');
+        const emptyPapeisMessage = document.getElementById('emptyPapeisMessage');
+        const papelUsuarioEmailInput = document.getElementById('papelUsuarioEmail');
+        const papelUsuarioIdInput = document.getElementById('papelUsuarioId');
+        const papelNomeExibicaoInput = document.getElementById('papelNomeExibicao');
+        const papelFuncaoInput = document.getElementById('papelFuncao');
+        const papelAtivoCheckbox = document.getElementById('papelAtivo');
+        const papelFormTitle = document.getElementById('papelFormTitle');
+
+        let currentEditingUserPapelId = null; // UID do usuário cujo papel está sendo editado
+
+        // Esta função será chamada pelo JS comum (auth.onAuthStateChanged)
+        function loadPageData(userId, eventoId, eventoNome) {
+            if (!eventoId) { showLoading(false); return; } // Já tratado no JS comum, mas uma segurança extra
+            
+            eventoNomeHeaderSpan.textContent = eventoNome || "Evento Selecionado";
+            // pageTitle já é setado no HTML estático, mas pode ser atualizado aqui se necessário
+            // pageTitle.textContent = `Divisão de Papéis: ${eventoNome || "Evento"}`;
+            document.getElementById('navPapeis').classList.add('active');
+            loadPapeis();
+            showLoading(false); // Garante que o loading seja removido
+        }
+
+        showPapelFormBtn.addEventListener('click', () => {
+            papelFormTitle.textContent = "Adicionar Membro à Comissão";
+            papelForm.reset();
+            currentEditingUserPapelId = null;
+            papelUsuarioIdInput.value = '';
+            papelUsuarioEmailInput.disabled = false; // Habilita campo de email para novos
+            papelFormContainer.style.display = 'block';
+            showPapelFormBtn.style.display = 'none';
+        });
+
+        cancelPapelBtn.addEventListener('click', () => {
+            papelFormContainer.style.display = 'none';
+            showPapelFormBtn.style.display = 'inline-flex';
+        });
+
+        papelForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            if (!globalSelectedEventoId) return;
+
+            const emailParaBusca = papelUsuarioEmailInput.value.trim();
+            const nomeExibicao = papelNomeExibicaoInput.value.trim();
+            const funcao = papelFuncaoInput.value.trim();
+            const ativo = papelAtivoCheckbox.checked;
+            let targetUserUID = currentEditingUserPapelId || papelUsuarioIdInput.value; // Se editando, já temos o UID
+
+            if (!funcao) {
+                alert("A função/papel é obrigatória.");
+                return;
+            }
+            
+            showLoading(true);
+
+            // Se não estamos editando e não temos um UID, tentamos buscar pelo email
+            if (!targetUserUID && emailParaBusca) {
+                try {
+                    // Consulta o nó 'usuariosPlataforma' para encontrar o UID pelo email
+                    const usersRef = database.ref('usuariosPlataforma');
+                    const snapshot = await usersRef.orderByChild('email').equalTo(emailParaBusca).limitToFirst(1).once('value');
+
+                    if (snapshot.exists()) {
+                        snapshot.forEach(child => { // Pega a chave (UID) do primeiro resultado
+                            targetUserUID = child.key;
+                            // Opcional: preencher o nome de exibição com o nome do perfil se estiver vazio
+                            if (!nomeExibicao && child.val().nome) {
+                                papelNomeExibicaoInput.value = child.val().nome;
+                            }
+                        });
+                    } else {
+                        alert(`Usuário com email "${emailParaBusca}" não encontrado na plataforma. Verifique o email ou peça para o usuário se cadastrar.`);
+                        showLoading(false);
+                        return;
+                    }
+                } catch (error) {
+                    console.error("Erro ao buscar usuário por email:", error);
+                    alert("Erro ao buscar usuário. Tente novamente.");
+                    showLoading(false);
+                    return;
+                }
+            } else if (!targetUserUID && !emailParaBusca && !currentEditingUserPapelId) {
+                 alert("É necessário fornecer o email do usuário para adicionar um novo membro.");
+                 showLoading(false);
+                 return;
+            }
+
+
+            const papelData = {
+                papel: funcao, // Nome do campo na estrutura do RTDB
+                ativo: ativo,
+                nome: nomeExibicao || null // Salva o nome de exibição ou null para usar o do perfil
+            };
+
+            const comissaoRef = database.ref(`eventos/${globalSelectedEventoId}/comissaoOrganizadora/${targetUserUID}`);
+            comissaoRef.set(papelData)
+                .then(() => {
+                    papelForm.reset();
+                    papelFormContainer.style.display = 'none';
+                    showPapelFormBtn.style.display = 'inline-flex';
+                    // loadPapeis(); // O 'on value' já atualiza a lista
+                })
+                .catch(error => {
+                    console.error("Erro ao salvar membro da comissão:", error);
+                    alert("Erro ao salvar: " + error.message);
+                })
+                .finally(() => {
+                    showLoading(false);
+                });
+        });
+
+        async function loadPapeis() {
+            if (!globalSelectedEventoId) return;
+            showLoading(true);
+            const comissaoRef = database.ref(`eventos/${globalSelectedEventoId}/comissaoOrganizadora`);
+
+            comissaoRef.on('value', async snapshot => {
+                papeisTableBody.innerHTML = '';
+                if (snapshot.exists()) {
+                    emptyPapeisMessage.style.display = 'none';
+                    const comissaoData = snapshot.val();
+                    const userPromises = [];
+
+                    for (const userId in comissaoData) {
+                        const papelInfo = comissaoData[userId];
+                        // Busca os dados do usuário na plataforma para exibir nome/email
+                        userPromises.push(
+                            database.ref(`usuariosPlataforma/${userId}`).once('value')
+                            .then(userSnapshot => ({ userId, papelInfo, userData: userSnapshot.val() }))
+                        );
+                    }
+
+                    const results = await Promise.all(userPromises);
+                    results.forEach(({ userId, papelInfo, userData }) => {
+                        const nomeDisplay = papelInfo.nome || (userData ? userData.nome : '') || (userData ? userData.email : userId);
+                        const row = papeisTableBody.insertRow();
+                        row.innerHTML = `
+                            <td>${nomeDisplay} ${userData && userData.email ? '('+userData.email+')' : ''}</td>
+                            <td>${papelInfo.papel}</td>
+                            <td>${papelInfo.ativo ? 'Sim' : 'Não'}</td>
+                            <td class="actions-cell">
+                                <button onclick="editPapel('${userId}')" title="Editar"><i class="fas fa-edit"></i></button>
+                                <button onclick="deletePapel('${userId}')" class="delete-btn" title="Remover da Comissão"><i class="fas fa-user-minus"></i></button>
+                            </td>
+                        `;
+                    });
+
+                } else {
+                    emptyPapeisMessage.style.display = 'block';
+                }
+                showLoading(false);
+            }, error => {
+                console.error("Erro ao carregar membros da comissão:", error);
+                alert("Erro ao carregar dados: " + error.message);
+                showLoading(false);
+            });
+        }
+
+        function editPapel(userIdToEdit) {
+            if (!globalSelectedEventoId) return;
+            const papelRef = database.ref(`eventos/${globalSelectedEventoId}/comissaoOrganizadora/${userIdToEdit}`);
+            const userPlataformaRef = database.ref(`usuariosPlataforma/${userIdToEdit}`);
+
+            Promise.all([papelRef.once('value'), userPlataformaRef.once('value')])
+                .then(([papelSnapshot, userSnapshot]) => {
+                if (papelSnapshot.exists()) {
+                    const papelData = papelSnapshot.val();
+                    const userData = userSnapshot.val() || {}; // Dados do perfil do usuário
+
+                    currentEditingUserPapelId = userIdToEdit;
+                    papelUsuarioIdInput.value = userIdToEdit; // Guardar o UID
+                    papelUsuarioEmailInput.value = userData.email || ''; // Mostrar o email do usuário
+                    papelUsuarioEmailInput.disabled = true; // Não permitir edição do email/UID ao editar
+                    
+                    papelNomeExibicaoInput.value = papelData.nome || '';
+                    papelFuncaoInput.value = papelData.papel || '';
+                    papelAtivoCheckbox.checked = papelData.ativo !== undefined ? papelData.ativo : true;
+
+                    papelFormTitle.textContent = "Editar Membro da Comissão";
+                    papelFormContainer.style.display = 'block';
+                    showPapelFormBtn.style.display = 'none';
+                } else {
+                    alert("Membro não encontrado para edição.");
+                }
+            }).catch(error => {
+                console.error("Erro ao carregar dados para edição:", error);
+                alert("Erro ao carregar dados para edição.");
+            });
+        }
+
+        function deletePapel(userIdToDelete) {
+            if (!globalSelectedEventoId) return;
+            if (confirm(`Tem certeza que deseja remover este membro (${userIdToDelete}) da comissão do evento?`)) {
+                showLoading(true);
+                database.ref(`eventos/${globalSelectedEventoId}/comissaoOrganizadora/${userIdToDelete}`).remove()
+                    .catch(error => {
+                        console.error("Erro ao remover membro:", error);
+                        alert("Erro ao remover membro: " + error.message);
+                    }).finally(() => {
+                        showLoading(false); // O 'on value' já atualiza a lista
+                    });
+            }
+        }
+    </script>
+</body>
+</html>

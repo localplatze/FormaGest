@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playlists - Gestor de Formaturas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- <link rel="icon" href="favicon-formatura.ico" type="image/x-icon"> -->
+
+    <style>
+        /* Reset Básico e Estilos Globais (COPIAR DO PAPEIS.HTML OU ANTERIORES) */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Montserrat', sans-serif; background-color: #f0f2f5; color: #333; line-height: 1.6; display: flex; min-height: 100vh; overflow-x: hidden; }
+        .app-container { display: flex; width: 100%; }
+
+        /* --- Sidebar --- (COPIAR DO PAPEIS.HTML) */
+        .sidebar { width: 260px; background-color: #0A2463; color: #e0e0e0; padding: 20px 0; display: flex; flex-direction: column; transition: transform 0.3s ease-in-out; z-index: 1000; position: fixed; left: -260px; height: 100%; overflow-y: auto; }
+        .sidebar.active { transform: translateX(260px); }
+        .sidebar .logo { text-align: center; margin-bottom: 30px; padding: 0 20px; }
+        .sidebar .logo a { color: #FFD700; font-size: 1.8rem; font-weight: 700; text-decoration: none; }
+        .sidebar .logo a i { margin-right: 8px; }
+        .sidebar nav ul { list-style: none; }
+        .sidebar nav ul li a { display: flex; align-items: center; padding: 12px 25px; color: #e0e0e0; text-decoration: none; font-size: 0.95rem; transition: background-color 0.2s ease, color 0.2s ease; border-left: 3px solid transparent; }
+        .sidebar nav ul li a:hover, .sidebar nav ul li a.active { background-color: rgba(255, 215, 0, 0.1); color: #FFD700; border-left-color: #FFD700; }
+        .sidebar nav ul li a .nav-icon { margin-right: 15px; width: 20px; text-align: center; }
+        .sidebar nav ul li a .nav-icon i { font-size: 1.1em; }
+        .sidebar .logout-btn-sidebar { margin-top: auto; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+
+        /* --- Content Wrapper --- (COPIAR DO PAPEIS.HTML) */
+        .content-wrapper { flex-grow: 1; display: flex; flex-direction: column; transition: margin-left 0.3s ease-in-out; margin-left: 0; }
+
+        /* --- Header --- (COPIAR DO PAPEIS.HTML) */
+        .app-header { background-color: #ffffff; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); position: sticky; top: 0; z-index: 900; }
+        .header-left { display: flex; align-items: center; }
+        .mobile-menu-toggle { background: none; border: none; font-size: 1.5rem; color: #0A2463; cursor: pointer; margin-right: 15px; display: none; }
+        .app-header h1 { font-size: 1.6rem; color: #0A2463; font-weight: 600; }
+        .user-info { display: flex; align-items: center; }
+        .user-avatar { width: 40px; height: 40px; background-color: #0A2463; color: #FFD700; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 600; margin-right: 10px; font-size: 0.9rem; }
+        .user-name { color: #333; font-weight: 500; margin-right: 20px; }
+        .logout-link { color: #0A2463; text-decoration: none; font-size: 1.2rem; }
+        .logout-link:hover { color: #dc3545; }
+        
+        /* --- Main Content --- (COPIAR DO PAPEIS.HTML) */
+        .main-app-content { padding: 30px; flex-grow: 1; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .page-header h2 { color: #0A2463; font-size: 1.8rem; }
+        .page-header h2 span { font-weight: 400; font-size: 1.1rem; color: #555; display: block; }
+        .btn-add { background-color: #FFB400; color: #0A2463; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; }
+        .btn-add i { margin-right: 8px; }
+        .btn-add:hover { background-color: #FFD700; }
+        .form-container, .list-container, .section-container { background-color: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        .form-container h3, .section-container h3 { color: #0A2463; margin-bottom: 20px; font-size: 1.5rem; }
+        .form-group, .form-actions, .btn-save, .btn-cancel { /* Mesmo estilo */ }
+        .form-group label { display: block; font-weight: 500; margin-bottom: 5px; font-size: 0.9rem;}
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 1rem; }
+        .form-group textarea { min-height: 80px; resize: vertical; }
+        .form-actions { text-align: right; margin-top: 20px; }
+        .table-responsive, table, th, td, .actions-cell button, .empty-list { /* Mesmo estilo */ }
+        .actions-cell button { background: none; border: none; cursor: pointer; margin-right: 10px; color: #0A2463; font-size: 1.1rem; }
+        .actions-cell button.delete-btn { color: #dc3545; }
+        .actions-cell button:hover { opacity: 0.7; }
+        .empty-list { text-align:center; padding: 20px; color: #777;}
+        
+        /* Estilos Específicos da Página de Playlists */
+        .playlists-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .playlist-card {
+            background-color: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-left: 5px solid #0A2463;
+            padding: 20px;
+            border-radius: 6px;
+        }
+        .playlist-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .playlist-card-header h4 { color: #0A2463; font-size: 1.3rem; margin: 0; }
+        .playlist-card-header .actions button { font-size: 0.9rem; padding: 4px 8px; }
+        .playlist-card p.description { font-size: 0.9rem; color: #555; margin-bottom: 15px; }
+        .musicas-list { list-style: decimal; padding-left: 20px; font-size: 0.9rem; }
+        .musicas-list li { margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #eee; display: flex; justify-content: space-between; align-items: center; }
+        .musicas-list li:last-child { border-bottom: none; }
+        .musicas-list li .musica-info { flex-grow: 1; }
+        .musicas-list li .musica-info .artista { font-size: 0.8rem; color: #777; display: block; }
+        .musicas-list li .musica-actions button { font-size: 0.85rem; padding: 2px 5px; margin-left: 5px; }
+
+        .add-musica-form { margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;}
+        .add-musica-form .form-group input { margin-bottom: 10px; }
+        .add-musica-form .form-actions button { font-size: 0.9rem; padding: 6px 12px;}
+
+        /* Loading Overlay, Overlay Sidebar, Responsividade (COPIAR DO PAPEIS.HTML) */
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.85); display: flex; justify-content: center; align-items: center; z-index: 9999; font-size: 1.5rem; color: #0A2463; }
+        .loader { border: 5px solid #f3f3f3; border-top: 5px solid #0A2463; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 999; display: none; transition: opacity 0.3s ease-in-out; }
+        .sidebar-overlay.active { display: block; opacity: 1; }
+        @media (min-width: 992px) { .sidebar { position: static; transform: translateX(0); height: 100vh; } .content-wrapper { margin-left: 260px; } .mobile-menu-toggle { display: none; } }
+        @media (max-width: 991px) { .mobile-menu-toggle { display: block; } .content-wrapper { width: 100%; } }
+        @media (max-width: 768px) { .app-header { padding: 15px 20px; } .app-header h1 { font-size: 1.3rem; } .main-app-content { padding: 20px; } .user-name { display: none; } }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay" style="display:none;">
+        <div class="loader"></div>  Carregando...
+    </div>
+
+    <div class="app-container">
+        <aside class="sidebar" id="appSidebar">
+            <div class="logo"><a href="dashboard.html"><i class="fas fa-graduation-cap"></i> FormaGest</a></div>
+            <nav>
+                <ul>
+                    <li><a href="dashboard.html" id="navDashboard"><span class="nav-icon"><i class="fas fa-tachometer-alt"></i></span>Dashboard</a></li>
+                    <li><a href="formandos.html" id="navFormandos"><span class="nav-icon"><i class="fas fa-users"></i></span>Formandos</a></li>
+                    <li><a href="financeiro.html" id="navFinanceiro"><span class="nav-icon"><i class="fas fa-wallet"></i></span>Financeiro</a></li>
+                    <li><a href="convites.html" id="navConvites"><span class="nav-icon"><i class="fas fa-envelope-open-text"></i></span>Convites/Check-In</a></li>
+                    <li><a href="papeis.html" id="navPapeis"><span class="nav-icon"><i class="fas fa-user-tag"></i></span>Divisão de Papéis</a></li>
+                    <li><a href="mesas.html" id="navMesas"><span class="nav-icon"><i class="fas fa-chair"></i></span>Organização de Mesas</a></li>
+                    <li><a href="playlists.html" id="navPlaylists" class="active"><span class="nav-icon"><i class="fas fa-music"></i></span>Playlists</a></li>
+                    <li><a href="linha-tempo.html" id="navLinhaTempo"><span class="nav-icon"><i class="fas fa-stream"></i></span>Linha do Tempo</a></li>
+                    <li><a href="documentacao.html" id="navDocumentacao"><span class="nav-icon"><i class="fas fa-file-alt"></i></span>Documentação</a></li>
+                    <li><a href="pos-evento.html" id="navPosEvento"><span class="nav-icon"><i class="fas fa-photo-video"></i></span>Pós-Evento</a></li>
+                    <li class="logout-btn-sidebar"><a href="#" id="logoutBtnSidebar"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span>Sair</a></li>
+                </ul>
+            </nav>
+        </aside>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <div class="content-wrapper" id="contentWrapper">
+            <header class="app-header">
+                <div class="header-left">
+                    <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Abrir menu"><i class="fas fa-bars"></i></button>
+                    <h1 id="pageTitle">Playlists</h1>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">--</div>
+                    <span class="user-name" id="userName">Carregando...</span>
+                    <a href="#" id="logoutBtnHeader" class="logout-link" title="Sair"><i class="fas fa-sign-out-alt"></i></a>
+                </div>
+            </header>
+
+            <main class="main-app-content">
+                <div class="page-header">
+                    <h2 id="eventoNomeDisplay">Playlists do Evento <span></span></h2>
+                    <button id="showPlaylistFormBtn" class="btn-add"><i class="fas fa-plus-circle"></i> Criar Playlist</button>
+                </div>
+
+                <div class="form-container" id="playlistFormContainer" style="display: none;">
+                    <h3 id="playlistFormTitle">Criar Nova Playlist</h3>
+                    <form id="playlistForm">
+                        <input type="hidden" id="playlistId">
+                        <div class="form-group">
+                            <label for="playlistNome">Nome da Playlist:</label>
+                            <input type="text" id="playlistNome" required placeholder="Ex: Recepção, Jantar Animado, Abertura Pista">
+                        </div>
+                        <div class="form-group">
+                            <label for="playlistDescricao">Descrição (Opcional):</label>
+                            <textarea id="playlistDescricao"></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" id="cancelPlaylistBtn" class="btn-cancel">Cancelar</button>
+                            <button type="submit" class="btn-save">Salvar Playlist</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="playlistsGrid" class="playlists-grid">
+                    <!-- Cards das playlists serão inseridos aqui -->
+                </div>
+                <p id="emptyPlaylistsMessage" class="empty-list" style="display:none;">Nenhuma playlist criada ainda.</p>
+
+            </main>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAQ3txJQ09muNi5xaBhOPwFztT1fCR1qmE",
+            authDomain: "formagest-a7591.firebaseapp.com",
+            databaseURL: "https://formagest-a7591-default-rtdb.firebaseio.com",
+            projectId: "formagest-a7591",
+            storageBucket: "formagest-a7591.firebasestorage.app",
+            messagingSenderId: "27539451532",
+            appId: "1:27539451532:web:6bea92d2e1df99dac115a9",
+            measurementId: "G-G3NDPYSQ9Z"
+        };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const auth = firebase.auth();
+        const database = firebase.database();
+    </script>
+
+    <script>
+        // --- INÍCIO JS COMUM (COPIAR DO PAPEIS.HTML OU ANTERIORES) ---
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const userAvatar = document.getElementById('userAvatar');
+        const userName = document.getElementById('userName');
+        const logoutBtnSidebar = document.getElementById('logoutBtnSidebar');
+        const logoutBtnHeader = document.getElementById('logoutBtnHeader');
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const sidebar = document.getElementById('appSidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const contentWrapper = document.getElementById('contentWrapper');
+        const pageTitle = document.getElementById('pageTitle');
+
+        let globalCurrentUserId = null;
+        let globalSelectedEventoId = null;
+        let globalSelectedEventoNome = null;
+
+        function showLoading(show) {
+            loadingOverlay.style.display = show ? 'flex' : 'none';
+            const formButtons = document.querySelectorAll('form button');
+            formButtons.forEach(btn => btn.disabled = show);
+        }
+        function handleLogout() { /* ... (COPIE) ... */ 
+            showLoading(true); auth.signOut().then(() => { localStorage.removeItem('selectedEventoId'); localStorage.removeItem('selectedEventoNome'); window.location.href = 'index.html'; }).catch(error => { console.error("Erro logout:", error); alert("Erro sair."); showLoading(false); });
+        }
+        logoutBtnSidebar.addEventListener('click', handleLogout); logoutBtnHeader.addEventListener('click', handleLogout);
+        mobileMenuToggle.addEventListener('click', () => { /* ... (COPIE) ... */
+            sidebar.classList.toggle('active'); sidebarOverlay.classList.toggle('active'); const icon = mobileMenuToggle.querySelector('i'); icon.classList.toggle('fa-bars'); icon.classList.toggle('fa-times');
+        });
+        sidebarOverlay.addEventListener('click', () => { /* ... (COPIE) ... */
+            sidebar.classList.remove('active'); sidebarOverlay.classList.remove('active'); mobileMenuToggle.querySelector('i').classList.remove('fa-times'); mobileMenuToggle.querySelector('i').classList.add('fa-bars');
+        });
+        function updateUserInfo(user) { /* ... (COPIE) ... */ 
+            if (user) { userName.textContent = user.displayName || user.email; const initials = (user.displayName ? user.displayName.charAt(0) : user.email.charAt(0)).toUpperCase(); userAvatar.textContent = initials; } else { userName.textContent = 'Usuário'; userAvatar.textContent = 'U'; }
+        }
+        function adjustLayout() { /* ... (COPIE) ... */ 
+            if (window.innerWidth >= 992) { contentWrapper.style.marginLeft = '260px'; sidebar.classList.remove('active'); sidebarOverlay.classList.remove('active'); } else { contentWrapper.style.marginLeft = '0'; }
+        }
+        window.addEventListener('resize', adjustLayout); adjustLayout();
+
+        auth.onAuthStateChanged(user => {
+            showLoading(true);
+            if (user) {
+                globalCurrentUserId = user.uid; updateUserInfo(user);
+                globalSelectedEventoId = localStorage.getItem('selectedEventoId');
+                globalSelectedEventoNome = localStorage.getItem('selectedEventoNome');
+                if (!globalSelectedEventoId) { alert("Nenhum evento selecionado."); window.location.href = 'dashboard.html'; return; }
+                document.querySelectorAll('#appSidebar nav a[id^="nav"]').forEach(link => { if (link.href.includes('.html') && !link.href.includes('dashboard.html')) { link.href = `${link.href.split('?')[0]}?eventoId=${globalSelectedEventoId}`; } });
+                if (typeof loadPageData === "function") { loadPageData(globalCurrentUserId, globalSelectedEventoId, globalSelectedEventoNome); } else { showLoading(false); }
+            } else { localStorage.removeItem('selectedEventoId'); localStorage.removeItem('selectedEventoNome'); window.location.href = 'index.html'; }
+        });
+        // --- FIM JS COMUM ---
+
+        // JS Específico da Página de Playlists
+        const eventoNomeDisplaySpan = document.querySelector('#eventoNomeDisplay span');
+        const showPlaylistFormBtn = document.getElementById('showPlaylistFormBtn');
+        const playlistFormContainer = document.getElementById('playlistFormContainer');
+        const playlistForm = document.getElementById('playlistForm');
+        const cancelPlaylistBtn = document.getElementById('cancelPlaylistBtn');
+        const playlistsGrid = document.getElementById('playlistsGrid');
+        const emptyPlaylistsMessage = document.getElementById('emptyPlaylistsMessage');
+        const playlistFormTitle = document.getElementById('playlistFormTitle');
+        const playlistIdInput = document.getElementById('playlistId');
+        const playlistNomeInput = document.getElementById('playlistNome');
+        const playlistDescricaoInput = document.getElementById('playlistDescricao');
+
+        function loadPageData(userId, eventoId, eventoNome) {
+            if (!eventoId) { showLoading(false); return; }
+            eventoNomeDisplaySpan.textContent = eventoNome || "Evento Selecionado";
+            document.getElementById('navPlaylists').classList.add('active');
+            loadPlaylists();
+            // showLoading(false) é chamado dentro de loadPlaylists
+        }
+
+        showPlaylistFormBtn.addEventListener('click', () => {
+            playlistFormTitle.textContent = "Criar Nova Playlist";
+            playlistForm.reset(); playlistIdInput.value = '';
+            playlistFormContainer.style.display = 'block';
+            showPlaylistFormBtn.style.display = 'none';
+        });
+
+        cancelPlaylistBtn.addEventListener('click', () => {
+            playlistFormContainer.style.display = 'none';
+            showPlaylistFormBtn.style.display = 'inline-flex';
+        });
+
+        playlistForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (!globalSelectedEventoId) return;
+
+            const playlistId = playlistIdInput.value;
+            const data = {
+                nome: playlistNomeInput.value,
+                descricao: playlistDescricaoInput.value,
+                // musicas: {} // Será preenchido ao adicionar músicas
+            };
+            if (!playlistId && !data.musicas) { // Só adiciona musicas:{} para novas playlists
+                data.musicas = {};
+            }
+
+            showLoading(true);
+            const playlistsRefPath = `eventos/${globalSelectedEventoId}/playlists`;
+            let promise;
+
+            if (playlistId) { // Editando info da playlist (não as músicas aqui)
+                promise = database.ref(`${playlistsRefPath}/${playlistId}`).update({ nome: data.nome, descricao: data.descricao });
+            } else { // Criando nova playlist
+                promise = database.ref(playlistsRefPath).push(data);
+            }
+
+            promise.then(() => {
+                playlistForm.reset();
+                playlistFormContainer.style.display = 'none';
+                showPlaylistFormBtn.style.display = 'inline-flex';
+            }).catch(err => alert("Erro: " + err.message))
+              .finally(() => showLoading(false));
+        });
+
+        function loadPlaylists() {
+            if (!globalSelectedEventoId) return;
+            showLoading(true);
+            const playlistsRef = database.ref(`eventos/${globalSelectedEventoId}/playlists`);
+            playlistsRef.on('value', snapshot => {
+                playlistsGrid.innerHTML = '';
+                if (snapshot.exists()) {
+                    emptyPlaylistsMessage.style.display = 'none';
+                    snapshot.forEach(childSnapshot => {
+                        const playlist = childSnapshot.val();
+                        const playlistKey = childSnapshot.key;
+                        renderPlaylistCard(playlistKey, playlist);
+                    });
+                } else {
+                    emptyPlaylistsMessage.style.display = 'block';
+                }
+                showLoading(false);
+            }, err => { console.error(err); showLoading(false); });
+        }
+
+        function renderPlaylistCard(playlistKey, playlistData) {
+            const card = document.createElement('div');
+            card.className = 'playlist-card';
+            card.id = `playlist-${playlistKey}`;
+
+            let musicasHtml = '<p><i>Nenhuma música adicionada.</i></p>';
+            if (playlistData.musicas && Object.keys(playlistData.musicas).length > 0) {
+                musicasHtml = '<ul class="musicas-list">';
+                for (const musicaKey in playlistData.musicas) {
+                    const musica = playlistData.musicas[musicaKey];
+                    musicasHtml += `
+                        <li>
+                            <span class="musica-info">
+                                ${musica.nome || 'Música sem nome'}
+                                <span class="artista">${musica.artista || 'Artista desconhecido'}</span>
+                            </span>
+                            <span class="musica-actions">
+                                <button onclick="editMusica('${playlistKey}', '${musicaKey}')" title="Editar Música"><i class="fas fa-pencil-alt"></i></button>
+                                <button onclick="deleteMusica('${playlistKey}', '${musicaKey}')" class="delete-btn" title="Remover Música"><i class="fas fa-times"></i></button>
+                            </span>
+                        </li>`;
+                }
+                musicasHtml += '</ul>';
+            }
+
+            card.innerHTML = `
+                <div class="playlist-card-header">
+                    <h4>${playlistData.nome}</h4>
+                    <div class="actions">
+                        <button onclick="editPlaylistInfo('${playlistKey}')" title="Editar Info Playlist"><i class="fas fa-edit"></i></button>
+                        <button onclick="deletePlaylist('${playlistKey}')" class="delete-btn" title="Excluir Playlist"><i class="fas fa-trash-alt"></i></button>
+                    </div>
+                </div>
+                <p class="description">${playlistData.descricao || 'Sem descrição.'}</p>
+                <h5>Músicas:</h5>
+                ${musicasHtml}
+                <form class="add-musica-form" onsubmit="addMusica(event, '${playlistKey}')">
+                    <input type="hidden" name="musicaId" value=""> <!-- Para edição de música -->
+                    <div class="form-group">
+                        <input type="text" name="musicaNome" placeholder="Nome da Música" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" name="musicaArtista" placeholder="Artista (Opcional)">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-save btn-sm">Adicionar Música</button>
+                    </div>
+                </form>
+            `;
+            playlistsGrid.appendChild(card);
+        }
+        
+        function editPlaylistInfo(playlistKey) {
+            if (!globalSelectedEventoId) return;
+            showLoading(true);
+            database.ref(`eventos/${globalSelectedEventoId}/playlists/${playlistKey}`).once('value')
+            .then(snapshot => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    playlistIdInput.value = playlistKey;
+                    playlistNomeInput.value = data.nome;
+                    playlistDescricaoInput.value = data.descricao || '';
+                    playlistFormTitle.textContent = "Editar Informações da Playlist";
+                    playlistFormContainer.style.display = 'block';
+                    showPlaylistFormBtn.style.display = 'none';
+                }
+                showLoading(false);
+            }).catch(() => showLoading(false));
+        }
+
+        function deletePlaylist(playlistKey) {
+            if (!globalSelectedEventoId || !confirm("Tem certeza que deseja excluir esta playlist e todas as suas músicas?")) return;
+            showLoading(true);
+            database.ref(`eventos/${globalSelectedEventoId}/playlists/${playlistKey}`).remove()
+            .catch(err => alert("Erro ao excluir: " + err.message))
+            .finally(() => showLoading(false)); // O 'on' listener vai atualizar a UI
+        }
+
+        function addMusica(event, playlistKey) {
+            event.preventDefault();
+            if (!globalSelectedEventoId || !playlistKey) return;
+
+            const form = event.target;
+            const musicaId = form.musicaId.value; // Se estiver editando uma música
+            const musicaNome = form.musicaNome.value;
+            const musicaArtista = form.musicaArtista.value;
+
+            if (!musicaNome) { alert("O nome da música é obrigatório."); return; }
+
+            const musicaData = { nome: musicaNome, artista: musicaArtista || null };
+            const musicasRefPath = `eventos/${globalSelectedEventoId}/playlists/${playlistKey}/musicas`;
+            let promise;
+
+            showLoading(true);
+            if (musicaId) { // Editando música existente
+                 promise = database.ref(`${musicasRefPath}/${musicaId}`).update(musicaData);
+            } else { // Adicionando nova música
+                 promise = database.ref(musicasRefPath).push(musicaData);
+            }
+
+            promise.then(() => {
+                form.reset(); // Limpa o formulário de adicionar música específico do card
+                // O 'on' listener da playlist vai recarregar o card
+            }).catch(err => alert("Erro ao salvar música: " + err.message))
+              .finally(() => showLoading(false));
+        }
+        
+        function editMusica(playlistKey, musicaKey) {
+            if (!globalSelectedEventoId || !playlistKey || !musicaKey) return;
+            const musicaRef = database.ref(`eventos/${globalSelectedEventoId}/playlists/${playlistKey}/musicas/${musicaKey}`);
+            showLoading(true);
+            musicaRef.once('value').then(snapshot => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    // Encontra o formulário dentro do card correto
+                    const cardForm = document.querySelector(`#playlist-${playlistKey} .add-musica-form`);
+                    if (cardForm) {
+                        cardForm.musicaId.value = musicaKey;
+                        cardForm.musicaNome.value = data.nome;
+                        cardForm.musicaArtista.value = data.artista || '';
+                        cardForm.querySelector('button[type="submit"]').textContent = "Atualizar Música";
+                        cardForm.musicaNome.focus();
+                    }
+                }
+                showLoading(false);
+            }).catch(() => showLoading(false));
+        }
+
+        function deleteMusica(playlistKey, musicaKey) {
+            if (!globalSelectedEventoId || !playlistKey || !musicaKey || !confirm("Remover esta música da playlist?")) return;
+            showLoading(true);
+            database.ref(`eventos/${globalSelectedEventoId}/playlists/${playlistKey}/musicas/${musicaKey}`).remove()
+            .catch(err => alert("Erro ao remover música: " + err.message))
+            .finally(() => showLoading(false)); // O 'on' da playlist vai atualizar
+        }
+
+    </script>
+</body>
+</html>
