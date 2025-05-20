@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Pagamentos - Érika Produções</title>
+    <link rel="stylesheet" href="../../public/assets/css/client-style.css">
+    <link rel="stylesheet" href="../../public/assets/css/admin-style.css"> <!-- Para reutilizar .data-table -->
+    <link rel="icon" href="../../public/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body class="client-area">
+    <header class="client-header">
+        <div class="container">
+            <div class="logo"><h1>Érika Produções</h1></div>
+            <nav>
+                <ul>
+                    <li><a href="events.html"><i class="fas fa-arrow-left"></i> Meus Eventos</a></li>
+                    <li class="nav-item-event-name" style="font-weight:bold; margin: 0 10px;">/<span id="currentEventNameNav"></span></li>
+                    <li><a href="dashboard.html">Visão Geral</a></li>
+                    <li><a href="payments.html" class="active">Pagamentos</a></li>
+                    <li><a href="contracts.html">Contrato</a></li>
+                    <li><a href="profile.html">Perfil</a></li>
+                    <li><a href="#" id="clientLogoutBtn" class="logout-btn">Sair</a></li>
+                </ul>
+            </nav>
+            <div class="client-menu-toggle" id="clientMenuToggle"><i class="fas fa-bars"></i></div>
+        </div>
+    </header>
+
+    <main class="client-main-content">
+        <h2>Meus Pagamentos: <span id="paymentsEventTitle"></span></h2>
+        
+        <div class="info-card">
+            <h4>Resumo Financeiro</h4>
+            <div class="details-grid">
+                <p><strong>Valor Total:</strong> <span id="paymentTotalValue">R$ 0,00</span></p>
+                <p><strong>Pago:</strong> <span id="paymentTotalPaid">R$ 0,00</span></p>
+                <p><strong>Saldo Devedor:</strong> <span id="paymentBalanceDue">R$ 0,00</span></p>
+            </div>
+        </div>
+
+        <div class="table-container info-card"> <!-- Adicionado info-card para consistência -->
+            <h4>Histórico de Pagamentos / Carnê</h4>
+            <table class="data-table" id="clientPaymentsTable">
+                <thead>
+                    <tr>
+                        <th>Parcela / Descrição</th>
+                        <th>Vencimento</th>
+                        <th>Valor (R$)</th>
+                        <th>Status</th>
+                        <th>Ações / PIX</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Parcelas listadas aqui -->
+                </tbody>
+            </table>
+            <div id="noPaymentsMessage" style="text-align: center; padding: 20px; display: none;">
+                Nenhum registro de pagamento encontrado para este evento.
+            </div>
+        </div>
+    </main>
+    
+    <!-- Modal para exibir PIX Copia e Cola -->
+    <div id="pixModal" class="modal" style="display:none; position:fixed; z-index:1002; left:0; top:0; width:100%; height:100%; overflow:auto; background-color:rgba(0,0,0,0.5);">
+        <div class="modal-content" style="background-color:#fff; margin:15% auto; padding:20px; border:1px solid #888; width:90%; max-width:500px; border-radius:8px; text-align:center;">
+            <span class="close-pix-modal" style="color:#aaa; float:right; font-size:28px; font-weight:bold; cursor:pointer;">×</span>
+            <h4>Pagar com PIX</h4>
+            <p>Escaneie o QR Code ou copie o código abaixo:</p>
+            <img id="pixQrCodeImg" src="https://via.placeholder.com/200x200.png?text=QR+Code+PIX" alt="QR Code PIX" style="max-width:200px; margin:10px auto; display:block;">
+            <textarea id="pixCodeText" rows="3" style="width:100%; margin-top:10px; padding:10px; font-size:0.9rem; border-radius:5px; border:1px solid #ccc; resize:none;" readonly></textarea>
+            <button id="copyPixCodeBtn" class="btn-client btn-client-primary" style="margin-top:10px;">Copiar Código</button>
+            <p style="margin-top:15px; font-size:0.8rem;">Após o pagamento, a confirmação pode levar alguns minutos.</p>
+        </div>
+    </div>
+
+
+    <script src="../../public/assets/js/firebase-config.js"></script>
+    <script src="../../public/assets/js/auth-client.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const selectedEventId = localStorage.getItem('selectedClientEventId');
+            const selectedEventName = localStorage.getItem('selectedClientEventName') || "Meu Evento";
+
+            if (!selectedEventId) {
+                window.location.href = 'events.html'; return;
+            }
+            document.getElementById('paymentsEventTitle').textContent = selectedEventName;
+            document.getElementById('currentEventNameNav').textContent = selectedEventName;
+
+            // Simulação de dados de pagamento para o evento
+            const mockPaymentsData = {
+                "event1": { // Formatura
+                    totalValue: 5000.00,
+                    installments: [
+                        { id: "p1e1", number: 1, dueDate: "2025-05-15", amount: 500.00, status: "paid", pixCode: "pixsimulado001formatura" },
+                        { id: "p2e1", number: 2, dueDate: "2025-06-15", amount: 500.00, status: "paid", pixCode: "pixsimulado002formatura" },
+                        { id: "p3e1", number: 3, dueDate: "2025-07-15", amount: 500.00, status: "pending", pixCode: "pixsimulado003formaturaVENC" },
+                        { id: "p4e1", number: 4, dueDate: "2025-08-15", amount: 500.00, status: "pending", pixCode: "pixsimulado004formatura" },
+                        // ... mais parcelas
+                    ]
+                },
+                "event2": { // Casamento
+                    totalValue: 25000.00,
+                    installments: [
+                         { id: "p1e2", description: "Sinal Casamento", dueDate: "2025-04-01", amount: 10000.00, status: "paid", pixCode: "pixsinalcasamento" },
+                         { id: "p2e2", description: "Parcela Final", dueDate: "2025-08-01", amount: 15000.00, status: "pending", pixCode: "pixfinalcasamento" }
+                    ]
+                }
+            };
+            const currentPayments = mockPaymentsData[selectedEventId] || { totalValue: 0, installments: [] };
+            let totalPaid = 0;
+            currentPayments.installments.forEach(p => { if(p.status === 'paid') totalPaid += p.amount; });
+
+            document.getElementById('paymentTotalValue').textContent = currentPayments.totalValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('paymentTotalPaid').textContent = totalPaid.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('paymentBalanceDue').textContent = (currentPayments.totalValue - totalPaid).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            const paymentsTableBody = document.querySelector('#clientPaymentsTable tbody');
+            const noPaymentsMsg = document.getElementById('noPaymentsMessage');
+
+            if (currentPayments.installments.length === 0) {
+                noPaymentsMsg.style.display = 'block';
+            } else {
+                noPaymentsMsg.style.display = 'none';
+                currentPayments.installments.forEach(inst => {
+                    const row = paymentsTableBody.insertRow();
+                    row.innerHTML = `
+                        <td>${inst.description || `Parcela ${inst.number}`}</td>
+                        <td>${new Date(inst.dueDate + 'T00:00:00').toLocaleDateString('pt-BR')}</td>
+                        <td>${inst.amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                        <td><span class="status-badge status-${inst.status}">${inst.status === 'paid' ? 'Pago' : 'Pendente'}</span></td>
+                        <td>
+                            ${inst.status === 'pending' ? `<button class="btn-client btn-client-accent btn-sm pay-pix-btn" data-pixcode="${inst.pixCode}" data-amount="${inst.amount}">Pagar com PIX</button>` : 
+                            (inst.receiptUrl ? `<a href="${inst.receiptUrl}" target="_blank" class="btn-client btn-client-secondary btn-sm">Ver Recibo</a>` : 'Confirmado')}
+                        </td>
+                    `;
+                });
+            }
+
+            // Lógica do Modal PIX
+            const pixModal = document.getElementById('pixModal');
+            const closePixModalBtn = document.querySelector('.close-pix-modal');
+            const copyPixCodeBtn = document.getElementById('copyPixCodeBtn');
+            const pixCodeTextEl = document.getElementById('pixCodeText');
+
+            document.querySelectorAll('.pay-pix-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const pixCode = this.dataset.pixcode;
+                    // const amount = this.dataset.amount; // Poderia ser usado para gerar QR Code dinâmico
+                    pixCodeTextEl.value = pixCode; // Simulação
+                    // Aqui você poderia usar uma lib para gerar o QR Code a partir do pixCode
+                    pixModal.style.display = 'block';
+                });
+            });
+            closePixModalBtn.onclick = function() { pixModal.style.display = 'none'; }
+            window.onclick = function(event) { if (event.target == pixModal) pixModal.style.display = 'none'; }
+            copyPixCodeBtn.onclick = function() {
+                pixCodeTextEl.select();
+                document.execCommand('copy');
+                alert('Código PIX copiado!');
+            }
+        });
+    </script>
+</body>
+</html>

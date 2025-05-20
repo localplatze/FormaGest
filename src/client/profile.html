@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil - Érika Produções</title>
+    <link rel="stylesheet" href="../../public/assets/css/client-style.css">
+    <link rel="icon" href="../../public/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body class="client-area">
+    <header class="client-header">
+        <div class="container">
+            <div class="logo"><h1>Érika Produções</h1></div>
+            <nav>
+                 <ul>
+                    <li><a href="events.html"><i class="fas fa-arrow-left"></i> Meus Eventos</a></li>
+                    <!-- O nome do evento pode ser omitido aqui ou mantido se fizer sentido -->
+                    <!-- <li class="nav-item-event-name" style="font-weight:bold; margin: 0 10px;">/<span id="currentEventNameNav"></span></li> -->
+                    <li><a href="dashboard.html">Visão Geral</a></li>
+                    <li><a href="payments.html">Pagamentos</a></li>
+                    <li><a href="contracts.html">Contrato</a></li>
+                    <li><a href="profile.html" class="active">Perfil</a></li>
+                    <li><a href="#" id="clientLogoutBtn" class="logout-btn">Sair</a></li>
+                </ul>
+            </nav>
+            <div class="client-menu-toggle" id="clientMenuToggle"><i class="fas fa-bars"></i></div>
+        </div>
+    </header>
+
+    <main class="client-main-content">
+        <h2>Meu Perfil</h2>
+        
+        <form id="clientProfileForm" class="info-card client-form">
+            <h4>Informações Pessoais</h4>
+            <div class="form-group">
+                <label for="profileName">Nome Completo:</label>
+                <input type="text" id="profileName" name="profileName" required>
+            </div>
+            <div class="form-group">
+                <label for="profileEmail">Email (Login):</label>
+                <input type="email" id="profileEmail" name="profileEmail" required readonly>
+            </div>
+            <div class="form-group">
+                <label for="profilePhone">Telefone:</label>
+                <input type="tel" id="profilePhone" name="profilePhone">
+            </div>
+             <div class="form-group">
+                <label for="profilePixKey">Minha Chave PIX (para eventuais reembolsos):</label>
+                <input type="text" id="profilePixKey" name="profilePixKey">
+            </div>
+
+            <h4 style="margin-top:30px;">Alterar Senha</h4>
+            <div class="form-group">
+                <label for="profileCurrentPassword">Senha Atual:</label>
+                <input type="password" id="profileCurrentPassword" name="profileCurrentPassword">
+            </div>
+             <div class="form-group">
+                <label for="profileNewPassword">Nova Senha (deixe em branco para não alterar):</label>
+                <input type="password" id="profileNewPassword" name="profileNewPassword">
+            </div>
+            <div class="form-group">
+                <label for="profileConfirmNewPassword">Confirmar Nova Senha:</label>
+                <input type="password" id="profileConfirmNewPassword" name="profileConfirmNewPassword">
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-client btn-client-primary">Salvar Alterações</button>
+            </div>
+        </form>
+    </main>
+
+    <script src="../../public/assets/js/firebase-config.js"></script>
+    <script src="../../public/assets/js/auth-client.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const clientUid = localStorage.getItem('clientUserUid');
+            const clientContact = localStorage.getItem('clientUserContact'); // Email usado para login
+
+            if (!clientUid) {
+                window.location.href = 'login.html'; return;
+            }
+            
+            // const selectedEventName = localStorage.getItem('selectedClientEventName');
+            // if (selectedEventName && document.getElementById('currentEventNameNav')) {
+            //    document.getElementById('currentEventNameNav').textContent = selectedEventName;
+            // }
+
+
+            // Simulação de dados do cliente logado
+             const mockClientUsers = {
+                "uid2": { name: "Cliente Alfa", email: "cliente.alfa@exemplo.com", phone: "+5511988887777", pixKey: "chavepixcliente1", passwordHash: "client_hashed_pass1"},
+                "uid3": { name: "Maria Contratante", email: "maria.c@example.com", phone: "+5521977776666", pixKey: "emailmaria@contato.com", passwordHash: "client_hashed_pass2"}
+            };
+            const clientData = mockClientUsers[clientUid];
+
+
+            function loadProfileData() {
+                if (clientData) {
+                    document.getElementById('profileName').value = clientData.name;
+                    document.getElementById('profileEmail').value = clientData.email; // Readonly
+                    document.getElementById('profilePhone').value = clientData.phone || '';
+                    document.getElementById('profilePixKey').value = clientData.pixKey || '';
+                } else {
+                    alert("Não foi possível carregar os dados do perfil.");
+                }
+            }
+            loadProfileData();
+
+            document.getElementById('clientProfileForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const currentPassword = document.getElementById('profileCurrentPassword').value;
+                const newPassword = document.getElementById('profileNewPassword').value;
+                const confirmNewPassword = document.getElementById('profileConfirmNewPassword').value;
+
+                if (newPassword && newPassword !== confirmNewPassword) {
+                    alert("As novas senhas não coincidem!");
+                    return;
+                }
+
+                const updatedProfile = {
+                    name: document.getElementById('profileName').value,
+                    phone: document.getElementById('profilePhone').value,
+                    pixKey: document.getElementById('profilePixKey').value,
+                };
+
+                if (newPassword) {
+                    if (!currentPassword) {
+                        alert("Por favor, insira sua senha atual para definir uma nova.");
+                        return;
+                    }
+                    // Lógica de verificação da senha atual e hashing da nova (simulada)
+                    // if (verificarSenhaAtual(clientData.passwordHash, currentPassword)) { // Função de verificação de hash
+                    if (currentPassword === "cliente123") { // Simulação
+                        // updatedProfile.password = await hashFunction(newPassword); // Hashing real
+                        updatedProfile.password = `hashed_${newPassword}_novo`; // Simulação
+                        console.log("Nova senha do cliente (simulada):", updatedProfile.password);
+                        localStorage.setItem('clientUserName', updatedProfile.name); // Atualiza no localStorage
+                    } else {
+                        alert("Senha atual incorreta! (Simulado)");
+                        return;
+                    }
+                }
+
+                console.log("Atualizando perfil do cliente (simulado):", clientUid, updatedProfile);
+                // firebase.database().ref('users/' + clientUid).update(updatedProfile);
+                alert("Perfil atualizado com sucesso! (Simulado)");
+                 if (newPassword && currentPassword === "cliente123") {
+                    document.getElementById('profileCurrentPassword').value = '';
+                    document.getElementById('profileNewPassword').value = '';
+                    document.getElementById('profileConfirmNewPassword').value = '';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

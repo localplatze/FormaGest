@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Importar Formandos - Admin Érika Produções</title>
+    <link rel="stylesheet" href="../../../public/assets/css/admin-style.css">
+    <link rel="icon" href="../../../public/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <!-- Para ler Excel (ex: SheetJS / xlsx.full.min.js) - Adicionar se for implementar a leitura real -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script> -->
+</head>
+<body class="dashboard-body">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>Érika Produções</h3>
+        </div>
+        <nav class="sidebar-nav">
+             <ul>
+                <li><a href="../dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="../events/list.html"><i class="fas fa-calendar-alt"></i> Gerenciar Eventos</a></li>
+                <li><a href="../events/new.html"><i class="fas fa-plus-circle"></i> Novo Evento</a></li>
+                <li class="active">
+                    <a href="index.html"><i class="fas fa-graduation-cap"></i> Formaturas</a>
+                    <ul class="submenu" style="padding-left: 20px; list-style: none;">
+                        <li><a href="#" id="subStudentsLink" style="color:#ccc; padding: 10px 15px; display:block;">Formandos</a></li>
+                        <li><a href="#" id="subImportLink" style="color:#ccc; padding: 10px 15px; display:block;" class="active-submenu">Importar</a></li>
+                        <li><a href="#" id="subTablesLink" style="color:#ccc; padding: 10px 15px; display:block;">Mesas</a></li>
+                        <li><a href="#" id="subChecklistLink" style="color:#ccc; padding: 10px 15px; display:block;">Checklist</a></li>
+                    </ul>
+                </li>
+                <li><a href="../weddings/index.html"><i class="fas fa-heart"></i> Casamentos</a></li>
+                <li><a href="../birthdays/index.html"><i class="fas fa-birthday-cake"></i> Aniversários</a></li>
+                <li><a href="../general/index.html"><i class="fas fa-concierge-bell"></i> Eventos Gerais</a></li>
+                <li><a href="#"><i class="fas fa-users"></i> Clientes</a></li>
+                <li><a href="../settings/index.html"><i class="fas fa-cogs"></i> Configurações</a></li>
+                <li><a href="#" id="adminLogoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <header class="main-header">
+            <div class="header-title">
+                <h2>Importar Formandos para: <span id="eventNameDisplay">Carregando...</span></h2>
+            </div>
+            <div class="user-info">
+                <span>Olá, <span id="adminUserName">Admin</span></span>
+                <i class="fas fa-user-circle fa-2x"></i>
+            </div>
+        </header>
+
+        <div class="content-area">
+            <div class="import-container">
+                <h3>Upload de Planilha Excel (.xlsx, .xls, .csv)</h3>
+                <form id="importForm">
+                    <div class="form-group">
+                        <label for="excelFile">Selecione o arquivo:</label>
+                        <input type="file" id="excelFile" name="excelFile" accept=".xlsx, .xls, .csv" required>
+                    </div>
+                    <div class="import-instructions">
+                        <h4>Instruções:</h4>
+                        <p>A planilha deve conter as seguintes colunas na primeira linha (cabeçalho):</p>
+                        <ul>
+                            <li><strong>NomeCompleto</strong> (Obrigatório)</li>
+                            <li><strong>Email</strong> (Obrigatório, deve ser único)</li>
+                            <li><strong>Telefone</strong> (Opcional)</li>
+                            <li><strong>Curso</strong> (Opcional)</li>
+                            <li><strong>ValorTotalContrato</strong> (Opcional, numérico)</li>
+                            <li><strong>NumeroParcelas</strong> (Opcional, numérico)</li>
+                        </ul>
+                        <p><a href="#">Baixar modelo de planilha</a> (Link de exemplo)</p>
+                    </div>
+                    <div class="form-actions" style="margin-top: 20px;">
+                         <a href="#" id="backToStudentsBtn" class="btn btn-secondary">Voltar para Formandos</a>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-upload"></i> Processar Arquivo</button>
+                    </div>
+                </form>
+
+                <div id="importPreview" class="import-preview" style="display:none;">
+                    <h4>Pré-visualização dos Dados (primeiras 5 linhas):</h4>
+                    <table class="data-table" id="previewTable">
+                        <thead></thead>
+                        <tbody></tbody>
+                    </table>
+                    <div class="form-actions" style="margin-top: 10px;">
+                        <button id="confirmImportBtn" class="btn btn-primary"><i class="fas fa-check"></i> Confirmar Importação</button>
+                    </div>
+                </div>
+                 <div id="importStatusMessage" style="margin-top:15px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../../public/assets/js/firebase-config.js"></script>
+    <script src="../../../public/assets/js/auth-admin.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('isAdminLoggedIn') !== 'true') {
+                window.location.href = '../login.html';
+            }
+            const adminName = localStorage.getItem('adminUserName') || 'Admin';
+            document.getElementById('adminUserName').textContent = adminName;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const eventId = urlParams.get('eventId') || localStorage.getItem('selectedGraduationEventId');
+            const eventName = localStorage.getItem('selectedGraduationEventName') || "Evento Desconhecido";
+            
+            document.getElementById('eventNameDisplay').textContent = eventName;
+            if (!eventId) {
+                alert("ID do evento de formatura não encontrado.");
+                window.location.href = 'index.html';
+                return;
+            }
+            // Atualizar links do submenu e botão de voltar
+            document.getElementById('subStudentsLink').href = `students.html?eventId=${eventId}`;
+            document.getElementById('subImportLink').href = `import.html?eventId=${eventId}`;
+            document.getElementById('subTablesLink').href = `tables.html?eventId=${eventId}`;
+            document.getElementById('subChecklistLink').href = `checklist.html?eventId=${eventId}`;
+            document.getElementById('backToStudentsBtn').href = `students.html?eventId=${eventId}`;
+
+            const importForm = document.getElementById('importForm');
+            const excelFileEl = document.getElementById('excelFile');
+            const importPreviewEl = document.getElementById('importPreview');
+            const previewTableHead = document.querySelector('#previewTable thead');
+            const previewTableBody = document.querySelector('#previewTable tbody');
+            const confirmImportBtn = document.getElementById('confirmImportBtn');
+            const importStatusMessage = document.getElementById('importStatusMessage');
+            let parsedData = [];
+
+            importForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const file = excelFileEl.files[0];
+                if (file) {
+                    importStatusMessage.textContent = 'Processando arquivo...';
+                    importStatusMessage.style.color = 'blue';
+                    // SIMULAÇÃO DA LEITURA DO EXCEL
+                    // Para uma implementação real, use uma lib como SheetJS (xlsx)
+                    // Exemplo com SheetJS (precisa do script incluído no HTML):
+                    /*
+                    const reader = new FileReader();
+                    reader.onload = function(e_reader) {
+                        const data = new Uint8Array(e_reader.target.result);
+                        const workbook = XLSX.read(data, {type: 'array'});
+                        const firstSheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheetName];
+                        parsedData = XLSX.utils.sheet_to_json(worksheet, {header:1}); // header:1 para array de arrays
+                        
+                        if (parsedData.length > 0) {
+                            displayPreview(parsedData);
+                            importPreviewEl.style.display = 'block';
+                            importStatusMessage.textContent = 'Arquivo lido. Verifique a pré-visualização.';
+                        } else {
+                            importStatusMessage.textContent = 'Planilha vazia ou formato inválido.';
+                            importStatusMessage.style.color = 'red';
+                        }
+                    };
+                    reader.readAsArrayBuffer(file);
+                    */
+
+                    // Simulação sem lib:
+                    setTimeout(() => {
+                        parsedData = [
+                            ["NomeCompleto", "Email", "Telefone", "Curso", "ValorTotalContrato", "NumeroParcelas"],
+                            ["Maria Oliveira", "maria.o@teste.com", "11987654321", "Engenharia Civil", "5500", "10"],
+                            ["Pedro Santos", "pedro.s@teste.com", "21912345678", "Engenharia Civil", "5500", "10"],
+                            ["Lucas Almeida", "lucas.a@teste.com", "31999998888", "Engenharia de Produção", "5200", "8"]
+                        ];
+                        displayPreview(parsedData);
+                        importPreviewEl.style.display = 'block';
+                        importStatusMessage.textContent = 'Arquivo lido (simulado). Verifique a pré-visualização.';
+                        importStatusMessage.style.color = 'green';
+                    }, 1000);
+
+                } else {
+                    importStatusMessage.textContent = 'Por favor, selecione um arquivo.';
+                    importStatusMessage.style.color = 'red';
+                }
+            });
+
+            function displayPreview(data) {
+                previewTableHead.innerHTML = '';
+                previewTableBody.innerHTML = '';
+
+                if (data.length > 0) {
+                    const headerRow = previewTableHead.insertRow();
+                    data[0].forEach(headerText => {
+                        const th = document.createElement('th');
+                        th.textContent = headerText;
+                        headerRow.appendChild(th);
+                    });
+
+                    const previewRowCount = Math.min(data.length - 1, 5); // Mostra cabeçalho + 5 linhas de dados
+                    for (let i = 1; i <= previewRowCount; i++) {
+                        if (data[i]) {
+                            const bodyRow = previewTableBody.insertRow();
+                            data[i].forEach(cellText => {
+                                const td = bodyRow.insertCell();
+                                td.textContent = cellText;
+                            });
+                        }
+                    }
+                }
+            }
+
+            confirmImportBtn.addEventListener('click', function() {
+                if (parsedData.length > 1) { // Tem cabeçalho + dados
+                    console.log("Confirmando importação para o evento ID:", eventId, "Dados:", parsedData.slice(1));
+                    // Aqui você enviaria os dados para o Firebase para criar/atualizar os formandos
+                    importStatusMessage.textContent = `Importação confirmada! ${parsedData.length - 1} registros processados (Simulado).`;
+                    importStatusMessage.style.color = 'green';
+                    importPreviewEl.style.display = 'none';
+                    excelFileEl.value = ''; // Limpa o campo de arquivo
+                    parsedData = [];
+                } else {
+                     importStatusMessage.textContent = 'Nenhum dado para importar.';
+                     importStatusMessage.style.color = 'red';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

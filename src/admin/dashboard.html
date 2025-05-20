@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - Érika Produções e Eventos</title>
+    <link rel="stylesheet" href="../../public/assets/css/admin-style.css">
+    <link rel="icon" href="../../public/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body class="dashboard-body">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <!-- <img src="../../public/assets/images/logo-white.png" alt="Logo" class="logo-sidebar"> -->
+            <h3>Érika Produções</h3>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li class="active"><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="events/list.html"><i class="fas fa-calendar-alt"></i> Gerenciar Eventos</a></li>
+                <li><a href="events/new.html"><i class="fas fa-plus-circle"></i> Novo Evento</a></li>
+                <li><a href="graduation/index.html"><i class="fas fa-graduation-cap"></i> Formaturas</a></li>
+                <li><a href="weddings/index.html"><i class="fas fa-heart"></i> Casamentos</a></li>
+                <li><a href="birthdays/index.html"><i class="fas fa-birthday-cake"></i> Aniversários</a></li>
+                <li><a href="general/index.html"><i class="fas fa-concierge-bell"></i> Eventos Gerais</a></li>
+                <li><a href="#"><i class="fas fa-users"></i> Clientes</a></li>
+                <li><a href="../settings/index.html"><i class="fas fa-cogs"></i> Configurações</a></li>
+                <li><a href="#" id="adminLogoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <header class="main-header">
+            <div class="header-title">
+                <h2>Dashboard</h2>
+            </div>
+            <div class="user-info">
+                <span>Olá, <span id="adminUserName">Admin</span></span>
+                <i class="fas fa-user-circle fa-2x"></i>
+            </div>
+        </header>
+
+        <div class="content-area">
+            <section class="stats-cards">
+                <div class="card">
+                    <i class="fas fa-calendar-check fa-3x card-icon"></i>
+                    <div class="card-content">
+                        <h4>Eventos Ativos</h4>
+                        <p class="stat-number" id="activeEventsCount">12</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <i class="fas fa-users fa-3x card-icon"></i>
+                    <div class="card-content">
+                        <h4>Clientes Cadastrados</h4>
+                        <p class="stat-number" id="clientsCount">150</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <i class="fas fa-dollar-sign fa-3x card-icon"></i>
+                    <div class="card-content">
+                        <h4>Faturamento (Mês)</h4>
+                        <p class="stat-number" id="monthlyRevenue">R$ 25.000</p>
+                    </div>
+                </div>
+                 <div class="card">
+                    <i class="fas fa-tasks fa-3x card-icon"></i>
+                    <div class="card-content">
+                        <h4>Tarefas Pendentes</h4>
+                        <p class="stat-number" id="pendingTasks">8</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="recent-activity">
+                <h3>Atividade Recente</h3>
+                <ul>
+                    <li>Novo formando cadastrado para "Formatura ADS 2025".</li>
+                    <li>Pagamento recebido para "Casamento Lúcia & Pedro".</li>
+                    <li>Evento "Aniversário Sofia 15 anos" marcado como concluído.</li>
+                    <li>Contrato assinado: "João Silva - Formatura Engenharia Civil".</li>
+                </ul>
+            </section>
+             <section class="quick-actions">
+                <h3>Ações Rápidas</h3>
+                <a href="events/new.html" class="btn btn-primary"><i class="fas fa-plus"></i> Novo Evento</a>
+                <a href="#" class="btn btn-secondary"><i class="fas fa-file-import"></i> Importar Formandos</a>
+                <a href="#" class="btn btn-secondary"><i class="fas fa-file-pdf"></i> Gerar Relatório</a>
+            </section>
+        </div>
+    </div>
+
+    <script src="../../public/assets/js/firebase-config.js"></script>
+    <script src="../../public/assets/js/auth-admin.js"></script>
+    <script>
+        // Simples proteção de rota e personalização
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('isAdminLoggedIn') !== 'true') {
+                window.location.href = 'login.html';
+            }
+
+            const adminName = localStorage.getItem('adminUserName') || 'Admin';
+            document.getElementById('adminUserName').textContent = adminName;
+
+            // Exemplo: Dados fictícios para o dashboard
+            // Em uma aplicação real, esses dados viriam do Firebase
+            document.getElementById('activeEventsCount').textContent = Math.floor(Math.random() * 20) + 5;
+            document.getElementById('clientsCount').textContent = Math.floor(Math.random() * 200) + 50;
+            document.getElementById('monthlyRevenue').textContent = `R$ ${(Math.random() * 50000 + 10000).toFixed(2).replace('.',',')}`;
+            document.getElementById('pendingTasks').textContent = Math.floor(Math.random() * 10) + 1;
+
+            // Lógica para o menu lateral (se precisar de JS para submenus ou colapso)
+        });
+    </script>
+</body>
+</html>

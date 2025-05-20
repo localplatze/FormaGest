@@ -3,14 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Gestor de Formaturas</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Favicon (adicione um ícone de formatura aqui se tiver) -->
-    <!-- <link rel="icon" href="favicon.ico" type="image/x-icon"> -->
-
+    <title>Érika Produções e Eventos</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <style>
-        /* Reset Básico e Estilos Globais */
+        /* Estilos Globais */
+        :root {
+            --primary-color: #6a0dad; /* Roxo elegante */
+            --secondary-color: #c8a2c8; /* Lilás suave */
+            --accent-color: #ffd700; /* Dourado para destaque */
+            --text-color: #333;
+            --light-text-color: #fff;
+            --bg-color: #fff;
+            --bg-light: #f4f4f9;
+            --border-color: #ddd;
+            --font-primary: 'Montserrat', sans-serif;
+            --font-secondary: 'Playfair Display', serif;
+            --shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -18,420 +30,374 @@
         }
 
         body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: #f0f2f5; /* Um cinza claro para o fundo */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            color: #333;
+            font-family: var(--font-primary);
+            color: var(--text-color);
             line-height: 1.6;
-            padding: 20px; /* Espaçamento para telas menores */
+            background-color: var(--bg-color);
         }
 
-        /* Container Principal do Login */
-        .login-container {
-            background-color: #ffffff;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 450px;
+        .container {
+            width: 90%;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: var(--font-secondary);
+            color: var(--primary-color);
+            margin-bottom: 0.8em;
+        }
+
+        h1 { font-size: 2.5rem; }
+        h2 { font-size: 2.2rem; }
+        h3 { font-size: 1.8rem; }
+
+        p {
+            margin-bottom: 1em;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--primary-color);
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-align: center;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--light-text-color);
+        }
+        .btn-primary:hover {
+            background-color: darken(var(--primary-color), 10%);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+        .btn-secondary:hover {
+            background-color: darken(var(--secondary-color), 5%);
+            transform: translateY(-2px);
+        }
+
+        .btn-cta {
+            background-color: var(--accent-color);
+            color: var(--primary-color);
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        .btn-cta:hover {
+            background-color: darken(var(--accent-color), 10%);
+            transform: translateY(-2px);
+        }
+
+        .section-padding {
+            padding: 60px 0;
+        }
+
+        .bg-light {
+            background-color: var(--bg-light);
+        }
+
+        /* Header */
+        header {
+            background-color: var(--bg-color);
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header .logo h1 {
+            font-family: var(--font-secondary);
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin: 0;
+        }
+        header .logo img {
+            height: 50px; /* Ajuste conforme seu logo */
+        }
+
+        header nav ul {
+            display: flex;
+            align-items: center;
+        }
+
+        header nav ul li {
+            margin-left: 20px;
+        }
+
+        header nav ul li a {
+            color: var(--text-color);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        header nav ul li a:hover,
+        header nav ul li a.active {
+            color: var(--primary-color);
+        }
+
+        .menu-toggle {
+            display: none;
+            cursor: pointer;
+        }
+
+        .menu-toggle .bar {
+            display: block;
+            width: 25px;
+            height: 3px;
+            margin: 5px auto;
+            background-color: var(--primary-color);
+            transition: all 0.3s ease-in-out;
+        }
+
+        /* Hero Section */
+        #hero {
+            background: linear-gradient(rgba(106, 13, 173, 0.7), rgba(106, 13, 173, 0.7)), url('https://via.placeholder.com/1920x1080.png?text=Evento+Elegante') no-repeat center center/cover;
+            /* Substitua pela sua imagem de fundo */
+            color: var(--light-text-color);
+            height: 70vh;
+            display: flex;
+            align-items: center;
             text-align: center;
         }
 
-        .login-header h1 {
-            color: #0A2463; /* Azul Marinho Principal */
+        #hero h2 {
+            font-size: 3rem;
+            margin-bottom: 0.5em;
+            color: var(--light-text-color);
+        }
+
+        #hero p {
+            font-size: 1.2rem;
+            margin-bottom: 1.5em;
+        }
+
+        /* Services Section */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            text-align: center;
+        }
+
+        .service-item {
+            background-color: var(--bg-color);
+            padding: 30px 20px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .service-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        .service-item i {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .service-item h4 {
+            font-size: 1.3rem;
             margin-bottom: 10px;
-            font-size: 2.2rem;
-            font-weight: 700;
         }
 
-        .login-header p {
-            color: #555;
-            margin-bottom: 30px;
-            font-size: 1rem;
-        }
-
-        /* Formulário */
-        .login-form .form-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        .login-form label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #0A2463; /* Azul Marinho */
-            font-size: 0.9rem;
-        }
-
-        .login-form input[type="email"],
-        .login-form input[type="password"] {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-
-        .login-form input[type="email"]:focus,
-        .login-form input[type="password"]:focus {
-            border-color: #FFD700; /* Dourado/Amarelo para foco */
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.3);
-        }
-
-        .login-form .btn-login {
-            background-color: #0A2463; /* Azul Marinho Principal */
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1.1rem;
-            font-weight: 600;
-            width: 100%;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-        }
-
-        .login-form .btn-login:hover {
-            background-color: #193A7A; /* Azul Marinho um pouco mais claro */
-            transform: translateY(-2px);
-        }
-        .login-form .btn-login:active {
-            transform: translateY(0);
-        }
-
-
-        .login-links {
-            margin-top: 25px;
-            font-size: 0.9rem;
-        }
-
-        .login-links a {
-            color: #0A2463; /* Azul Marinho */
-            text-decoration: none;
-            margin: 0 10px;
-        }
-
-        .login-links a:hover {
-            text-decoration: underline;
-            color: #FFB400; /* Dourado/Amarelo no hover */
-        }
-
-        /* Mensagens de Erro/Sucesso */
-        .message {
-            padding: 10px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            font-size: 0.9rem;
-            display: none; /* Oculto por padrão */
-        }
-        .message.error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        .message.success { /* Para mensagens de sucesso, se necessário */
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        /* Loading spinner */
-        .loader {
-            border: 4px solid #f3f3f3; /* Light grey */
-            border-top: 4px solid #0A2463; /* Blue */
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-            display: none; /* Oculto por padrão */
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Logo (Exemplo - substitua por uma imagem se tiver) */
-        .logo-placeholder {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #0A2463;
-            margin-bottom: 20px;
-            /* Exemplo de ícone de formatura com Font Awesome */
-            /* display: flex;
-            align-items: center;
-            justify-content: center; */
-        }
-        .logo-placeholder i {
-            margin-right: 10px;
-            color: #FFD700; /* Dourado */
+        /* Footer */
+        footer {
+            background-color: var(--primary-color);
+            color: var(--light-text-color);
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 40px;
         }
 
         /* Responsividade */
         @media (max-width: 768px) {
-            .login-container {
-                padding: 30px;
-                margin: 20px;
+            header .container {
+                flex-direction: column;
+                align-items: flex-start;
             }
-            .login-header h1 {
-                font-size: 1.8rem;
+            
+            header .logo {
+                margin-bottom: 10px;
             }
-            .login-header p {
-                font-size: 0.9rem;
+
+            header nav {
+                width: 100%;
+                display: none; /* Escondido por padrão em mobile */
+            }
+
+            header nav.active {
+                display: block; /* Mostra quando o menu toggle está ativo */
+            }
+
+            header nav ul {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            header nav ul li {
+                margin: 10px 0;
+                width: 100%;
+                text-align: center;
+            }
+            
+            header nav ul li a.btn {
+                display: block;
+                width: auto;
+                margin: 5px auto;
+            }
+
+            .menu-toggle {
+                display: block;
+                position: absolute;
+                top: 25px;
+                right: 25px;
+            }
+            
+            .menu-toggle.active .bar:nth-child(1) {
+                transform: translateY(8px) rotate(45deg);
+            }
+            .menu-toggle.active .bar:nth-child(2) {
+                opacity: 0;
+            }
+            .menu-toggle.active .bar:nth-child(3) {
+                transform: translateY(-8px) rotate(-45deg);
+            }
+
+            #hero h2 {
+                font-size: 2.5rem;
+            }
+            #hero p {
+                font-size: 1rem;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
             }
         }
-
-        @media (max-width: 480px) {
-            .login-container {
-                padding: 20px;
-            }
-            .login-form input[type="email"],
-            .login-form input[type="password"],
-            .login-form .btn-login {
-                font-size: 0.9rem;
-                padding: 10px 12px;
-            }
-        }
-
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="logo-placeholder">
-            <i class="fas fa-graduation-cap"></i> FormaGest
-        </div>
-        <div class="login-header">
-            <h1>Bem-vindo(a)!</h1>
-            <p>Acesse sua conta para gerenciar sua formatura.</p>
-        </div>
-
-        <div id="messageArea" class="message"></div>
-        <div id="loader" class="loader"></div>
-
-        <form id="loginForm" class="login-form">
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required placeholder="seuemail@exemplo.com">
+    <header>
+        <div class="container">
+            <div class="logo">
+                <!-- <img src="assets/images/logo.png" alt="Logo Érika Produções e Eventos"> -->
+                <h1>Érika Produções e Eventos</h1>
             </div>
-            <div class="form-group">
-                <label for="password">Senha:</label>
-                <input type="password" id="password" name="password" required placeholder="Sua senha">
+            <nav>
+                <ul>
+                    <li><a href="#sobre">Sobre Nós</a></li>
+                    <li><a href="#servicos">Serviços</a></li>
+                    <li><a href="#contato">Contato</a></li>
+                    <li><a href="src/admin/login.html" class="btn btn-primary">Admin Login</a></li>
+                    <li><a href="src/client/login.html" class="btn btn-secondary" id="clientLoginBtn">Cliente Login</a></li>
+                </ul>
+            </nav>
+            <div class="menu-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
             </div>
-            <button type="submit" class="btn-login">Entrar</button>
-        </form>
-
-        <div class="login-links">
-            <a href="#" id="forgotPasswordLink">Esqueceu a senha?</a>
-            <span>|</span>
-            <a href="#" id="createAccountLink">Criar conta</a>
         </div>
-    </div>
+    </header>
 
-    <!-- Firebase SDKs (use as versões mais recentes do SDK v9 modular ou v8 compat) -->
-    <!-- Para v9 modular (recomendado para novos projetos): -->
-    <!-- <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
-        // Seu firebaseConfig aqui
-        // const firebaseApp = initializeApp(firebaseConfig);
-        // const auth = getAuth(firebaseApp);
-        // ... seu código JS aqui usando sintaxe modular
-    </script> -->
+    <main>
+        <section id="hero">
+            <div class="container">
+                <h2>Transformando Sonhos em Eventos Inesquecíveis</h2>
+                <p>Planejamento e execução de formaturas, casamentos, aniversários e eventos corporativos com excelência e paixão.</p>
+                <a href="#servicos" class="btn btn-cta">Conheça Nossos Serviços</a>
+            </div>
+        </section>
 
-    <!-- Para v8 compat (mais simples se você já usava v8): -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script> <!-- Se for usar RTDB nas próximas telas -->
+        <section id="sobre" class="section-padding">
+            <div class="container">
+                <h3>Sobre Nós</h3>
+                <p>Com anos de experiência e uma equipe dedicada, a Érika Produções e Eventos se especializa em criar momentos únicos e personalizados. Cuidamos de cada detalhe para que seu evento seja exatamente como você sempre sonhou.</p>
+            </div>
+        </section>
 
-    <!-- SEU ARQUIVO DE CONFIGURAÇÃO DO FIREBASE (firebase-config.js) -->
-    <!-- <script src="firebase-config.js"></script> -->
-    <!-- OU COLE A CONFIGURAÇÃO DIRETAMENTE AQUI (MENOS RECOMENDADO) -->
+        <section id="servicos" class="section-padding bg-light">
+            <div class="container">
+                <h3>Nossos Serviços</h3>
+                <div class="services-grid">
+                    <div class="service-item">
+                        <i class="fas fa-graduation-cap fa-3x"></i>
+                        <h4>Formaturas</h4>
+                        <p>Organização completa, desde a colação de grau até o baile.</p>
+                    </div>
+                    <div class="service-item">
+                        <i class="fas fa-heart fa-3x"></i>
+                        <h4>Casamentos</h4>
+                        <p>Do mini wedding à grandes celebrações, realizamos seu sonho.</p>
+                    </div>
+                    <div class="service-item">
+                        <i class="fas fa-birthday-cake fa-3x"></i>
+                        <h4>Aniversários</h4>
+                        <p>Festas temáticas e personalizadas para todas as idades.</p>
+                    </div>
+                    <div class="service-item">
+                        <i class="fas fa-briefcase fa-3x"></i>
+                        <h4>Eventos Corporativos</h4>
+                        <p>Conferências, lançamentos de produtos, confraternizações.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contato" class="section-padding">
+            <div class="container">
+                <h3>Entre em Contato</h3>
+                <p>Pronto para planejar seu próximo evento? Fale conosco!</p>
+                <p>Email: contato@erikaproducoes.com.br | Telefone: (XX) XXXXX-XXXX</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>© 2024 Érika Produções e Eventos. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
     <script>
-        // COLE AQUI O CONTEÚDO DO SEU firebase-config.js
-        // Exemplo:
-        const firebaseConfig = {
-            apiKey: "AIzaSyAQ3txJQ09muNi5xaBhOPwFztT1fCR1qmE",
-            authDomain: "formagest-a7591.firebaseapp.com",
-            databaseURL: "https://formagest-a7591-default-rtdb.firebaseio.com",
-            projectId: "formagest-a7591",
-            storageBucket: "formagest-a7591.firebasestorage.app",
-            messagingSenderId: "27539451532",
-            appId: "1:27539451532:web:6bea92d2e1df99dac115a9",
-            measurementId: "G-G3NDPYSQ9Z"
-        };
-        // Inicializa o Firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const auth = firebase.auth();
-        // const database = firebase.database(); // Descomente se for usar RTDB aqui
-    </script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileMenu = document.getElementById('mobile-menu');
+            const nav = document.querySelector('header nav');
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const loginForm = document.getElementById('loginForm');
-            const emailInput = document.getElementById('email');
-            const passwordInput = document.getElementById('password');
-            const messageArea = document.getElementById('messageArea');
-            const loader = document.getElementById('loader');
-            const forgotPasswordLink = document.getElementById('forgotPasswordLink');
-            const createAccountLink = document.getElementById('createAccountLink');
-
-            // Verificar se o usuário já está logado (opcional, mas bom para UX)
-            auth.onAuthStateChanged(user => {
-                if (user) {
-                    // Se já logado, pode redirecionar direto ou mostrar mensagem
-                    // Para este exemplo, vamos apenas logar e deixar que o usuário decida se quer sair
-                    console.log("Usuário já logado:", user.uid);
-                    // window.location.href = 'dashboard.html'; // Ou para a tela de seleção de eventos
-                }
-            });
-
-            loginForm.addEventListener('submit', function (event) {
-                event.preventDefault();
-                const email = emailInput.value.trim();
-                const password = passwordInput.value.trim();
-
-                if (!email || !password) {
-                    showMessage('Por favor, preencha todos os campos.', 'error');
-                    return;
-                }
-
-                showLoader(true);
-                showMessage('', ''); // Limpa mensagens anteriores
-
-                auth.signInWithEmailAndPassword(email, password)
-                    .then((userCredential) => {
-                        // Login bem-sucedido
-                        const user = userCredential.user;
-                        console.log('Login bem-sucedido:', user.uid);
-                        showMessage('Login realizado com sucesso! Redirecionando...', 'success');
-
-                        // AQUI VOCÊ DECIDE O FLUXO:
-                        // 1. Pegar o evento principal do usuário no DB e redirecionar para o dashboard dele
-                        // 2. Redirecionar para uma página de seleção/criação de eventos (ex: 'eventos.html')
-                        // Por agora, vamos redirecionar para um 'dashboard.html' genérico.
-                        // Você precisará da lógica no dashboard.html para carregar ou criar o evento.
-                        setTimeout(() => {
-                            window.location.href = 'dashboard.html';
-                        }, 1500);
-                    })
-                    .catch((error) => {
-                        console.error('Erro no login:', error);
-                        let friendlyMessage = 'Ocorreu um erro ao tentar fazer login. Verifique suas credenciais.';
-                        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-                            friendlyMessage = 'Email ou senha inválidos.';
-                        } else if (error.code === 'auth/invalid-email') {
-                            friendlyMessage = 'O formato do email é inválido.';
-                        }
-                        showMessage(friendlyMessage, 'error');
-                    })
-                    .finally(() => {
-                        showLoader(false);
-                    });
-            });
-
-            forgotPasswordLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                const email = emailInput.value.trim();
-                if (!email) {
-                    showMessage('Por favor, insira seu email para redefinir a senha.', 'error');
-                    emailInput.focus();
-                    return;
-                }
-                showLoader(true);
-                auth.sendPasswordResetEmail(email)
-                    .then(() => {
-                        showMessage('Email de redefinição de senha enviado para ' + email + '. Verifique sua caixa de entrada e spam.', 'success');
-                    })
-                    .catch((error) => {
-                        console.error("Erro ao enviar email de redefinição:", error);
-                        let friendlyMessage = 'Erro ao enviar email de redefinição.';
-                        if (error.code === 'auth/user-not-found') {
-                            friendlyMessage = 'Nenhuma conta encontrada com este email.';
-                        } else if (error.code === 'auth/invalid-email') {
-                            friendlyMessage = 'O formato do email é inválido.';
-                        }
-                        showMessage(friendlyMessage, 'error');
-                    })
-                    .finally(() => {
-                        showLoader(false);
-                    });
-            });
-
-            createAccountLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                // Redirecionar para uma página de criação de conta ou abrir um modal
-                // Para este exemplo simples, vamos apenas simular o fluxo de criação no console
-                // e pedir para o usuário usar o formulário de login para tentar criar (se sua config Firebase permitir)
-                // ou redirecionar para uma página específica.
-                // window.location.href = 'criar-conta.html';
-                showMessage('Para criar uma conta, preencha email e senha e clique em "Entrar". Se a conta não existir, e o sistema permitir, ela poderá ser criada. Ou clique no link específico de "Criar Conta" se disponível.', 'info');
-                // Idealmente, você teria um formulário de criação de conta separado.
-                // Ou, se seu Firebase estiver configurado para criar usuário no primeiro login:
-                const email = emailInput.value.trim();
-                const password = passwordInput.value.trim();
-
-                if (!email || !password) {
-                    showMessage('Preencha email e senha para criar uma conta.', 'error');
-                    return;
-                }
-                if (password.length < 6) {
-                    showMessage('A senha deve ter pelo menos 6 caracteres.', 'error');
-                    return;
-                }
-
-                showLoader(true);
-                auth.createUserWithEmailAndPassword(email, password)
-                    .then((userCredential) => {
-                        const user = userCredential.user;
-                        console.log('Conta criada com sucesso:', user.uid);
-                        showMessage('Conta criada com sucesso! Você será redirecionado.', 'success');
-                        // Aqui você pode adicionar dados iniciais para o usuário no Realtime Database ou Firestore
-                        // Ex: database.ref('usuariosPlataforma/' + user.uid).set({ email: user.email, dataCriacao: firebase.database.ServerValue.TIMESTAMP });
-                        setTimeout(() => {
-                            window.location.href = 'dashboard.html'; // Ou uma página de onboarding/criação de evento
-                        }, 1500);
-                    })
-                    .catch((error) => {
-                        console.error('Erro ao criar conta:', error);
-                        let friendlyMessage = 'Erro ao criar conta.';
-                        if (error.code === 'auth/email-already-in-use') {
-                            friendlyMessage = 'Este email já está em uso. Tente fazer login.';
-                        } else if (error.code === 'auth/invalid-email') {
-                            friendlyMessage = 'O formato do email é inválido.';
-                        } else if (error.code === 'auth/weak-password') {
-                            friendlyMessage = 'A senha é muito fraca. Use pelo menos 6 caracteres.';
-                        }
-                        showMessage(friendlyMessage, 'error');
-                    })
-                    .finally(() => {
-                        showLoader(false);
-                    });
-            });
-
-
-            function showMessage(text, type) {
-                messageArea.textContent = text;
-                messageArea.className = 'message'; // Reset
-                if (text) {
-                    messageArea.classList.add(type); // 'error', 'success', 'info'
-                    messageArea.style.display = 'block';
-                } else {
-                    messageArea.style.display = 'none';
-                }
-            }
-
-            function showLoader(show) {
-                loader.style.display = show ? 'block' : 'none';
-                loginForm.querySelector('.btn-login').disabled = show;
+            if (mobileMenu && nav) {
+                mobileMenu.addEventListener('click', () => {
+                    nav.classList.toggle('active');
+                    mobileMenu.classList.toggle('active');
+                });
             }
         });
     </script>

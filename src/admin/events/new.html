@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novo Evento - Admin Érika Produções</title>
+    <link rel="stylesheet" href="../../../public/assets/css/admin-style.css">
+    <link rel="icon" href="../../../public/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body class="dashboard-body">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>Érika Produções</h3>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="../dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li class="active"><a href="list.html"><i class="fas fa-calendar-alt"></i> Gerenciar Eventos</a></li>
+                <!-- Link para 'Novo Evento' pode ser removido daqui se já estamos na página,
+                     ou mantido para fácil acesso se a lógica da classe 'active' for dinâmica -->
+                <li><a href="new.html"><i class="fas fa-plus-circle"></i> Novo Evento</a></li>
+                <li><a href="../graduation/index.html"><i class="fas fa-graduation-cap"></i> Formaturas</a></li>
+                <li><a href="../weddings/index.html"><i class="fas fa-heart"></i> Casamentos</a></li>
+                <li><a href="../birthdays/index.html"><i class="fas fa-birthday-cake"></i> Aniversários</a></li>
+                <li><a href="../general/index.html"><i class="fas fa-concierge-bell"></i> Eventos Gerais</a></li>
+                <li><a href="#"><i class="fas fa-users"></i> Clientes</a></li>
+                <li><a href="../settings/index.html"><i class="fas fa-cogs"></i> Configurações</a></li>
+                <li><a href="#" id="adminLogoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <header class="main-header">
+            <div class="header-title">
+                <h2>Criar Novo Evento</h2>
+            </div>
+            <div class="user-info">
+                <span>Olá, <span id="adminUserName">Admin</span></span>
+                <i class="fas fa-user-circle fa-2x"></i>
+            </div>
+        </header>
+
+        <div class="content-area">
+            <form id="newEventForm" class="form-section">
+                <h3>Informações Básicas do Evento</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="eventName">Nome do Evento:</label>
+                        <input type="text" id="eventName" name="eventName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventType">Tipo de Evento:</label>
+                        <select id="eventType" name="eventType" required>
+                            <option value="">Selecione o tipo</option>
+                            <option value="graduation">Formatura</option>
+                            <option value="wedding">Casamento</option>
+                            <option value="birthday">Aniversário</option>
+                            <option value="general">Evento Geral</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventDate">Data do Evento:</label>
+                        <input type="date" id="eventDate" name="eventDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventLocation">Local do Evento:</label>
+                        <input type="text" id="eventLocation" name="eventLocation">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="eventDescription">Descrição Curta (Opcional):</label>
+                        <textarea id="eventDescription" name="eventDescription" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventStatus">Status Inicial:</label>
+                        <select id="eventStatus" name="eventStatus" required>
+                            <option value="planning" selected>Planejamento</option>
+                            <option value="active">Ativo</option>
+                            <option value="completed">Concluído</option>
+                            <option value="cancelled">Cancelado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="conditionalFieldsContainer" class="form-grid" style="margin-top:20px;">
+                    <!-- Campos condicionais serão injetados aqui por JS -->
+                    <div id="graduationFields" class="conditional-fields form-group full-width">
+                        <label for="graduationInstitution">Instituição de Ensino (Formatura):</label>
+                        <input type="text" id="graduationInstitution" name="graduationInstitution">
+                    </div>
+                    <div id="weddingFields" class="conditional-fields form-grid">
+                        <div class="form-group">
+                           <label for="weddingGuests">Nº Estimado de Convidados (Casamento):</label>
+                           <input type="number" id="weddingGuests" name="weddingGuests" min="0">
+                        </div>
+                        <div class="form-group">
+                           <label for="weddingPricePerGuest">Preço por Convidado (Casamento):</label>
+                           <input type="number" id="weddingPricePerGuest" name="weddingPricePerGuest" min="0" step="0.01">
+                        </div>
+                    </div>
+                    <!-- Outros tipos de evento podem ter campos específicos aqui -->
+                </div>
+
+                <h3 style="margin-top: 30px;">Informações de Contato do Responsável</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="contactName">Nome do Contato:</label>
+                        <input type="text" id="contactName" name="contactName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contactEmail">Email do Contato:</label>
+                        <input type="email" id="contactEmail" name="contactEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contactPhone">Telefone do Contato:</label>
+                        <input type="tel" id="contactPhone" name="contactPhone" placeholder="(XX) XXXXX-XXXX">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="list.html" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">Salvar Evento</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../../../public/assets/js/firebase-config.js"></script>
+    <script src="../../../public/assets/js/auth-admin.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Proteção de rota e nome do usuário (já no auth-admin.js, mas pode ser reforçado)
+            if (localStorage.getItem('isAdminLoggedIn') !== 'true') {
+                window.location.href = '../login.html';
+            }
+            const adminName = localStorage.getItem('adminUserName') || 'Admin';
+            document.getElementById('adminUserName').textContent = adminName;
+
+            const eventTypeSelect = document.getElementById('eventType');
+            const graduationFields = document.getElementById('graduationFields');
+            const weddingFields = document.getElementById('weddingFields');
+
+            function toggleConditionalFields() {
+                // Oculta todos primeiro
+                graduationFields.classList.remove('active');
+                weddingFields.classList.remove('active');
+
+                const selectedType = eventTypeSelect.value;
+                if (selectedType === 'graduation') {
+                    graduationFields.classList.add('active');
+                } else if (selectedType === 'wedding') {
+                    weddingFields.classList.add('active');
+                }
+            }
+
+            eventTypeSelect.addEventListener('change', toggleConditionalFields);
+            toggleConditionalFields(); // Chama na carga inicial caso haja valor pré-selecionado
+
+            const newEventForm = document.getElementById('newEventForm');
+            newEventForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                // Aqui iria a lógica para coletar os dados do formulário
+                const formData = new FormData(newEventForm);
+                const eventData = {};
+                formData.forEach((value, key) => {
+                    eventData[key] = value;
+                });
+
+                console.log("Dados do Novo Evento (simulado):", eventData);
+                alert('Novo evento salvo com sucesso! (Simulado)');
+                // Idealmente, redirecionar para list.html ou limpar o formulário
+                // window.location.href = 'list.html';
+                newEventForm.reset();
+                toggleConditionalFields(); // Resetar campos condicionais também
+            });
+        });
+    </script>
+</body>
+</html>

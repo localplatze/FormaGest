@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Evento - Érika Produções</title>
+    <link rel="stylesheet" href="../../public/assets/css/client-style.css">
+    <link rel="icon" href="../../public/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body class="client-area">
+    <header class="client-header">
+        <div class="container">
+            <div class="logo">
+                <h1>Érika Produções</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="events.html"><i class="fas fa-arrow-left"></i> Meus Eventos</a></li>
+                    <li class="nav-item-event-name" style="font-weight:bold; margin: 0 10px;">/<span id="currentEventNameNav"></span></li>
+                    <li><a href="dashboard.html" class="active">Visão Geral</a></li>
+                    <li><a href="payments.html">Pagamentos</a></li>
+                    <li><a href="contracts.html">Contrato</a></li>
+                    <li><a href="profile.html">Perfil</a></li>
+                    <li><a href="#" id="clientLogoutBtn" class="logout-btn">Sair</a></li>
+                </ul>
+            </nav>
+            <div class="client-menu-toggle" id="clientMenuToggle"><i class="fas fa-bars"></i></div>
+        </div>
+    </header>
+
+    <main class="client-main-content">
+        <h2 id="dashboardEventTitle">Visão Geral do Evento</h2>
+        
+        <div class="info-card">
+            <h4>Próximos Passos / Lembretes</h4>
+            <ul id="quickReminders">
+                <!-- Lembretes carregados por JS -->
+                <li>Verificar status do pagamento da próxima parcela.</li>
+                <li>Confirmar lista de convidados (se aplicável).</li>
+                <li>Assinar contrato digitalmente (se pendente).</li>
+            </ul>
+        </div>
+
+        <div class="info-card">
+            <h4>Resumo Financeiro</h4>
+            <div class="details-grid">
+                <p><strong>Valor Total Contratado:</strong> <span id="totalValueDisplay">R$ 0,00</span></p>
+                <p><strong>Total Pago:</strong> <span id="totalPaidDisplay">R$ 0,00</span></p>
+                <p><strong>Saldo Devedor:</strong> <span id="balanceDueDisplay">R$ 0,00</span></p>
+                <p><strong>Próximo Vencimento:</strong> <span id="nextDueDateDisplay">-</span></p>
+            </div>
+            <a href="payments.html" class="btn-client btn-client-secondary" style="margin-top:15px;">Ver Detalhes de Pagamento</a>
+        </div>
+
+        <div class="info-card">
+            <h4>Contrato</h4>
+            <p><strong>Status do Contrato:</strong> <span id="contractStatusDisplay">Pendente</span></p>
+            <a href="contracts.html" class="btn-client btn-client-primary" style="margin-top:10px;">Ver/Assinar Contrato</a>
+        </div>
+
+    </main>
+
+    <script src="../../public/assets/js/firebase-config.js"></script>
+    <script src="../../public/assets/js/auth-client.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const selectedEventId = localStorage.getItem('selectedClientEventId');
+            const selectedEventName = localStorage.getItem('selectedClientEventName') || "Meu Evento";
+            const selectedEventType = localStorage.getItem('selectedClientEventType'); // 'graduation', 'wedding', etc.
+
+            if (!selectedEventId) {
+                alert("Nenhum evento selecionado. Por favor, escolha um evento.");
+                window.location.href = 'events.html';
+                return;
+            }
+
+            document.getElementById('dashboardEventTitle').textContent = `Visão Geral: ${selectedEventName}`;
+            document.getElementById('currentEventNameNav').textContent = selectedEventName;
+
+
+            // Simulação de dados do evento específico
+            // Em uma app real, você faria uma busca no Firebase por 'events/' + selectedEventId
+            // e também por 'payments/' e 'contracts/' relacionados a este evento e cliente.
+            const mockEventData = {
+                "event1": { // Formatura
+                    totalValue: 5000.00, totalPaid: 2500.00, nextDueDate: "2025-07-15", contractStatus: "Assinado" 
+                },
+                "event2": { // Casamento
+                    totalValue: 25000.00, totalPaid: 10000.00, nextDueDate: "2025-08-01", contractStatus: "Pendente de Assinatura"
+                },
+                "event3": { // Aniversário
+                    totalValue: 7500.00, totalPaid: 7500.00, nextDueDate: null, contractStatus: "Assinado"
+                }
+            };
+            const currentEventDetails = mockEventData[selectedEventId] || { totalValue: 0, totalPaid: 0, contractStatus: "Não encontrado"};
+
+            document.getElementById('totalValueDisplay').textContent = currentEventDetails.totalValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('totalPaidDisplay').textContent = currentEventDetails.totalPaid.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            const balanceDue = currentEventDetails.totalValue - currentEventDetails.totalPaid;
+            document.getElementById('balanceDueDisplay').textContent = balanceDue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('nextDueDateDisplay').textContent = currentEventDetails.nextDueDate ? new Date(currentEventDetails.nextDueDate + 'T00:00:00').toLocaleDateString('pt-BR') : 'N/A';
+            document.getElementById('contractStatusDisplay').textContent = currentEventDetails.contractStatus;
+
+            // Personalizar lembretes com base no tipo de evento (simulado)
+            const remindersEl = document.getElementById('quickReminders');
+            remindersEl.innerHTML = ''; // Limpa
+            if (currentEventDetails.contractStatus !== "Assinado" && currentEventDetails.contractStatus !== "Não encontrado") {
+                remindersEl.innerHTML += `<li><a href="contracts.html">Assinar contrato digitalmente.</a></li>`;
+            }
+            if (balanceDue > 0 && currentEventDetails.nextDueDate) {
+                 remindersEl.innerHTML += `<li><a href="payments.html">Verificar pagamento da próxima parcela (Venc. ${currentEventDetails.nextDueDate ? new Date(currentEventDetails.nextDueDate + 'T00:00:00').toLocaleDateString('pt-BR') : ''}).</a></li>`;
+            }
+            if (selectedEventType === 'graduation') {
+                remindersEl.innerHTML += `<li>Confirmar número de convidados para a mesa.</li>`;
+            } else if (selectedEventType === 'wedding') {
+                 remindersEl.innerHTML += `<li>Enviar lista de músicas para o DJ.</li>`;
+            }
+            if(remindersEl.innerHTML === '') {
+                 remindersEl.innerHTML = `<li>Tudo em dia por enquanto! <i class="fas fa-check-circle" style="color:green;"></i></li>`;
+            }
+        });
+    </script>
+</body>
+</html>

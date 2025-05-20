@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Cliente - Érika Produções e Eventos</title>
+    <link rel="stylesheet" href="../../public/assets/css/client-style.css"> <!-- Usar client-style -->
+    <link rel="icon" href="../../public/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="client-login-page client-area"> <!-- Adiciona client-area -->
+    <div class="client-login-container">
+        <div class="login-header">
+            <h2>Área do Cliente</h2>
+            <p>Érika Produções e Eventos</p>
+        </div>
+        <form id="clientLoginForm">
+            <div class="form-group">
+                <label for="emailOrPhoneClient">Seu Email ou Telefone:</label>
+                <input type="text" id="emailOrPhoneClient" name="emailOrPhoneClient" required>
+            </div>
+            <div class="form-group">
+                <label for="passwordClient">Sua Senha:</label>
+                <input type="password" id="passwordClient" name="passwordClient" required>
+            </div>
+            <button type="submit" class="btn-full">Entrar</button>
+            <div class="login-links">
+                <a href="#" id="forgotPasswordClient">Esqueci minha senha</a>
+                <!-- <a href="#" id="firstAccessClient">Primeiro acesso?</a> -->
+            </div>
+        </form>
+        <p class="back-to-site" style="margin-top:20px;"><a href="../../public/index.html">← Voltar ao site principal</a></p>
+    </div>
+
+    <script src="../../public/assets/js/firebase-config.js"></script>
+    <script src="../../public/assets/js/auth-client.js"></script>
+    <script>
+        document.getElementById('forgotPasswordClient')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('Recuperação de senha para cliente ainda não implementada.');
+        });
+    </script>
+</body>
+</html>

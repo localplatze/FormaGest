@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações - Admin Érika Produções</title>
+    <link rel="stylesheet" href="../../../public/assets/css/admin-style.css">
+    <link rel="icon" href="../../../public/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body class="dashboard-body">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>Érika Produções</h3>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="../dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="../events/list.html"><i class="fas fa-calendar-alt"></i> Gerenciar Eventos</a></li>
+                <li><a href="../events/new.html"><i class="fas fa-plus-circle"></i> Novo Evento</a></li>
+                <li><a href="../graduation/index.html"><i class="fas fa-graduation-cap"></i> Formaturas</a></li>
+                <li><a href="../weddings/index.html"><i class="fas fa-heart"></i> Casamentos</a></li>
+                <li><a href="../birthdays/index.html"><i class="fas fa-birthday-cake"></i> Aniversários</a></li>
+                <li><a href="../general/index.html"><i class="fas fa-concierge-bell"></i> Eventos Gerais</a></li>
+                <li><a href="#"><i class="fas fa-users"></i> Clientes</a></li>
+                <li class="active"><a href="index.html"><i class="fas fa-cogs"></i> Configurações</a></li>
+                <li><a href="#" id="adminLogoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <header class="main-header">
+            <div class="header-title">
+                <h2>Configurações</h2>
+            </div>
+            <div class="user-info">
+                <span>Olá, <span id="adminUserName">Admin</span></span>
+                <i class="fas fa-user-circle fa-2x"></i>
+            </div>
+        </header>
+
+        <div class="content-area">
+            <form id="settingsForm" class="form-section">
+                <h3>Informações do Administrador</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="adminNameSetting">Seu Nome:</label>
+                        <input type="text" id="adminNameSetting" name="adminNameSetting" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="adminEmailSetting">Seu Email de Login:</label>
+                        <input type="email" id="adminEmailSetting" name="adminEmailSetting" required readonly> <!-- Email de login não deve ser facilmente alterado -->
+                    </div>
+                    <div class="form-group">
+                        <label for="adminPhoneSetting">Seu Telefone de Contato:</label>
+                        <input type="tel" id="adminPhoneSetting" name="adminPhoneSetting">
+                    </div>
+                     <div class="form-group">
+                        <label for="adminPixKeySetting">Sua Chave PIX (para recebimentos da empresa):</label>
+                        <input type="text" id="adminPixKeySetting" name="adminPixKeySetting">
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 30px;">Alterar Senha de Administrador</h3>
+                 <div class="form-grid">
+                    <div class="form-group">
+                        <label for="adminCurrentPassword">Senha Atual:</label>
+                        <input type="password" id="adminCurrentPassword" name="adminCurrentPassword">
+                    </div>
+                 </div>
+                 <div class="form-grid">
+                    <div class="form-group">
+                        <label for="adminNewPasswordSetting">Nova Senha:</label>
+                        <input type="password" id="adminNewPasswordSetting" name="adminNewPasswordSetting">
+                    </div>
+                    <div class="form-group">
+                        <label for="adminConfirmNewPassword">Confirmar Nova Senha:</label>
+                        <input type="password" id="adminConfirmNewPassword" name="adminConfirmNewPassword">
+                    </div>
+                </div>
+                <small>Deixe os campos de senha em branco se não desejar alterá-la.</small>
+
+
+                <!-- Futuramente: Configurações Gerais do Sistema -->
+                <!-- 
+                <h3 style="margin-top: 30px;">Configurações Gerais do Sistema</h3>
+                <div class="form-group">
+                    <label for="companyName">Nome da Empresa (para relatórios, etc.):</label>
+                    <input type="text" id="companyName" name="companyName">
+                </div>
+                 <div class="form-group">
+                    <label for="defaultCurrency">Moeda Padrão:</label>
+                    <input type="text" id="defaultCurrency" name="defaultCurrency" value="BRL" readonly>
+                </div>
+                -->
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Salvar Configurações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../../../public/assets/js/firebase-config.js"></script>
+    <script src="../../../public/assets/js/auth-admin.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('isAdminLoggedIn') !== 'true') {
+                window.location.href = '../login.html';
+            }
+            const adminNameStored = localStorage.getItem('adminUserName') || 'Admin';
+            const adminContactStored = localStorage.getItem('adminUserContact'); // Email ou Telefone usado no login
+            document.getElementById('adminUserName').textContent = adminNameStored;
+
+            // Simulação de dados do admin (viriam do Firebase, do usuário logado com role 'admin')
+            const mockAdminData = {
+                uid1: { name: "Admin Érika", email: "admin@erika.com", phone: "+5511999990000", pixKey: "chavepixadmin@erika.com", password: "admin_password_hash" }
+                // Supondo que o admin logado é 'uid1'
+            };
+            
+            // Encontrar o admin logado (simulação)
+            let currentAdminUserKey = null;
+            for (const key in mockAdminData) {
+                if (mockAdminData[key].email === adminContactStored || mockAdminData[key].phone === adminContactStored) {
+                    currentAdminUserKey = key;
+                    break;
+                }
+            }
+            const currentAdminData = currentAdminUserKey ? mockAdminData[currentAdminUserKey] : null;
+
+
+            function loadAdminSettings() {
+                if (currentAdminData) {
+                    document.getElementById('adminNameSetting').value = currentAdminData.name;
+                    document.getElementById('adminEmailSetting').value = currentAdminData.email; // Readonly
+                    document.getElementById('adminPhoneSetting').value = currentAdminData.phone || '';
+                    document.getElementById('adminPixKeySetting').value = currentAdminData.pixKey || '';
+                } else {
+                    console.error("Não foi possível carregar os dados do admin.");
+                     // Poderia redirecionar ou mostrar mensagem de erro
+                }
+            }
+
+            loadAdminSettings();
+
+            document.getElementById('settingsForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                const currentPassword = document.getElementById('adminCurrentPassword').value;
+                const newPassword = document.getElementById('adminNewPasswordSetting').value;
+                const confirmNewPassword = document.getElementById('adminConfirmNewPassword').value;
+
+                const updatedSettings = {
+                    name: document.getElementById('adminNameSetting').value,
+                    phone: document.getElementById('adminPhoneSetting').value,
+                    pixKey: document.getElementById('adminPixKeySetting').value,
+                };
+
+                // Lógica de alteração de senha (simulada)
+                if (newPassword) {
+                    if (!currentPassword) {
+                        alert("Por favor, insira sua senha atual para alterar a senha.");
+                        return;
+                    }
+                    if (newPassword !== confirmNewPassword) {
+                        alert("As novas senhas não coincidem!");
+                        return;
+                    }
+                    // Aqui, em uma app real:
+                    // 1. Verificar a senha atual do admin contra o hash no DB.
+                    //    Isso é complicado de fazer 100% no cliente sem expor o hash ou a lógica.
+                    //    Idealmente, esta verificação e atualização de senha seria feita por uma Cloud Function.
+                    // 2. Se a senha atual for válida, hashear a nova senha e atualizar no DB.
+                    
+                    // Simulação:
+                    if (currentPassword === "admin123") { // Simula verificação da senha atual
+                        updatedSettings.password = `hashed_${newPassword}`; // Simula hashing
+                        console.log("Senha do admin alterada (simulada):", updatedSettings.password);
+                        localStorage.setItem('adminUserName', updatedSettings.name); // Atualiza nome no localStorage
+                        document.getElementById('adminUserName').textContent = updatedSettings.name;
+                    } else {
+                        alert("Senha atual incorreta! (Simulado)");
+                        return;
+                    }
+                }
+                
+                console.log("Salvando configurações do admin (simulado):", currentAdminUserKey, updatedSettings);
+                // firebase.database().ref('users/' + currentAdminUserKey).update(updatedSettings);
+                alert('Configurações salvas com sucesso! (Simulado)');
+                if (newPassword && currentPassword === "admin123") {
+                    document.getElementById('adminCurrentPassword').value = '';
+                    document.getElementById('adminNewPasswordSetting').value = '';
+                    document.getElementById('adminConfirmNewPassword').value = '';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

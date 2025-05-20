@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Eventos - Érika Produções</title>
+    <link rel="stylesheet" href="../../public/assets/css/client-style.css">
+    <link rel="icon" href="../../public/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body class="client-area">
+    <header class="client-header">
+        <div class="container">
+            <div class="logo">
+                <h1>Érika Produções</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><span id="clientWelcomeName"></span></li>
+                    <li><a href="profile.html" title="Meu Perfil"><i class="fas fa-user-edit"></i> Perfil</a></li>
+                    <li><a href="#" id="clientLogoutBtn" class="logout-btn">Sair <i class="fas fa-sign-out-alt"></i></a></li>
+                </ul>
+            </nav>
+            <div class="client-menu-toggle" id="clientMenuToggle"><i class="fas fa-bars"></i></div>
+        </div>
+    </header>
+
+    <main class="client-main-content">
+        <h2>Meus Eventos</h2>
+        <p>Selecione o evento que deseja visualizar:</p>
+
+        <div class="event-list-client" id="clientEventsList">
+            <!-- Eventos do cliente serão listados aqui -->
+        </div>
+        <p id="noClientEventsMessage" style="display:none; text-align:center; margin-top:30px;">Você ainda não possui eventos registrados conosco.</p>
+    </main>
+
+    <script src="../../public/assets/js/firebase-config.js"></script>
+    <script src="../../public/assets/js/auth-client.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const clientName = localStorage.getItem('clientUserName') || 'Cliente';
+            document.getElementById('clientWelcomeName').textContent = `Olá, ${clientName}!`;
+            const clientUid = localStorage.getItem('clientUserUid');
+
+            const clientEventsListEl = document.getElementById('clientEventsList');
+            const noEventsMessageEl = document.getElementById('noClientEventsMessage');
+
+            // Simulação de eventos (em uma app real, viriam do Firebase filtrados pelo clientUid ou contato)
+            const mockAllEvents = [ // Supondo que isso venha do seu nó 'events'
+                { eventId: "event1", type: "graduation", name: "Formatura Turma 2025 - Engenharia", date: "2025-12-10", contactInfo: { userId: "uid2" } }, // userId do cliente
+                { eventId: "event2", type: "wedding", name: "Casamento Ana e Carlos", date: "2025-09-20", contactInfo: { userId: "uid2" } },
+                { eventId: "event3", type: "birthday", name: "Aniversário de 15 anos da Sofia", date: "2024-11-05", contactInfo: { userId: "uid3" } },
+                { eventId: "bdayEvent1", type: "birthday", name: "15 Anos de Clara", date: "2024-12-01", contactInfo: { userId: "uid_clara" } }
+            ];
+
+            function loadClientEvents() {
+                // Filtrar eventos associados ao UID do cliente logado
+                const eventsForClient = mockAllEvents.filter(event => event.contactInfo && event.contactInfo.userId === clientUid);
+
+                if (eventsForClient.length === 0) {
+                    noEventsMessageEl.style.display = 'block';
+                    clientEventsListEl.style.display = 'none';
+                    return;
+                }
+                
+                noEventsMessageEl.style.display = 'none';
+                clientEventsListEl.innerHTML = '';
+
+                if (eventsForClient.length === 1) {
+                    // Se só tem um evento, pode ir direto para o dashboard dele
+                    const event = eventsForClient[0];
+                    localStorage.setItem('selectedClientEventId', event.eventId);
+                    localStorage.setItem('selectedClientEventName', event.name);
+                    localStorage.setItem('selectedClientEventType', event.type);
+                    window.location.href = 'dashboard.html';
+                    return; 
+                }
+
+                eventsForClient.forEach(event => {
+                    const eventDiv = document.createElement('div');
+                    eventDiv.className = 'event-item-client';
+                    eventDiv.innerHTML = `
+                        <div>
+                            <h4>${event.name}</h4>
+                            <p>Data: ${new Date(event.date + 'T00:00:00').toLocaleDateString('pt-BR')} | Tipo: ${event.type.replace(/\b\w/g, l => l.toUpperCase())}</p>
+                        </div>
+                        <button class="btn-client btn-client-primary select-event-btn" data-eventid="${event.eventId}" data-eventname="${event.name}" data-eventtype="${event.type}">
+                            Acessar Evento <i class="fas fa-arrow-right"></i>
+                        </button>
+                    `;
+                    clientEventsListEl.appendChild(eventDiv);
+                });
+
+                document.querySelectorAll('.select-event-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        localStorage.setItem('selectedClientEventId', this.dataset.eventid);
+                        localStorage.setItem('selectedClientEventName', this.dataset.eventname);
+                        localStorage.setItem('selectedClientEventType', this.dataset.eventtype);
+                        window.location.href = 'dashboard.html';
+                    });
+                });
+            }
+            
+            loadClientEvents();
+        });
+    </script>
+</body>
+</html>

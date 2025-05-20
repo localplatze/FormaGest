@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Formaturas - Admin Érika Produções</title>
+    <link rel="stylesheet" href="../../../public/assets/css/admin-style.css">
+    <link rel="icon" href="../../../public/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body class="dashboard-body">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>Érika Produções</h3>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="../dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="../events/list.html"><i class="fas fa-calendar-alt"></i> Gerenciar Eventos</a></li>
+                <li><a href="../events/new.html"><i class="fas fa-plus-circle"></i> Novo Evento</a></li>
+                <li class="active"><a href="index.html"><i class="fas fa-graduation-cap"></i> Formaturas</a></li>
+                <li><a href="../weddings/index.html"><i class="fas fa-heart"></i> Casamentos</a></li>
+                <li><a href="../birthdays/index.html"><i class="fas fa-birthday-cake"></i> Aniversários</a></li>
+                <li><a href="../general/index.html"><i class="fas fa-concierge-bell"></i> Eventos Gerais</a></li>
+                <li><a href="#"><i class="fas fa-users"></i> Clientes</a></li>
+                <li><a href="../settings/index.html"><i class="fas fa-cogs"></i> Configurações</a></li>
+                <li><a href="#" id="adminLogoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <header class="main-header">
+            <div class="header-title">
+                <h2>Gestão de Formaturas</h2>
+            </div>
+            <div class="user-info">
+                <span>Olá, <span id="adminUserName">Admin</span></span>
+                <i class="fas fa-user-circle fa-2x"></i>
+            </div>
+        </header>
+
+        <div class="content-area">
+            <div class="event-selector-container">
+                <label for="graduationEventSelector">Selecione um Evento de Formatura:</label>
+                <select id="graduationEventSelector">
+                    <option value="">-- Nenhum evento selecionado --</option>
+                    <!-- Opções carregadas por JS -->
+                </select>
+                <button class="btn btn-primary" id="loadEventDetailsBtn" disabled>Carregar Detalhes</button>
+            </div>
+
+            <div id="eventManagementSection" style="display: none;">
+                <h3 id="selectedEventNameDisplay"></h3>
+                <div class="event-management-links">
+                    <a href="#" id="manageStudentsLink" class="link-card">
+                        <i class="fas fa-user-graduate"></i>
+                        <h4>Gerenciar Formandos</h4>
+                    </a>
+                    <a href="#" id="importStudentsLink" class="link-card">
+                        <i class="fas fa-file-excel"></i>
+                        <h4>Importar Formandos</h4>
+                    </a>
+                    <a href="#" id="manageTablesLink" class="link-card">
+                        <i class="fas fa-chair"></i>
+                        <h4>Organização de Mesas</h4>
+                    </a>
+                    <a href="#" id="manageChecklistLink" class="link-card">
+                        <i class="fas fa-tasks"></i>
+                        <h4>Checklist do Evento</h4>
+                    </a>
+                </div>
+            </div>
+             <div id="noEventSelectedMessage" style="text-align: center; padding: 20px; margin-top: 20px;">
+                <p>Por favor, selecione um evento de formatura para ver as opções de gerenciamento.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../../public/assets/js/firebase-config.js"></script>
+    <script src="../../../public/assets/js/auth-admin.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('isAdminLoggedIn') !== 'true') {
+                window.location.href = '../login.html';
+            }
+            const adminName = localStorage.getItem('adminUserName') || 'Admin';
+            document.getElementById('adminUserName').textContent = adminName;
+
+            const eventSelector = document.getElementById('graduationEventSelector');
+            const loadEventBtn = document.getElementById('loadEventDetailsBtn');
+            const eventManagementSection = document.getElementById('eventManagementSection');
+            const selectedEventNameDisplay = document.getElementById('selectedEventNameDisplay');
+            const noEventSelectedMessage = document.getElementById('noEventSelectedMessage');
+
+            // Simulação de eventos de formatura (viriam do Firebase)
+            const mockGraduationEvents = [
+                { id: "gradEvent1", name: "Formatura ADS Noturno 2025", status: "active" },
+                { id: "gradEvent2", name: "Formatura Direito Matutino 2024", status: "planning" },
+                { id: "gradEvent3", name: "Formatura Medicina Integral 2026", status: "active" }
+            ];
+
+            function populateEventSelector() {
+                // Filtrar apenas eventos relevantes (ex: não concluídos ou cancelados)
+                const activeEvents = mockGraduationEvents.filter(event => event.status === 'active' || event.status === 'planning');
+                activeEvents.forEach(event => {
+                    const option = document.createElement('option');
+                    option.value = event.id;
+                    option.textContent = event.name;
+                    eventSelector.appendChild(option);
+                });
+            }
+
+            eventSelector.addEventListener('change', () => {
+                loadEventBtn.disabled = !eventSelector.value;
+                if (!eventSelector.value) {
+                    eventManagementSection.style.display = 'none';
+                    noEventSelectedMessage.style.display = 'block';
+                }
+            });
+            
+            loadEventBtn.addEventListener('click', () => {
+                const selectedEventId = eventSelector.value;
+                const selectedEvent = mockGraduationEvents.find(e => e.id === selectedEventId);
+
+                if (selectedEvent) {
+                    localStorage.setItem('selectedGraduationEventId', selectedEventId);
+                    localStorage.setItem('selectedGraduationEventName', selectedEvent.name);
+
+                    selectedEventNameDisplay.textContent = `Gerenciando: ${selectedEvent.name}`;
+                    eventManagementSection.style.display = 'block';
+                    noEventSelectedMessage.style.display = 'none';
+
+                    document.getElementById('manageStudentsLink').href = `students.html?eventId=${selectedEventId}`;
+                    document.getElementById('importStudentsLink').href = `import.html?eventId=${selectedEventId}`;
+                    document.getElementById('manageTablesLink').href = `tables.html?eventId=${selectedEventId}`;
+                    document.getElementById('manageChecklistLink').href = `checklist.html?eventId=${selectedEventId}`;
+                } else {
+                    eventManagementSection.style.display = 'none';
+                    noEventSelectedMessage.style.display = 'block';
+                    alert("Evento não encontrado.");
+                }
+            });
+            
+            // Verifica se há um evento selecionado no localStorage ao carregar
+            const storedEventId = localStorage.getItem('selectedGraduationEventId');
+            if (storedEventId) {
+                const storedEvent = mockGraduationEvents.find(e => e.id === storedEventId);
+                if (storedEvent) {
+                    eventSelector.value = storedEventId;
+                    loadEventBtn.disabled = false;
+                    loadEventBtn.click(); // Simula o clique para carregar
+                } else {
+                     localStorage.removeItem('selectedGraduationEventId');
+                     localStorage.removeItem('selectedGraduationEventName');
+                }
+            }
+
+
+            populateEventSelector();
+        });
+    </script>
+</body>
+</html>

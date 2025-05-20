@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Contrato - Érika Produções</title>
+    <link rel="stylesheet" href="../../public/assets/css/client-style.css">
+    <link rel="icon" href="../../public/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <!-- Signature Pad JS (Exemplo, pode usar outra ou solução de backend) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/1.5.3/signature_pad.min.js"></script> 
+</head>
+<body class="client-area">
+    <header class="client-header">
+        <div class="container">
+            <div class="logo"><h1>Érika Produções</h1></div>
+            <nav>
+                 <ul>
+                    <li><a href="events.html"><i class="fas fa-arrow-left"></i> Meus Eventos</a></li>
+                    <li class="nav-item-event-name" style="font-weight:bold; margin: 0 10px;">/<span id="currentEventNameNav"></span></li>
+                    <li><a href="dashboard.html">Visão Geral</a></li>
+                    <li><a href="payments.html">Pagamentos</a></li>
+                    <li><a href="contracts.html" class="active">Contrato</a></li>
+                    <li><a href="profile.html">Perfil</a></li>
+                    <li><a href="#" id="clientLogoutBtn" class="logout-btn">Sair</a></li>
+                </ul>
+            </nav>
+            <div class="client-menu-toggle" id="clientMenuToggle"><i class="fas fa-bars"></i></div>
+        </div>
+    </header>
+
+    <main class="client-main-content">
+        <h2>Meu Contrato: <span id="contractEventTitle"></span></h2>
+
+        <div class="info-card" id="contractDisplayArea">
+            <h4>Visualização do Contrato</h4>
+            <div id="contractViewer" style="border:1px solid var(--client-border-color); padding:15px; min-height:300px; background-color:#fff; margin-bottom:20px;">
+                <p id="contractTextPreview">Carregando pré-visualização do contrato...</p>
+                <!-- <iframe id="contractPdfFrame" src="" width="100%" height="500px" style="display:none;"></iframe> -->
+            </div>
+            <a href="#" id="downloadContractBtn" class="btn-client btn-client-secondary" style="display:none;">Baixar Contrato (PDF)</a>
+        </div>
+        
+        <div class="info-card" id="signatureSection" style="display:none;">
+            <h4>Assinatura Digital</h4>
+            <p>Por favor, leia atentamente o contrato acima. Ao assinar, você concorda com todos os termos e condições.</p>
+            <div id="signatureArea">
+                <canvas id="signatureCanvas"></canvas>
+            </div>
+            <div class="signature-buttons">
+                <button id="clearSignatureBtn" class="btn-client btn-client-secondary">Limpar Assinatura</button>
+                <button id="saveSignatureBtn" class="btn-client btn-client-primary">Assinar e Concordar</button>
+            </div>
+             <div class="form-group" style="margin-top:15px;">
+                <input type="checkbox" id="termsAccepted" name="termsAccepted" style="margin-right:5px;">
+                <label for="termsAccepted" style="font-size:0.9rem;">Li e concordo com os termos do contrato.</label>
+            </div>
+        </div>
+
+        <div class="info-card" id="signedConfirmation" style="display:none;">
+            <h4>Contrato Assinado!</h4>
+            <p>Seu contrato foi assinado digitalmente em <span id="signatureDateDisplay"></span>.</p>
+            <p>Você pode <a href="#" id="downloadSignedContractBtn">baixar uma cópia aqui</a>.</p>
+            <img id="signedImageDisplay" src="" alt="Sua Assinatura" style="max-width:300px; border:1px solid #ccc; margin-top:10px; display:none;">
+        </div>
+
+         <div id="noContractMessage" class="info-card" style="display:none; text-align:center;">
+            <p>Nenhum contrato disponível para este evento no momento, ou ele já foi assinado.</p>
+        </div>
+    </main>
+
+    <script src="../../public/assets/js/firebase-config.js"></script>
+    <script src="../../public/assets/js/auth-client.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const selectedEventId = localStorage.getItem('selectedClientEventId');
+            const selectedEventName = localStorage.getItem('selectedClientEventName') || "Meu Evento";
+            const clientUid = localStorage.getItem('clientUserUid');
+
+            if (!selectedEventId) {
+                window.location.href = 'events.html'; return;
+            }
+            document.getElementById('contractEventTitle').textContent = selectedEventName;
+            document.getElementById('currentEventNameNav').textContent = selectedEventName;
+
+            // Simulação de dados do contrato
+            const mockContractsData = {
+                "event1_uid2": { // eventId_clientUid
+                    fileUrl: "simulated_contracts/formatura_2025_engenharia_uid2.pdf",
+                    status: "signed", // "pending_signature", "signed"
+                    signatureDate: "2025-05-05T10:00:00Z",
+                    signatureImageUrl: "simulated_signatures/sig_event1_uid2.png", // URL da imagem da assinatura
+                    termsAccepted: true,
+                    previewText: "Este é o contrato para a Formatura Turma 2025 - Engenharia..."
+                },
+                "event2_uid2": {
+                    fileUrl: "simulated_contracts/casamento_ana_carlos_uid2.pdf",
+                    status: "pending_signature",
+                    previewText: "Contrato de prestação de serviços para o Casamento Ana e Carlos..."
+                }
+            };
+            const contractKey = `${selectedEventId}_${clientUid}`;
+            const contractData = mockContractsData[contractKey];
+
+            const contractDisplayArea = document.getElementById('contractDisplayArea');
+            const signatureSection = document.getElementById('signatureSection');
+            const signedConfirmation = document.getElementById('signedConfirmation');
+            const noContractMessage = document.getElementById('noContractMessage');
+            const contractTextPreviewEl = document.getElementById('contractTextPreview');
+            const downloadContractBtn = document.getElementById('downloadContractBtn');
+
+            let signaturePad;
+
+            if (contractData) {
+                noContractMessage.style.display = 'none';
+                contractTextPreviewEl.textContent = contractData.previewText || "Pré-visualização do contrato não disponível. Faça o download para ver o documento completo.";
+                
+                if(contractData.fileUrl) {
+                    downloadContractBtn.href = contractData.fileUrl; // Em produção, seria a URL real do Firebase Storage
+                    downloadContractBtn.style.display = 'inline-block';
+                    // Para exibir PDF em iframe:
+                    // document.getElementById('contractPdfFrame').src = contractData.fileUrl;
+                    // document.getElementById('contractPdfFrame').style.display = 'block';
+                    // contractTextPreviewEl.style.display = 'none';
+                }
+
+
+                if (contractData.status === "pending_signature") {
+                    signatureSection.style.display = 'block';
+                    const canvas = document.getElementById("signatureCanvas");
+                    signaturePad = new SignaturePad(canvas, {
+                        backgroundColor: 'rgb(255, 255, 255)' // necessary for dataUrl to work on non-transparent signaturePads
+                    });
+
+                    document.getElementById('clearSignatureBtn').addEventListener('click', () => signaturePad.clear());
+                    document.getElementById('saveSignatureBtn').addEventListener('click', () => {
+                        if (signaturePad.isEmpty()) {
+                            alert("Por favor, forneça sua assinatura.");
+                            return;
+                        }
+                        if (!document.getElementById('termsAccepted').checked) {
+                            alert("Você precisa concordar com os termos do contrato para assinar.");
+                            return;
+                        }
+                        
+                        const signatureDataUrl = signaturePad.toDataURL('image/png');
+                        console.log("Assinatura Salva (simulada):", signatureDataUrl);
+                        // Em uma app real:
+                        // 1. Salvar a imagem da assinatura (ex: Firebase Storage)
+                        // 2. Atualizar o status do contrato no Firebase Realtime DB para "signed",
+                        //    adicionar signatureImageUrl, signatureDate, termsAccepted=true.
+                        
+                        // Simulação de sucesso:
+                        mockContractsData[contractKey].status = "signed";
+                        mockContractsData[contractKey].signatureImageUrl = signatureDataUrl; // Salva a imagem base64 para demo
+                        mockContractsData[contractKey].signatureDate = new Date().toISOString();
+                        mockContractsData[contractKey].termsAccepted = true;
+                        
+                        alert("Contrato assinado com sucesso! (Simulado)");
+                        displaySignedState(mockContractsData[contractKey]);
+                    });
+
+                } else if (contractData.status === "signed") {
+                    displaySignedState(contractData);
+                }
+
+            } else {
+                contractDisplayArea.style.display = 'none';
+                signatureSection.style.display = 'none';
+                signedConfirmation.style.display = 'none';
+                noContractMessage.style.display = 'block';
+            }
+
+            function displaySignedState(signedData) {
+                signatureSection.style.display = 'none';
+                signedConfirmation.style.display = 'block';
+                document.getElementById('signatureDateDisplay').textContent = new Date(signedData.signatureDate).toLocaleString('pt-BR');
+                if (signedData.signatureImageUrl) {
+                    document.getElementById('signedImageDisplay').src = signedData.signatureImageUrl;
+                    document.getElementById('signedImageDisplay').style.display = 'block';
+                }
+                document.getElementById('downloadSignedContractBtn').href = signedData.fileUrl || '#'; 
+            }
+
+            // Ajustar tamanho do canvas se a janela for redimensionada
+            function resizeCanvas() {
+                if (signaturePad) {
+                    const canvas = document.getElementById("signatureCanvas");
+                    const ratio =  Math.max(window.devicePixelRatio || 1, 1);
+                    canvas.width = canvas.offsetWidth * ratio;
+                    canvas.height = canvas.offsetHeight * ratio;
+                    canvas.getContext("2d").scale(ratio, ratio);
+                    signaturePad.clear(); // importante para redimensionar corretamente
+                }
+            }
+            window.addEventListener("resize", resizeCanvas);
+            if (document.getElementById("signatureCanvas")) resizeCanvas(); // Chamar na carga inicial se o canvas estiver visível
+        });
+    </script>
+</body>
+</html>

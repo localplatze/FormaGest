@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eventos Gerais - Admin Érika Produções</title>
+    <link rel="stylesheet" href="../../../public/assets/css/admin-style.css">
+    <link rel="icon" href="../../../public/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body class="dashboard-body">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>Érika Produções</h3>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="../dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="../events/list.html"><i class="fas fa-calendar-alt"></i> Gerenciar Eventos</a></li>
+                <li><a href="../events/new.html"><i class="fas fa-plus-circle"></i> Novo Evento</a></li>
+                <li><a href="../graduation/index.html"><i class="fas fa-graduation-cap"></i> Formaturas</a></li>
+                <li><a href="../weddings/index.html"><i class="fas fa-heart"></i> Casamentos</a></li>
+                <li><a href="../birthdays/index.html"><i class="fas fa-birthday-cake"></i> Aniversários</a></li>
+                <li class="active"><a href="index.html"><i class="fas fa-concierge-bell"></i> Eventos Gerais</a></li>
+                <li><a href="#"><i class="fas fa-users"></i> Clientes</a></li>
+                <li><a href="../settings/index.html"><i class="fas fa-cogs"></i> Configurações</a></li>
+                <li><a href="#" id="adminLogoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <header class="main-header">
+            <div class="header-title">
+                <h2>Gestão de Eventos Gerais</h2>
+            </div>
+            <div class="user-info">
+                <span>Olá, <span id="adminUserName">Admin</span></span>
+                <i class="fas fa-user-circle fa-2x"></i>
+            </div>
+        </header>
+
+        <div class="content-area">
+            <div class="event-selector-container">
+                <label for="generalEventSelector">Selecione um Evento Geral:</label>
+                <select id="generalEventSelector">
+                    <option value="">-- Nenhum evento selecionado --</option>
+                    <!-- Opções carregadas por JS -->
+                </select>
+                <button class="btn btn-primary" id="loadGeneralDetailsBtn" disabled>Carregar Detalhes</button>
+            </div>
+
+            <div id="generalManagementSection" style="display: none;">
+                <h3 id="selectedGeneralNameDisplay"></h3>
+                <div class="event-management-links">
+                    <a href="#" id="manageGeneralDetailsLink" class="link-card">
+                        <i class="fas fa-clipboard-list"></i>
+                        <h4>Detalhes do Evento</h4>
+                         <p style="font-size:0.8rem; color:#555;">(Pagamento, Contrato, Checklist)</p>
+                    </a>
+                     <a href="../events/edit.html" id="editGeneralEventLink" class="link-card">
+                        <i class="fas fa-edit"></i>
+                        <h4>Editar Evento Principal</h4>
+                        <p style="font-size:0.8rem; color:#555;">(Data, Local, etc.)</p>
+                    </a>
+                </div>
+            </div>
+            <div id="noGeneralSelectedMessage" style="text-align: center; padding: 20px; margin-top: 20px;">
+                <p>Por favor, selecione um evento geral para ver as opções de gerenciamento.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../../public/assets/js/firebase-config.js"></script>
+    <script src="../../../public/assets/js/auth-admin.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('isAdminLoggedIn') !== 'true') {
+                window.location.href = '../login.html';
+            }
+            const adminName = localStorage.getItem('adminUserName') || 'Admin';
+            document.getElementById('adminUserName').textContent = adminName;
+
+            const eventSelector = document.getElementById('generalEventSelector');
+            const loadEventBtn = document.getElementById('loadGeneralDetailsBtn');
+            const generalManagementSection = document.getElementById('generalManagementSection');
+            const selectedGeneralNameDisplay = document.getElementById('selectedGeneralNameDisplay');
+            const noGeneralSelectedMessage = document.getElementById('noGeneralSelectedMessage');
+
+            // Simulação de eventos gerais (filtrados por type: "general")
+            const mockGeneralEvents = [
+                { id: "genEvent1", name: "Confraternização Empresa XYZ", status: "active" },
+                { id: "genEvent2", name: "Lançamento Produto Alpha", status: "planning" },
+                { id: "genEvent3", name: "Palestra Motivacional", status: "completed" }
+            ];
+
+            function populateEventSelector() {
+                const activeGeneral = mockGeneralEvents.filter(event => event.status === 'active' || event.status === 'planning');
+                activeGeneral.forEach(event => {
+                    const option = document.createElement('option');
+                    option.value = event.id;
+                    option.textContent = event.name;
+                    eventSelector.appendChild(option);
+                });
+            }
+
+            eventSelector.addEventListener('change', () => {
+                loadEventBtn.disabled = !eventSelector.value;
+                 if (!eventSelector.value) {
+                    generalManagementSection.style.display = 'none';
+                    noGeneralSelectedMessage.style.display = 'block';
+                }
+            });
+            
+            loadEventBtn.addEventListener('click', () => {
+                const selectedEventId = eventSelector.value;
+                const selectedEvent = mockGeneralEvents.find(e => e.id === selectedEventId);
+
+                if (selectedEvent) {
+                    localStorage.setItem('selectedGeneralEventId', selectedEventId);
+                    localStorage.setItem('selectedGeneralEventName', selectedEvent.name);
+
+                    selectedGeneralNameDisplay.textContent = `Gerenciando: ${selectedEvent.name}`;
+                    generalManagementSection.style.display = 'block';
+                    noGeneralSelectedMessage.style.display = 'none';
+
+                    document.getElementById('manageGeneralDetailsLink').href = `details.html?eventId=${selectedEventId}`;
+                    document.getElementById('editGeneralEventLink').href = `../events/edit.html?id=${selectedEventId}`;
+
+                } else {
+                    generalManagementSection.style.display = 'none';
+                    noGeneralSelectedMessage.style.display = 'block';
+                    alert("Evento não encontrado.");
+                }
+            });
+            
+            const storedEventId = localStorage.getItem('selectedGeneralEventId');
+            if (storedEventId) {
+                const storedEvent = mockGeneralEvents.find(e => e.id === storedEventId);
+                 if (storedEvent && (storedEvent.status === 'active' || storedEvent.status === 'planning')) {
+                    eventSelector.value = storedEventId;
+                    loadEventBtn.disabled = false;
+                    loadEventBtn.click();
+                } else {
+                    localStorage.removeItem('selectedGeneralEventId');
+                    localStorage.removeItem('selectedGeneralEventName');
+                }
+            }
+
+            populateEventSelector();
+        });
+    </script>
+</body>
+</html>

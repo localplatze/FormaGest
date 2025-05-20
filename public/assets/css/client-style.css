@@ -1,0 +1,307 @@
+/* Estilos para a Área do Cliente */
+:root {
+    --client-primary-color: #6a0dad; /* Roxo principal (mesmo do admin para consistência da marca) */
+    --client-secondary-color: #c8a2c8; /* Lilás suave */
+    --client-accent-color: #ffd700; /* Dourado */
+    --client-bg-color: #f8f9fa; /* Fundo bem claro */
+    --client-card-bg: #ffffff;
+    --client-text-color: #343a40;
+    --client-light-text-color: #ffffff;
+    --client-border-color: #dee2e6;
+    --client-shadow: 0 4px 15px rgba(0,0,0,0.07);
+    --client-font-primary: 'Montserrat', sans-serif;
+}
+
+body.client-area {
+    font-family: var(--client-font-primary);
+    background-color: var(--client-bg-color);
+    color: var(--client-text-color);
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* Header do Cliente */
+.client-header {
+    background-color: var(--client-primary-color);
+    color: var(--client-light-text-color);
+    padding: 15px 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.client-header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+.client-header .logo h1 {
+    font-family: 'Playfair Display', serif; /* Se quiser diferenciar o logo */
+    color: var(--client-light-text-color);
+    font-size: 1.6rem;
+    margin: 0;
+}
+.client-header nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+.client-header nav ul li {
+    margin-left: 20px;
+}
+.client-header nav ul li a {
+    color: var(--client-light-text-color);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+.client-header nav ul li a:hover,
+.client-header nav ul li a.active {
+    background-color: rgba(255,255,255,0.15);
+}
+.client-header nav ul li a.logout-btn {
+    background-color: var(--client-accent-color);
+    color: var(--client-primary-color);
+}
+.client-header nav ul li a.logout-btn:hover {
+    background-color: darken(var(--client-accent-color), 10%);
+}
+.client-menu-toggle { display: none; /* Para mobile */ }
+
+
+/* Conteúdo Principal do Cliente */
+.client-main-content {
+    max-width: 1100px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+.client-main-content h2, .client-main-content h3 {
+    color: var(--client-primary-color);
+    margin-bottom: 20px;
+}
+
+/* Cards de Informação */
+.info-card {
+    background-color: var(--client-card-bg);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: var(--client-shadow);
+    margin-bottom: 25px;
+}
+.info-card h4 {
+    color: var(--client-secondary-color);
+    font-size: 1.1rem;
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 1px solid var(--client-border-color);
+    padding-bottom: 10px;
+}
+.info-card p {
+    margin-bottom: 0.8em;
+    font-size: 0.95rem;
+}
+.info-card p strong {
+    color: var(--client-text-color);
+}
+.info-card .details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+
+/* Botões */
+.btn-client {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-align: center;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+}
+.btn-client-primary {
+    background-color: var(--client-primary-color);
+    color: var(--client-light-text-color);
+}
+.btn-client-primary:hover {
+    background-color: darken(var(--client-primary-color), 10%);
+    transform: translateY(-2px);
+}
+.btn-client-secondary {
+    background-color: var(--client-secondary-color);
+    color: var(--client-primary-color);
+}
+.btn-client-secondary:hover {
+    background-color: darken(var(--client-secondary-color), 10%);
+}
+.btn-client-accent {
+    background-color: var(--client-accent-color);
+    color: var(--client-primary-color);
+}
+.btn-client-accent:hover {
+    background-color: darken(var(--client-accent-color), 10%);
+}
+
+/* Formulários do Cliente */
+.client-form .form-group {
+    margin-bottom: 20px;
+}
+.client-form .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #555;
+}
+.client-form .form-group input[type="text"],
+.client-form .form-group input[type="email"],
+.client-form .form-group input[type="tel"],
+.client-form .form-group input[type="password"],
+.client-form .form-group select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--client-border-color);
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+.client-form .form-group input:focus,
+.client-form .form-group select:focus {
+    outline: none;
+    border-color: var(--client-primary-color);
+    box-shadow: 0 0 0 2px rgba(106, 13, 173, 0.2);
+}
+.client-form .form-actions {
+    margin-top: 25px;
+    text-align: right;
+}
+
+/* Lista de Eventos do Cliente */
+.event-list-client .event-item-client {
+    background-color: var(--client-card-bg);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: var(--client-shadow);
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.2s ease;
+}
+.event-list-client .event-item-client:hover {
+    transform: translateY(-3px);
+}
+.event-list-client .event-item-client h4 {
+    margin: 0 0 5px 0;
+    color: var(--client-primary-color);
+}
+.event-list-client .event-item-client p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+
+/* Assinatura de Contrato */
+#signatureArea {
+    border: 2px dashed var(--client-border-color);
+    border-radius: 5px;
+    margin-bottom: 15px;
+    cursor: crosshair;
+}
+#signatureCanvas {
+    width: 100%;
+    height: 200px;
+    display: block;
+}
+.signature-buttons button {
+    margin-right: 10px;
+}
+
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .client-header .container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .client-header .logo {
+        margin-bottom: 10px;
+    }
+    .client-header nav {
+        width: 100%;
+        display: none; /* Escondido por padrão em mobile */
+    }
+    .client-header nav.active {
+        display: block; /* Mostra quando o menu toggle está ativo */
+    }
+    .client-header nav ul {
+        flex-direction: column;
+        width: 100%;
+        align-items: flex-start;
+    }
+    .client-header nav ul li {
+        margin: 10px 0;
+        width: 100%;
+    }
+     .client-header nav ul li a {
+        display: block;
+        text-align: left;
+    }
+    .client-menu-toggle {
+        display: block;
+        cursor: pointer;
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        color: var(--client-light-text-color);
+        font-size: 1.5rem;
+    }
+    .event-list-client .event-item-client {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .event-list-client .event-item-client .btn-client {
+        margin-top: 15px;
+    }
+}
+
+/* Estilo Login Cliente (similar ao admin login, mas pode ter toques diferentes) */
+.client-login-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--client-primary-color) 0%, var(--client-secondary-color) 100%);
+    padding: 20px;
+}
+.client-login-container {
+    background-color: var(--client-card-bg);
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+.client-login-container .login-header h2 {
+    color: var(--client-primary-color);
+    font-size: 1.8rem;
+    margin-bottom: 5px;
+}
+.client-login-container .login-header p {
+    color: #777;
+    margin-bottom: 25px;
+    font-size: 0.9rem;
+}
+/* Reutiliza .form-group, .btn, .btn-full, .login-links, .back-to-site do admin-style.css ou os defina aqui se forem diferentes */
+.client-login-container .form-group label { text-align: left; }
+.client-login-container .btn-full { width: 100%; padding: 12px; font-size: 1.1rem; margin-top: 10px; background-color: var(--client-primary-color); color: var(--client-light-text-color); }
+.client-login-container .btn-full:hover { background-color: darken(var(--client-primary-color), 10%); }
+.client-login-container .login-links a { color: var(--client-primary-color); }

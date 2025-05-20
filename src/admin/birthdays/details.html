@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Aniversário - Admin Érika Produções</title>
+    <link rel="stylesheet" href="../../../public/assets/css/admin-style.css">
+    <link rel="icon" href="../../../public/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        .tabs { display: flex; border-bottom: 2px solid var(--admin-border-color); margin-bottom: 20px; }
+        .tab-button { padding: 10px 20px; cursor: pointer; border: none; background-color: transparent; font-size: 1rem; font-weight: 500; color: #777; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+        .tab-button.active { color: var(--admin-primary-color); border-bottom-color: var(--admin-primary-color); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body class="dashboard-body">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>Érika Produções</h3>
+        </div>
+        <nav class="sidebar-nav">
+             <ul>
+                <li><a href="../dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="../events/list.html"><i class="fas fa-calendar-alt"></i> Gerenciar Eventos</a></li>
+                <li><a href="../events/new.html"><i class="fas fa-plus-circle"></i> Novo Evento</a></li>
+                <li><a href="../graduation/index.html"><i class="fas fa-graduation-cap"></i> Formaturas</a></li>
+                <li><a href="../weddings/index.html"><i class="fas fa-heart"></i> Casamentos</a></li>
+                <li class="active">
+                    <a href="index.html"><i class="fas fa-birthday-cake"></i> Aniversários</a>
+                    <ul class="submenu" style="padding-left: 20px; list-style: none;">
+                         <li><a href="#" id="subDetailsLink" style="color:#ccc; padding: 10px 15px; display:block;" class="active-submenu">Detalhes</a></li>
+                    </ul>
+                </li>
+                <li><a href="../general/index.html"><i class="fas fa-concierge-bell"></i> Eventos Gerais</a></li>
+                <li><a href="#"><i class="fas fa-users"></i> Clientes</a></li>
+                <li><a href="../settings/index.html"><i class="fas fa-cogs"></i> Configurações</a></li>
+                <li><a href="#" id="adminLogoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <header class="main-header">
+            <div class="header-title">
+                <h2>Detalhes: <span id="birthdayNameDisplay">Carregando...</span></h2>
+            </div>
+            <div class="user-info">
+                <span>Olá, <span id="adminUserName">Admin</span></span>
+                <i class="fas fa-user-circle fa-2x"></i>
+            </div>
+        </header>
+
+        <div class="content-area">
+            <div class="tabs">
+                <button class="tab-button active" data-tab="paymentContract">Pagamento & Contrato</button>
+                <button class="tab-button" data-tab="checklist">Checklist de Itens</button>
+            </div>
+
+            <div id="paymentContractTab" class="tab-content active">
+                <form id="paymentContractForm" class="form-section">
+                    <h3>Informações de Pagamento e Contrato</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="totalValue">Valor Total do Pacote (R$):</label>
+                            <input type="number" id="totalValue" name="totalValue" step="0.01" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="amountPaidBday">Valor Já Pago (R$):</label>
+                            <input type="number" id="amountPaidBday" name="amountPaidBday" step="0.01" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="paymentStatusBday">Status do Pagamento:</label>
+                            <select id="paymentStatusBday" name="paymentStatusBday">
+                                <option value="pending">Pendente</option>
+                                <option value="partial">Parcialmente Pago</option>
+                                <option value="paid">Totalmente Pago</option>
+                                <option value="overdue">Em Atraso</option>
+                            </select>
+                        </div>
+                         <div class="form-group">
+                            <label for="nextPaymentDateBday">Próximo Vencimento (se houver):</label>
+                            <input type="date" id="nextPaymentDateBday" name="nextPaymentDateBday">
+                        </div>
+                        <div class="form-group">
+                            <label for="contractFileBday">Arquivo do Contrato (PDF):</label>
+                            <input type="file" id="contractFileBday" name="contractFileBday" accept=".pdf">
+                            <small id="currentContractFileBdayDisplay"></small>
+                        </div>
+                         <div class="form-group">
+                            <label for="contractNotesBday">Observações Contrato/Pagamento:</label>
+                            <textarea id="contractNotesBday" name="contractNotesBday" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Salvar Informações</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="checklistTab" class="tab-content">
+                 <button id="addChecklistItemBtnBday" class="btn btn-primary" style="margin-bottom: 20px;"><i class="fas fa-plus"></i> Adicionar Item ao Checklist</button>
+                <div id="checklistItemsContainerBday">
+                    <!-- Itens do checklist serão inseridos aqui -->
+                </div>
+                <div id="noChecklistItemsMessageBday" style="text-align: center; padding: 20px; display: none;">
+                    Nenhum item no checklist para este aniversário.
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para Checklist (reutilizado de formaturas/casamentos) -->
+    <div id="checklistItemModalBday" class="modal" style="display:none; position:fixed; z-index:1001; left:0; top:0; width:100%; height:100%; overflow:auto; background-color:rgba(0,0,0,0.4);">
+        <div class="modal-content" style="background-color:#fefefe; margin:10% auto; padding:20px; border:1px solid #888; width:80%; max-width:600px; border-radius:8px; position:relative;">
+            <span class="close-modal-bday" style="color:#aaa; float:right; font-size:28px; font-weight:bold; cursor:pointer;">×</span>
+            <h3 id="checklistItemModalTitleBday">Adicionar Novo Item</h3>
+            <form id="checklistItemFormBday" class="form-section" style="box-shadow:none; padding:0;">
+                <input type="hidden" id="checklistItemIdBday">
+                <div class="form-group"><label for="itemNameBday">Nome do Item:</label><input type="text" id="itemNameBday" required></div>
+                <div class="form-group"><label for="itemDescriptionBday">Descrição:</label><textarea id="itemDescriptionBday" rows="3"></textarea></div>
+                <div class="form-group"><label for="itemStatusBday">Status:</label><select id="itemStatusBday"><option value="pending">Pendente</option><option value="in_progress">Em Progresso</option><option value="completed">Concluído</option></select></div>
+                <div class="form-group"><label for="itemDueDateBday">Data Limite:</label><input type="date" id="itemDueDateBday"></div>
+                <div class="form-actions"><button type="button" class="btn btn-secondary close-modal-bday-btn">Cancelar</button><button type="submit" class="btn btn-primary">Salvar Item</button></div>
+            </form>
+        </div>
+    </div>
+
+
+    <script src="../../../public/assets/js/firebase-config.js"></script>
+    <script src="../../../public/assets/js/auth-admin.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('isAdminLoggedIn') !== 'true') {
+                window.location.href = '../login.html';
+            }
+            const adminName = localStorage.getItem('adminUserName') || 'Admin';
+            document.getElementById('adminUserName').textContent = adminName;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const eventId = urlParams.get('eventId') || localStorage.getItem('selectedBirthdayEventId');
+            const eventName = localStorage.getItem('selectedBirthdayEventName') || "Evento Desconhecido";
+            
+            document.getElementById('birthdayNameDisplay').textContent = eventName;
+            if (!eventId) {
+                alert("ID do aniversário não encontrado.");
+                window.location.href = 'index.html';
+                return;
+            }
+             // Atualizar link do submenu
+            document.getElementById('subDetailsLink').href = `details.html?eventId=${eventId}`;
+
+            // Lógica das Abas
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    button.classList.add('active');
+                    document.getElementById(button.dataset.tab + 'Tab').classList.add('active');
+                });
+            });
+
+            // Simulação de dados
+            const mockBirthdayDetails = {
+                "bdayEvent1": {
+                    paymentContract: { totalValue: 7500.00, amountPaid: 3000.00, paymentStatus: "partial", nextPaymentDate: "2024-10-15", contractFileUrl: "contrato_15_clara.pdf", notes: "Pacote inclui decoração e DJ." },
+                    checklist: [ { id: "b_cl1", name: "Confirmar Lista de Convidados", status: "pending", dueDate: "2024-09-01" }, { id: "b_cl2", name: "Escolher Bolo", status: "completed", dueDate: "2024-08-20" } ]
+                },
+                 "bdayEvent2": {
+                    paymentContract: { totalValue: 3200.00, amountPaid: 3200.00, paymentStatus: "paid"},
+                    checklist: []
+                }
+            };
+
+            function loadBirthdayData() {
+                const data = mockBirthdayDetails[eventId];
+                if (!data) return;
+
+                if (data.paymentContract) {
+                    document.getElementById('totalValue').value = data.paymentContract.totalValue || '';
+                    document.getElementById('amountPaidBday').value = data.paymentContract.amountPaid || '';
+                    document.getElementById('paymentStatusBday').value = data.paymentContract.paymentStatus || 'pending';
+                    document.getElementById('nextPaymentDateBday').value = data.paymentContract.nextPaymentDate || '';
+                    document.getElementById('currentContractFileBdayDisplay').textContent = data.paymentContract.contractFileUrl ? `Atual: ${data.paymentContract.contractFileUrl}` : 'Nenhum arquivo.';
+                    document.getElementById('contractNotesBday').value = data.paymentContract.notes || '';
+                }
+                renderChecklistBday(data.checklist || []);
+            }
+            
+            document.getElementById('paymentContractForm').addEventListener('submit', e => {
+                e.preventDefault(); console.log("Salvando Pagamento/Contrato Aniversário (Simulado)", eventId); alert("Informações Salvas! (Simulado)");
+            });
+
+            // --- Lógica do Checklist (similar ao de formaturas/casamentos) ---
+            const checklistItemsContainerBday = document.getElementById('checklistItemsContainerBday');
+            const noItemsMessageBday = document.getElementById('noChecklistItemsMessageBday');
+            const modalBday = document.getElementById('checklistItemModalBday');
+            const addBtnBday = document.getElementById('addChecklistItemBtnBday');
+            const closeModalSpansBday = document.querySelectorAll('.close-modal-bday, .close-modal-bday-btn');
+            const itemFormBday = document.getElementById('checklistItemFormBday');
+            const modalTitleBday = document.getElementById('checklistItemModalTitleBday');
+
+            addBtnBday.onclick = function() {
+                modalTitleBday.textContent = "Adicionar Novo Item ao Checklist";
+                itemFormBday.reset();
+                document.getElementById('checklistItemIdBday').value = '';
+                modalBday.style.display = "block";
+            }
+            closeModalSpansBday.forEach(span => {
+                span.onclick = function() { modalBday.style.display = "none"; }
+            });
+            window.addEventListener('click', function(event) { // Use 'window' to avoid conflict if other modals are open
+                if (event.target == modalBday) { modalBday.style.display = "none"; }
+            });
+
+            function renderChecklistBday(items) {
+                checklistItemsContainerBday.innerHTML = '';
+                if (items.length === 0) {
+                    noItemsMessageBday.style.display = 'block';
+                    return;
+                }
+                noItemsMessageBday.style.display = 'none';
+                items.forEach(item => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = `checklist-item ${item.status === 'completed' ? 'completed' : ''}`;
+                    itemDiv.innerHTML = `
+                        <div class="checklist-item-info"><h5>${item.name}</h5><p>Status: <span class="status-badge status-${item.status.replace('_','-')}">${item.status.replace('_',' ').replace(/\b\w/g, l => l.toUpperCase())}</span></p>${item.dueDate ? `<p>Data Limite: ${new Date(item.dueDate + 'T00:00:00').toLocaleDateString('pt-BR')}</p>` : ''}</div>
+                        <div class="checklist-item-actions">
+                            ${item.status !== 'completed' ? `<button class="btn btn-complete" onclick="toggleCompleteBday('${item.id}')"><i class="fas fa-check-circle"></i></button>` : `<button class="btn btn-secondary" onclick="toggleCompleteBday('${item.id}')" style="background-color: #ffc107; color: #333;"><i class="fas fa-undo"></i></button>`}
+                            <button class="btn btn-edit" onclick="editItemBday('${item.id}')"><i class="fas fa-edit"></i></button><button class="btn btn-delete" onclick="deleteItemBday('${item.id}')"><i class="fas fa-trash"></i></button>
+                        </div>`;
+                    checklistItemsContainerBday.appendChild(itemDiv);
+                });
+            }
+            
+            itemFormBday.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const itemId = document.getElementById('checklistItemIdBday').value;
+                const currentChecklist = mockBirthdayDetails[eventId]?.checklist || [];
+                const newItemData = {
+                    id: itemId || `b_cl${Date.now()}`,
+                    name: document.getElementById('itemNameBday').value,
+                    description: document.getElementById('itemDescriptionBday').value,
+                    status: document.getElementById('itemStatusBday').value,
+                    dueDate: document.getElementById('itemDueDateBday').value
+                };
+                if (itemId) {
+                    const index = currentChecklist.findIndex(i => i.id === itemId);
+                    if (index > -1) currentChecklist[index] = newItemData;
+                } else {
+                    currentChecklist.push(newItemData);
+                }
+                if (!mockBirthdayDetails[eventId]) mockBirthdayDetails[eventId] = {};
+                mockBirthdayDetails[eventId].checklist = currentChecklist;
+                renderChecklistBday(currentChecklist);
+                modalBday.style.display = "none";
+            });
+
+            window.editItemBday = function(itemId) {
+                const item = (mockBirthdayDetails[eventId]?.checklist || []).find(i => i.id === itemId);
+                if (item) {
+                    modalTitleBday.textContent = "Editar Item do Checklist";
+                    document.getElementById('checklistItemIdBday').value = item.id;
+                    document.getElementById('itemNameBday').value = item.name;
+                    document.getElementById('itemDescriptionBday').value = item.description || '';
+                    document.getElementById('itemStatusBday').value = item.status;
+                    document.getElementById('itemDueDateBday').value = item.dueDate || '';
+                    modalBday.style.display = "block";
+                }
+            }
+            window.deleteItemBday = function(itemId) {
+                if (confirm("Deletar este item do checklist?")) {
+                    if (mockBirthdayDetails[eventId]?.checklist) {
+                        mockBirthdayDetails[eventId].checklist = mockBirthdayDetails[eventId].checklist.filter(i => i.id !== itemId);
+                        renderChecklistBday(mockBirthdayDetails[eventId].checklist);
+                    }
+                }
+            }
+            window.toggleCompleteBday = function(itemId) {
+                const item = (mockBirthdayDetails[eventId]?.checklist || []).find(i => i.id === itemId);
+                if (item) {
+                    item.status = (item.status === 'completed' ? 'pending' : 'completed');
+                    renderChecklistBday(mockBirthdayDetails[eventId].checklist);
+                }
+            }
+            // --- Fim da Lógica do Checklist ---
+
+            loadBirthdayData();
+        });
+    </script>
+</body>
+</html>

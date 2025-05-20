@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Evento Geral - Admin Érika Produções</title>
+    <link rel="stylesheet" href="../../../public/assets/css/admin-style.css">
+    <link rel="icon" href="../../../public/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        .tabs { display: flex; border-bottom: 2px solid var(--admin-border-color); margin-bottom: 20px; }
+        .tab-button { padding: 10px 20px; cursor: pointer; border: none; background-color: transparent; font-size: 1rem; font-weight: 500; color: #777; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+        .tab-button.active { color: var(--admin-primary-color); border-bottom-color: var(--admin-primary-color); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body class="dashboard-body">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>Érika Produções</h3>
+        </div>
+        <nav class="sidebar-nav">
+             <ul>
+                <li><a href="../dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="../events/list.html"><i class="fas fa-calendar-alt"></i> Gerenciar Eventos</a></li>
+                <li><a href="../events/new.html"><i class="fas fa-plus-circle"></i> Novo Evento</a></li>
+                <li><a href="../graduation/index.html"><i class="fas fa-graduation-cap"></i> Formaturas</a></li>
+                <li><a href="../weddings/index.html"><i class="fas fa-heart"></i> Casamentos</a></li>
+                <li><a href="../birthdays/index.html"><i class="fas fa-birthday-cake"></i> Aniversários</a></li>
+                <li class="active">
+                    <a href="index.html"><i class="fas fa-concierge-bell"></i> Eventos Gerais</a>
+                    <ul class="submenu" style="padding-left: 20px; list-style: none;">
+                         <li><a href="#" id="subDetailsLink" style="color:#ccc; padding: 10px 15px; display:block;" class="active-submenu">Detalhes</a></li>
+                    </ul>
+                </li>
+                <li><a href="#"><i class="fas fa-users"></i> Clientes</a></li>
+                <li><a href="../settings/index.html"><i class="fas fa-cogs"></i> Configurações</a></li>
+                <li><a href="#" id="adminLogoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <header class="main-header">
+            <div class="header-title">
+                <h2>Detalhes: <span id="generalEventNameDisplay">Carregando...</span></h2>
+            </div>
+            <div class="user-info">
+                <span>Olá, <span id="adminUserName">Admin</span></span>
+                <i class="fas fa-user-circle fa-2x"></i>
+            </div>
+        </header>
+
+        <div class="content-area">
+            <div class="tabs">
+                <button class="tab-button active" data-tab="paymentContractGen">Pagamento & Contrato</button>
+                <button class="tab-button" data-tab="checklistGen">Checklist de Itens</button>
+            </div>
+
+            <div id="paymentContractGenTab" class="tab-content active">
+                <form id="paymentContractFormGen" class="form-section">
+                    <h3>Informações de Pagamento e Contrato</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="totalValueGen">Valor Total do Evento/Serviço (R$):</label>
+                            <input type="number" id="totalValueGen" name="totalValueGen" step="0.01" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="amountPaidGen">Valor Já Pago (R$):</label>
+                            <input type="number" id="amountPaidGen" name="amountPaidGen" step="0.01" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="paymentStatusGen">Status do Pagamento:</label>
+                            <select id="paymentStatusGen" name="paymentStatusGen">
+                                <option value="pending">Pendente</option>
+                                <option value="partial">Parcialmente Pago</option>
+                                <option value="paid">Totalmente Pago</option>
+                                <option value="overdue">Em Atraso</option>
+                            </select>
+                        </div>
+                         <div class="form-group">
+                            <label for="nextPaymentDateGen">Próximo Vencimento (se houver):</label>
+                            <input type="date" id="nextPaymentDateGen" name="nextPaymentDateGen">
+                        </div>
+                        <div class="form-group">
+                            <label for="contractFileGen">Arquivo do Contrato (PDF):</label>
+                            <input type="file" id="contractFileGen" name="contractFileGen" accept=".pdf">
+                            <small id="currentContractFileGenDisplay"></small>
+                        </div>
+                         <div class="form-group">
+                            <label for="contractNotesGen">Observações Contrato/Pagamento:</label>
+                            <textarea id="contractNotesGen" name="contractNotesGen" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Salvar Informações</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="checklistGenTab" class="tab-content">
+                 <button id="addChecklistItemBtnGen" class="btn btn-primary" style="margin-bottom: 20px;"><i class="fas fa-plus"></i> Adicionar Item ao Checklist</button>
+                <div id="checklistItemsContainerGen">
+                    <!-- Itens do checklist serão inseridos aqui -->
+                </div>
+                <div id="noChecklistItemsMessageGen" style="text-align: center; padding: 20px; display: none;">
+                    Nenhum item no checklist para este evento.
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para Checklist -->
+    <div id="checklistItemModalGen" class="modal" style="display:none; position:fixed; z-index:1001; left:0; top:0; width:100%; height:100%; overflow:auto; background-color:rgba(0,0,0,0.4);">
+        <div class="modal-content" style="background-color:#fefefe; margin:10% auto; padding:20px; border:1px solid #888; width:80%; max-width:600px; border-radius:8px; position:relative;">
+            <span class="close-modal-gen" style="color:#aaa; float:right; font-size:28px; font-weight:bold; cursor:pointer;">×</span>
+            <h3 id="checklistItemModalTitleGen">Adicionar Novo Item</h3>
+            <form id="checklistItemFormGen" class="form-section" style="box-shadow:none; padding:0;">
+                <input type="hidden" id="checklistItemIdGen">
+                <div class="form-group"><label for="itemNameGen">Nome do Item:</label><input type="text" id="itemNameGen" required></div>
+                <div class="form-group"><label for="itemDescriptionGen">Descrição:</label><textarea id="itemDescriptionGen" rows="3"></textarea></div>
+                <div class="form-group"><label for="itemStatusGen">Status:</label><select id="itemStatusGen"><option value="pending">Pendente</option><option value="in_progress">Em Progresso</option><option value="completed">Concluído</option></select></div>
+                <div class="form-group"><label for="itemDueDateGen">Data Limite:</label><input type="date" id="itemDueDateGen"></div>
+                <div class="form-actions"><button type="button" class="btn btn-secondary close-modal-gen-btn">Cancelar</button><button type="submit" class="btn btn-primary">Salvar Item</button></div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../../../public/assets/js/firebase-config.js"></script>
+    <script src="../../../public/assets/js/auth-admin.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('isAdminLoggedIn') !== 'true') {
+                window.location.href = '../login.html';
+            }
+            const adminName = localStorage.getItem('adminUserName') || 'Admin';
+            document.getElementById('adminUserName').textContent = adminName;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const eventId = urlParams.get('eventId') || localStorage.getItem('selectedGeneralEventId');
+            const eventName = localStorage.getItem('selectedGeneralEventName') || "Evento Desconhecido";
+            
+            document.getElementById('generalEventNameDisplay').textContent = eventName;
+            if (!eventId) {
+                alert("ID do evento não encontrado.");
+                window.location.href = 'index.html';
+                return;
+            }
+            // Atualizar link do submenu
+            document.getElementById('subDetailsLink').href = `details.html?eventId=${eventId}`;
+
+
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    button.classList.add('active');
+                    document.getElementById(button.dataset.tab + 'Tab').classList.add('active');
+                });
+            });
+
+            // Simulação de dados
+            const mockGeneralDetails = {
+                "genEvent1": {
+                    paymentContract: { totalValue: 12000.00, amountPaid: 12000.00, paymentStatus: "paid", contractFileUrl: "contrato_emp_xyz.pdf", notes: "Serviço de buffet e som." },
+                    checklist: [ { id: "g_cl1", name: "Montagem do Palco", status: "completed", dueDate: "2024-11-20" }, { id: "g_cl2", name: "Teste de Som", status: "pending", dueDate: "2024-11-21" } ]
+                },
+                 "genEvent2": {
+                    paymentContract: { totalValue: 25000.00, amountPaid: 10000.00, paymentStatus: "partial", nextPaymentDate: "2025-01-10" },
+                    checklist: [ {id: "g_cl3", name: "Aprovação Layout Visual", status:"pending"} ]
+                }
+            };
+
+            function loadGeneralData() {
+                const data = mockGeneralDetails[eventId];
+                if (!data) return;
+
+                if (data.paymentContract) {
+                    document.getElementById('totalValueGen').value = data.paymentContract.totalValue || '';
+                    document.getElementById('amountPaidGen').value = data.paymentContract.amountPaid || '';
+                    document.getElementById('paymentStatusGen').value = data.paymentContract.paymentStatus || 'pending';
+                    document.getElementById('nextPaymentDateGen').value = data.paymentContract.nextPaymentDate || '';
+                    document.getElementById('currentContractFileGenDisplay').textContent = data.paymentContract.contractFileUrl ? `Atual: ${data.paymentContract.contractFileUrl}` : 'Nenhum arquivo.';
+                    document.getElementById('contractNotesGen').value = data.paymentContract.notes || '';
+                }
+                renderChecklistGen(data.checklist || []);
+            }
+            
+            document.getElementById('paymentContractFormGen').addEventListener('submit', e => {
+                e.preventDefault(); console.log("Salvando Pagamento/Contrato Evento Geral (Simulado)", eventId); alert("Informações Salvas! (Simulado)");
+            });
+
+            // --- Lógica do Checklist (similar) ---
+            const checklistItemsContainerGen = document.getElementById('checklistItemsContainerGen');
+            const noItemsMessageGen = document.getElementById('noChecklistItemsMessageGen');
+            const modalGen = document.getElementById('checklistItemModalGen');
+            const addBtnGen = document.getElementById('addChecklistItemBtnGen');
+            const closeModalSpansGen = document.querySelectorAll('.close-modal-gen, .close-modal-gen-btn');
+            const itemFormGen = document.getElementById('checklistItemFormGen');
+            const modalTitleGen = document.getElementById('checklistItemModalTitleGen');
+
+            addBtnGen.onclick = function() {
+                modalTitleGen.textContent = "Adicionar Novo Item ao Checklist";
+                itemFormGen.reset();
+                document.getElementById('checklistItemIdGen').value = '';
+                modalGen.style.display = "block";
+            }
+            closeModalSpansGen.forEach(span => {
+                span.onclick = function() { modalGen.style.display = "none"; }
+            });
+             window.addEventListener('click', function(event) {
+                if (event.target == modalGen) { modalGen.style.display = "none"; }
+            });
+
+
+            function renderChecklistGen(items) {
+                checklistItemsContainerGen.innerHTML = '';
+                if (items.length === 0) { noItemsMessageGen.style.display = 'block'; return; }
+                noItemsMessageGen.style.display = 'none';
+                items.forEach(item => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = `checklist-item ${item.status === 'completed' ? 'completed' : ''}`;
+                    itemDiv.innerHTML = `
+                        <div class="checklist-item-info"><h5>${item.name}</h5><p>Status: <span class="status-badge status-${item.status.replace('_','-')}">${item.status.replace('_',' ').replace(/\b\w/g, l => l.toUpperCase())}</span></p>${item.dueDate ? `<p>Data Limite: ${new Date(item.dueDate + 'T00:00:00').toLocaleDateString('pt-BR')}</p>` : ''}</div>
+                        <div class="checklist-item-actions">
+                            ${item.status !== 'completed' ? `<button class="btn btn-complete" onclick="toggleCompleteGen('${item.id}')"><i class="fas fa-check-circle"></i></button>` : `<button class="btn btn-secondary" onclick="toggleCompleteGen('${item.id}')" style="background-color: #ffc107; color: #333;"><i class="fas fa-undo"></i></button>`}
+                            <button class="btn btn-edit" onclick="editItemGen('${item.id}')"><i class="fas fa-edit"></i></button><button class="btn btn-delete" onclick="deleteItemGen('${item.id}')"><i class="fas fa-trash"></i></button>
+                        </div>`;
+                    checklistItemsContainerGen.appendChild(itemDiv);
+                });
+            }
+            
+            itemFormGen.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const itemId = document.getElementById('checklistItemIdGen').value;
+                const currentChecklist = mockGeneralDetails[eventId]?.checklist || [];
+                const newItemData = {
+                    id: itemId || `g_cl${Date.now()}`,
+                    name: document.getElementById('itemNameGen').value,
+                    description: document.getElementById('itemDescriptionGen').value,
+                    status: document.getElementById('itemStatusGen').value,
+                    dueDate: document.getElementById('itemDueDateGen').value
+                };
+                if (itemId) {
+                    const index = currentChecklist.findIndex(i => i.id === itemId);
+                    if (index > -1) currentChecklist[index] = newItemData;
+                } else { currentChecklist.push(newItemData); }
+                if (!mockGeneralDetails[eventId]) mockGeneralDetails[eventId] = {};
+                mockGeneralDetails[eventId].checklist = currentChecklist;
+                renderChecklistGen(currentChecklist);
+                modalGen.style.display = "none";
+            });
+
+            window.editItemGen = function(itemId) {
+                const item = (mockGeneralDetails[eventId]?.checklist || []).find(i => i.id === itemId);
+                if (item) {
+                    modalTitleGen.textContent = "Editar Item do Checklist";
+                    document.getElementById('checklistItemIdGen').value = item.id;
+                    document.getElementById('itemNameGen').value = item.name;
+                    document.getElementById('itemDescriptionGen').value = item.description || '';
+                    document.getElementById('itemStatusGen').value = item.status;
+                    document.getElementById('itemDueDateGen').value = item.dueDate || '';
+                    modalGen.style.display = "block";
+                }
+            }
+            window.deleteItemGen = function(itemId) {
+                if (confirm("Deletar este item do checklist?")) {
+                    if (mockGeneralDetails[eventId]?.checklist) {
+                        mockGeneralDetails[eventId].checklist = mockGeneralDetails[eventId].checklist.filter(i => i.id !== itemId);
+                        renderChecklistGen(mockGeneralDetails[eventId].checklist);
+                    }
+                }
+            }
+            window.toggleCompleteGen = function(itemId) {
+                const item = (mockGeneralDetails[eventId]?.checklist || []).find(i => i.id === itemId);
+                if (item) {
+                    item.status = (item.status === 'completed' ? 'pending' : 'completed');
+                    renderChecklistGen(mockGeneralDetails[eventId].checklist);
+                }
+            }
+            // --- Fim da Lógica do Checklist ---
+
+            loadGeneralData();
+        });
+    </script>
+</body>
+</html>

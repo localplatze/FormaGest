@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checklist do Evento - Admin Érika Produções</title>
+    <link rel="stylesheet" href="../../../public/assets/css/admin-style.css">
+    <link rel="icon" href="../../../public/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body class="dashboard-body">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>Érika Produções</h3>
+        </div>
+        <nav class="sidebar-nav">
+             <ul>
+                <li><a href="../dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="../events/list.html"><i class="fas fa-calendar-alt"></i> Gerenciar Eventos</a></li>
+                <li><a href="../events/new.html"><i class="fas fa-plus-circle"></i> Novo Evento</a></li>
+                <li class="active">
+                    <a href="index.html"><i class="fas fa-graduation-cap"></i> Formaturas</a>
+                     <ul class="submenu" style="padding-left: 20px; list-style: none;">
+                        <li><a href="#" id="subStudentsLink" style="color:#ccc; padding: 10px 15px; display:block;">Formandos</a></li>
+                        <li><a href="#" id="subImportLink" style="color:#ccc; padding: 10px 15px; display:block;">Importar</a></li>
+                        <li><a href="#" id="subTablesLink" style="color:#ccc; padding: 10px 15px; display:block;">Mesas</a></li>
+                        <li><a href="#" id="subChecklistLink" style="color:#ccc; padding: 10px 15px; display:block;" class="active-submenu">Checklist</a></li>
+                    </ul>
+                </li>
+                <li><a href="../weddings/index.html"><i class="fas fa-heart"></i> Casamentos</a></li>
+                <li><a href="../birthdays/index.html"><i class="fas fa-birthday-cake"></i> Aniversários</a></li>
+                <li><a href="../general/index.html"><i class="fas fa-concierge-bell"></i> Eventos Gerais</a></li>
+                <li><a href="#"><i class="fas fa-users"></i> Clientes</a></li>
+                <li><a href="../settings/index.html"><i class="fas fa-cogs"></i> Configurações</a></li>
+                <li><a href="#" id="adminLogoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <header class="main-header">
+            <div class="header-title">
+                <h2>Checklist do Evento: <span id="eventNameDisplay">Carregando...</span></h2>
+            </div>
+            <div class="user-info">
+                <span>Olá, <span id="adminUserName">Admin</span></span>
+                <i class="fas fa-user-circle fa-2x"></i>
+            </div>
+        </header>
+
+        <div class="content-area">
+            <button id="addChecklistItemBtn" class="btn btn-primary" style="margin-bottom: 20px;"><i class="fas fa-plus"></i> Adicionar Item ao Checklist</button>
+
+            <div id="checklistItemsContainer">
+                <!-- Itens do checklist serão inseridos aqui -->
+            </div>
+            <div id="noChecklistItemsMessage" style="text-align: center; padding: 20px; display: none;">
+                Nenhum item no checklist para este evento.
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Adicionar/Editar Item do Checklist -->
+    <div id="checklistItemModal" class="modal" style="display:none; position:fixed; z-index:1001; left:0; top:0; width:100%; height:100%; overflow:auto; background-color:rgba(0,0,0,0.4);">
+        <div class="modal-content" style="background-color:#fefefe; margin:10% auto; padding:20px; border:1px solid #888; width:80%; max-width:600px; border-radius:8px; position:relative;">
+            <span class="close-modal" style="color:#aaa; float:right; font-size:28px; font-weight:bold; cursor:pointer;">×</span>
+            <h3 id="checklistItemModalTitle">Adicionar Novo Item</h3>
+            <form id="checklistItemForm" class="form-section" style="box-shadow:none; padding:0;">
+                <input type="hidden" id="checklistItemId">
+                <div class="form-group">
+                    <label for="itemName">Nome do Item:</label>
+                    <input type="text" id="itemName" required>
+                </div>
+                <div class="form-group">
+                    <label for="itemDescription">Descrição (Opcional):</label>
+                    <textarea id="itemDescription" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="itemStatus">Status:</label>
+                    <select id="itemStatus">
+                        <option value="pending">Pendente</option>
+                        <option value="in_progress">Em Progresso</option>
+                        <option value="completed">Concluído</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="itemResponsible">Responsável (Opcional):</label>
+                    <input type="text" id="itemResponsible">
+                </div>
+                <div class="form-group">
+                    <label for="itemDueDate">Data Limite (Opcional):</label>
+                    <input type="date" id="itemDueDate">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary close-modal-btn">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <script src="../../../public/assets/js/firebase-config.js"></script>
+    <script src="../../../public/assets/js/auth-admin.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('isAdminLoggedIn') !== 'true') {
+                window.location.href = '../login.html';
+            }
+            const adminName = localStorage.getItem('adminUserName') || 'Admin';
+            document.getElementById('adminUserName').textContent = adminName;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const eventId = urlParams.get('eventId') || localStorage.getItem('selectedGraduationEventId');
+            const eventName = localStorage.getItem('selectedGraduationEventName') || "Evento Desconhecido";
+            
+            document.getElementById('eventNameDisplay').textContent = eventName;
+            if (!eventId) {
+                alert("ID do evento de formatura não encontrado.");
+                window.location.href = 'index.html';
+                return;
+            }
+             // Atualizar links do submenu
+            document.getElementById('subStudentsLink').href = `students.html?eventId=${eventId}`;
+            document.getElementById('subImportLink').href = `import.html?eventId=${eventId}`;
+            document.getElementById('subTablesLink').href = `tables.html?eventId=${eventId}`;
+            document.getElementById('subChecklistLink').href = `checklist.html?eventId=${eventId}`;
+
+            const checklistItemsContainer = document.getElementById('checklistItemsContainer');
+            const noItemsMessage = document.getElementById('noChecklistItemsMessage');
+
+            // Modal logic
+            const modal = document.getElementById('checklistItemModal');
+            const addBtn = document.getElementById('addChecklistItemBtn');
+            const closeModalSpans = document.querySelectorAll('.close-modal, .close-modal-btn');
+            const itemForm = document.getElementById('checklistItemForm');
+            const modalTitle = document.getElementById('checklistItemModalTitle');
+
+            addBtn.onclick = function() {
+                modalTitle.textContent = "Adicionar Novo Item ao Checklist";
+                itemForm.reset();
+                document.getElementById('checklistItemId').value = '';
+                modal.style.display = "block";
+            }
+            closeModalSpans.forEach(span => {
+                span.onclick = function() { modal.style.display = "none"; }
+            });
+            window.onclick = function(event) {
+                if (event.target == modal) { modal.style.display = "none"; }
+            }
+
+            // Simulação de dados do checklist (associado ao eventId)
+            let mockChecklistData = {
+                "gradEvent1": [
+                    { id: "cl1", name: "Reservar local do baile", description: "Verificar disponibilidade e contrato", status: "completed", responsible: "Admin", dueDate: "2024-08-15" },
+                    { id: "cl2", name: "Contratar Buffet", description: "Degustação e definição de cardápio", status: "in_progress", responsible: "Comissão", dueDate: "2024-09-30" },
+                    { id: "cl3", name: "Definir decoração", description: "", status: "pending", responsible: "Comissão", dueDate: "2024-10-15" }
+                ],
+                "gradEvent2": [] // Evento sem itens ainda
+            };
+
+            function renderChecklist() {
+                checklistItemsContainer.innerHTML = '';
+                const items = mockChecklistData[eventId] || [];
+
+                if (items.length === 0) {
+                    noItemsMessage.style.display = 'block';
+                    return;
+                }
+                noItemsMessage.style.display = 'none';
+
+                items.forEach(item => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = `checklist-item ${item.status === 'completed' ? 'completed' : ''}`;
+                    itemDiv.innerHTML = `
+                        <div class="checklist-item-info">
+                            <h5>${item.name}</h5>
+                            ${item.description ? `<p><em>${item.description}</em></p>` : ''}
+                            <p>Status: <span class="status-badge status-${item.status.replace('_','-')}">${item.status.replace('_',' ').replace(/\b\w/g, l => l.toUpperCase())}</span></p>
+                            ${item.responsible ? `<p>Responsável: ${item.responsible}</p>` : ''}
+                            ${item.dueDate ? `<p>Data Limite: ${new Date(item.dueDate + 'T00:00:00').toLocaleDateString('pt-BR')}</p>` : ''}
+                        </div>
+                        <div class="checklist-item-actions">
+                            ${item.status !== 'completed' ? `<button class="btn btn-complete" onclick="toggleComplete('${item.id}')"><i class="fas fa-check-circle"></i></button>` : `<button class="btn btn-secondary" onclick="toggleComplete('${item.id}')" style="background-color: #ffc107; color: #333;"><i class="fas fa-undo"></i></button>`}
+                            <button class="btn btn-edit" onclick="editItem('${item.id}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-delete" onclick="deleteItem('${item.id}')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    `;
+                    checklistItemsContainer.appendChild(itemDiv);
+                });
+            }
+            
+            itemForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const itemId = document.getElementById('checklistItemId').value;
+                const newItemData = {
+                    id: itemId || `cl${Date.now()}`, // Novo ID se não estiver editando
+                    name: document.getElementById('itemName').value,
+                    description: document.getElementById('itemDescription').value,
+                    status: document.getElementById('itemStatus').value,
+                    responsible: document.getElementById('itemResponsible').value,
+                    dueDate: document.getElementById('itemDueDate').value
+                };
+
+                if (!mockChecklistData[eventId]) mockChecklistData[eventId] = [];
+
+                if (itemId) { // Editando
+                    const index = mockChecklistData[eventId].findIndex(i => i.id === itemId);
+                    if (index > -1) mockChecklistData[eventId][index] = newItemData;
+                } else { // Novo
+                    mockChecklistData[eventId].push(newItemData);
+                }
+                renderChecklist();
+                modal.style.display = "none";
+            });
+
+            window.editItem = function(itemId) {
+                const item = (mockChecklistData[eventId] || []).find(i => i.id === itemId);
+                if (item) {
+                    modalTitle.textContent = "Editar Item do Checklist";
+                    document.getElementById('checklistItemId').value = item.id;
+                    document.getElementById('itemName').value = item.name;
+                    document.getElementById('itemDescription').value = item.description || '';
+                    document.getElementById('itemStatus').value = item.status;
+                    document.getElementById('itemResponsible').value = item.responsible || '';
+                    document.getElementById('itemDueDate').value = item.dueDate || '';
+                    modal.style.display = "block";
+                }
+            }
+
+            window.deleteItem = function(itemId) {
+                if (confirm("Tem certeza que deseja deletar este item do checklist?")) {
+                    if (mockChecklistData[eventId]) {
+                        mockChecklistData[eventId] = mockChecklistData[eventId].filter(i => i.id !== itemId);
+                        renderChecklist();
+                    }
+                }
+            }
+            
+            window.toggleComplete = function(itemId) {
+                const item = (mockChecklistData[eventId] || []).find(i => i.id === itemId);
+                if (item) {
+                    item.status = (item.status === 'completed' ? 'pending' : 'completed');
+                    renderChecklist();
+                }
+            }
+
+            renderChecklist(); // Carga inicial
+        });
+    </script>
+</body>
+</html>

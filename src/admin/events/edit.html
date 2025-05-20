@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Evento - Admin Érika Produções</title>
+    <link rel="stylesheet" href="../../../public/assets/css/admin-style.css">
+    <link rel="icon" href="../../../public/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body class="dashboard-body">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>Érika Produções</h3>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="../dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li class="active"><a href="list.html"><i class="fas fa-calendar-alt"></i> Gerenciar Eventos</a></li>
+                <li><a href="new.html"><i class="fas fa-plus-circle"></i> Novo Evento</a></li>
+                <li><a href="../graduation/index.html"><i class="fas fa-graduation-cap"></i> Formaturas</a></li>
+                <li><a href="../weddings/index.html"><i class="fas fa-heart"></i> Casamentos</a></li>
+                <li><a href="../birthdays/index.html"><i class="fas fa-birthday-cake"></i> Aniversários</a></li>
+                <li><a href="../general/index.html"><i class="fas fa-concierge-bell"></i> Eventos Gerais</a></li>
+                <li><a href="#"><i class="fas fa-users"></i> Clientes</a></li>
+                <li><a href="../settings/index.html"><i class="fas fa-cogs"></i> Configurações</a></li>
+                <li><a href="#" id="adminLogoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <header class="main-header">
+            <div class="header-title">
+                <h2>Editar Evento: <span id="editingEventName"></span></h2>
+            </div>
+            <div class="user-info">
+                <span>Olá, <span id="adminUserName">Admin</span></span>
+                <i class="fas fa-user-circle fa-2x"></i>
+            </div>
+        </header>
+
+        <div class="content-area">
+            <form id="editEventForm" class="form-section">
+                <input type="hidden" id="eventId" name="eventId">
+                <h3>Informações Básicas do Evento</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="eventName">Nome do Evento:</label>
+                        <input type="text" id="eventName" name="eventName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventType">Tipo de Evento:</label>
+                        <select id="eventType" name="eventType" required>
+                            <option value="">Selecione o tipo</option>
+                            <option value="graduation">Formatura</option>
+                            <option value="wedding">Casamento</option>
+                            <option value="birthday">Aniversário</option>
+                            <option value="general">Evento Geral</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventDate">Data do Evento:</label>
+                        <input type="date" id="eventDate" name="eventDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventLocation">Local do Evento:</label>
+                        <input type="text" id="eventLocation" name="eventLocation">
+                    </div>
+                     <div class="form-group full-width">
+                        <label for="eventDescription">Descrição Curta (Opcional):</label>
+                        <textarea id="eventDescription" name="eventDescription" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventStatus">Status:</label>
+                        <select id="eventStatus" name="eventStatus" required>
+                            <option value="planning">Planejamento</option>
+                            <option value="active">Ativo</option>
+                            <option value="completed">Concluído</option>
+                            <option value="cancelled">Cancelado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="conditionalFieldsContainer" class="form-grid" style="margin-top:20px;">
+                    <div id="graduationFields" class="conditional-fields form-group full-width">
+                        <label for="graduationInstitution">Instituição de Ensino (Formatura):</label>
+                        <input type="text" id="graduationInstitution" name="graduationInstitution">
+                    </div>
+                    <div id="weddingFields" class="conditional-fields form-grid">
+                         <div class="form-group">
+                           <label for="weddingGuests">Nº Estimado de Convidados (Casamento):</label>
+                           <input type="number" id="weddingGuests" name="weddingGuests" min="0">
+                        </div>
+                        <div class="form-group">
+                           <label for="weddingPricePerGuest">Preço por Convidado (Casamento):</label>
+                           <input type="number" id="weddingPricePerGuest" name="weddingPricePerGuest" min="0" step="0.01">
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 30px;">Informações de Contato do Responsável</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="contactName">Nome do Contato:</label>
+                        <input type="text" id="contactName" name="contactName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contactEmail">Email do Contato:</label>
+                        <input type="email" id="contactEmail" name="contactEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contactPhone">Telefone do Contato:</label>
+                        <input type="tel" id="contactPhone" name="contactPhone">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="list.html" class="btn btn-secondary">Voltar para Lista</a>
+                    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../../../public/assets/js/firebase-config.js"></script>
+    <script src="../../../public/assets/js/auth-admin.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('isAdminLoggedIn') !== 'true') {
+                window.location.href = '../login.html';
+            }
+            const adminName = localStorage.getItem('adminUserName') || 'Admin';
+            document.getElementById('adminUserName').textContent = adminName;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const eventId = urlParams.get('id');
+            document.getElementById('eventId').value = eventId;
+
+            const eventTypeSelect = document.getElementById('eventType');
+            const graduationFields = document.getElementById('graduationFields');
+            const weddingFields = document.getElementById('weddingFields');
+
+            function toggleConditionalFields() {
+                graduationFields.classList.remove('active');
+                weddingFields.classList.remove('active');
+                const selectedType = eventTypeSelect.value;
+                if (selectedType === 'graduation') {
+                    graduationFields.classList.add('active');
+                } else if (selectedType === 'wedding') {
+                    weddingFields.classList.add('active');
+                }
+            }
+            eventTypeSelect.addEventListener('change', toggleConditionalFields);
+
+            // Simulação de carregamento de dados do evento
+            function loadEventData(id) {
+                console.log("Carregando dados para o evento ID:", id);
+                // Em uma aplicação real, você buscaria os dados do Firebase aqui
+                const mockEvents = {
+                    "event1": { name: "Formatura Turma 2025 - Engenharia", type: "graduation", date: "2025-12-10", location: "Centro de Convenções", description: "Baile de formatura.", status: "active", institution: "Universidade Exemplo", contactName: "João Coordenador", contactEmail: "joao@example.com", contactPhone: "11999991111" },
+                    "event2": { name: "Casamento Ana e Carlos", type: "wedding", date: "2025-09-20", location: "Espaço Garden Hall", description: "Celebração matrimonial.", status: "planning", guestsCount: 150, pricePerGuest: 180.00, contactName: "Ana Noiva", contactEmail: "ana@example.com", contactPhone: "11988882222" },
+                    "event3": { name: "Aniversário de 15 anos da Sofia", type: "birthday", date: "2024-11-05", location: "Salão Festa Kids", description: "Festa de debutante.", status: "completed", contactName: "Maria Mãe", contactEmail: "maria@example.com", contactPhone: "11977773333" },
+                    "event4": { name: "Conferência Tech Masters", type: "general", date: "2025-03-15", location: "Expo Center", description: "Evento corporativo.", status: "cancelled", contactName: "Pedro Organizador", contactEmail: "pedro@example.com", contactPhone: "11966664444" }
+                };
+                const eventData = mockEvents[id];
+
+                if (eventData) {
+                    document.getElementById('editingEventName').textContent = eventData.name;
+                    document.getElementById('eventName').value = eventData.name;
+                    document.getElementById('eventType').value = eventData.type;
+                    document.getElementById('eventDate').value = eventData.date;
+                    document.getElementById('eventLocation').value = eventData.location;
+                    document.getElementById('eventDescription').value = eventData.description || '';
+                    document.getElementById('eventStatus').value = eventData.status;
+                    document.getElementById('contactName').value = eventData.contactName;
+                    document.getElementById('contactEmail').value = eventData.contactEmail;
+                    document.getElementById('contactPhone').value = eventData.contactPhone;
+
+                    if (eventData.type === 'graduation') {
+                        document.getElementById('graduationInstitution').value = eventData.institution || '';
+                    } else if (eventData.type === 'wedding') {
+                        document.getElementById('weddingGuests').value = eventData.guestsCount || '';
+                        document.getElementById('weddingPricePerGuest').value = eventData.pricePerGuest || '';
+                    }
+                    toggleConditionalFields(); // Atualiza campos condicionais após carregar dados
+                } else {
+                    alert("Evento não encontrado!");
+                    document.getElementById('editingEventName').textContent = "Não encontrado";
+                    // window.location.href = 'list.html';
+                }
+            }
+
+            if (eventId) {
+                loadEventData(eventId);
+            } else {
+                alert("ID do evento não fornecido para edição.");
+                document.getElementById('editingEventName').textContent = "Erro";
+                // window.location.href = 'list.html';
+            }
+
+            const editEventForm = document.getElementById('editEventForm');
+            editEventForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const formData = new FormData(editEventForm);
+                const updatedEventData = { eventId: document.getElementById('eventId').value };
+                formData.forEach((value, key) => {
+                    updatedEventData[key] = value;
+                });
+
+                console.log("Dados do Evento Atualizados (simulado):", updatedEventData);
+                alert('Evento atualizado com sucesso! (Simulado)');
+                // window.location.href = 'list.html';
+            });
+        });
+    </script>
+</body>
+</html>

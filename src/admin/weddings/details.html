@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Casamento - Admin Érika Produções</title>
+    <link rel="stylesheet" href="../../../public/assets/css/admin-style.css">
+    <link rel="icon" href="../../../public/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid var(--admin-border-color);
+            margin-bottom: 20px;
+        }
+        .tab-button {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            background-color: transparent;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #777;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px; /* Alinhar com a borda da .tabs */
+        }
+        .tab-button.active {
+            color: var(--admin-primary-color);
+            border-bottom-color: var(--admin-primary-color);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="dashboard-body">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>Érika Produções</h3>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="../dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="../events/list.html"><i class="fas fa-calendar-alt"></i> Gerenciar Eventos</a></li>
+                <li><a href="../events/new.html"><i class="fas fa-plus-circle"></i> Novo Evento</a></li>
+                <li><a href="../graduation/index.html"><i class="fas fa-graduation-cap"></i> Formaturas</a></li>
+                <li class="active">
+                    <a href="index.html"><i class="fas fa-heart"></i> Casamentos</a>
+                    <ul class="submenu" style="padding-left: 20px; list-style: none;">
+                        <li><a href="#" id="subDetailsLink" style="color:#ccc; padding: 10px 15px; display:block;" class="active-submenu">Detalhes</a></li>
+                        <li><a href="#" id="subChecklistLink" style="color:#ccc; padding: 10px 15px; display:block;">Checklist</a></li>
+                    </ul>
+                </li>
+                <li><a href="../birthdays/index.html"><i class="fas fa-birthday-cake"></i> Aniversários</a></li>
+                <li><a href="../general/index.html"><i class="fas fa-concierge-bell"></i> Eventos Gerais</a></li>
+                <li><a href="#"><i class="fas fa-users"></i> Clientes</a></li>
+                <li><a href="../settings/index.html"><i class="fas fa-cogs"></i> Configurações</a></li>
+                <li><a href="#" id="adminLogoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <header class="main-header">
+            <div class="header-title">
+                <h2>Detalhes: <span id="weddingNameDisplay">Carregando...</span></h2>
+            </div>
+            <div class="user-info">
+                <span>Olá, <span id="adminUserName">Admin</span></span>
+                <i class="fas fa-user-circle fa-2x"></i>
+            </div>
+        </header>
+
+        <div class="content-area">
+            <div class="tabs">
+                <button class="tab-button active" data-tab="contract">Contrato</button>
+                <button class="tab-button" data-tab="payment">Pagamentos</button>
+                <button class="tab-button" data-tab="menu">Cardápio</button>
+            </div>
+
+            <div id="contractTab" class="tab-content active">
+                <form id="contractForm" class="form-section">
+                    <h3>Informações do Contrato</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="contractNumber">Número do Contrato:</label>
+                            <input type="text" id="contractNumber" name="contractNumber">
+                        </div>
+                        <div class="form-group">
+                            <label for="contractDate">Data do Contrato:</label>
+                            <input type="date" id="contractDate" name="contractDate">
+                        </div>
+                         <div class="form-group">
+                            <label for="contractStatus">Status do Contrato:</label>
+                            <select id="contractStatus" name="contractStatus">
+                                <option value="draft">Rascunho</option>
+                                <option value="sent">Enviado ao Cliente</option>
+                                <option value="signed">Assinado</option>
+                                <option value="cancelled">Cancelado</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="contractFile">Arquivo do Contrato (PDF):</label>
+                            <input type="file" id="contractFile" name="contractFile" accept=".pdf">
+                            <small id="currentContractFileDisplay"></small>
+                        </div>
+                         <div class="form-group full-width">
+                            <label for="contractTerms">Termos e Observações:</label>
+                            <textarea id="contractTerms" name="contractTerms" rows="4"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Salvar Contrato</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="paymentTab" class="tab-content">
+                 <form id="paymentInfoForm" class="form-section">
+                    <h3>Gestão de Pagamentos</h3>
+                     <div class="form-grid">
+                        <div class="form-group">
+                            <label for="guestsCount">Nº de Convidados Confirmados:</label>
+                            <input type="number" id="guestsCount" name="guestsCount" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="pricePerGuest">Valor por Convidado (R$):</label>
+                            <input type="number" id="pricePerGuest" name="pricePerGuest" step="0.01" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="totalEventValue">Valor Total Estimado do Evento (R$):</label>
+                            <input type="text" id="totalEventValue" name="totalEventValue" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="paymentMethod">Forma de Pagamento Principal:</label>
+                            <select id="paymentMethod" name="paymentMethod">
+                                <option value="pix">PIX</option>
+                                <option value="bank_transfer">Transferência Bancária</option>
+                                <option value="installments">Parcelado (Carnê/Boleto)</option>
+                                <option value="credit_card">Cartão de Crédito</option>
+                            </select>
+                        </div>
+                         <div class="form-group">
+                            <label for="installmentsNumber">Nº de Parcelas (se aplicável):</label>
+                            <input type="number" id="installmentsNumber" name="installmentsNumber" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label for="amountPaid">Valor Já Pago (R$):</label>
+                            <input type="number" id="amountPaid" name="amountPaid" step="0.01" min="0">
+                        </div>
+                     </div>
+                     <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Salvar Informações de Pagamento</button>
+                    </div>
+                </form>
+                <div class="table-container" style="margin-top:20px;">
+                    <h4>Histórico de Parcelas/Pagamentos</h4>
+                     <button id="addPaymentInstallmentBtn" class="btn btn-secondary btn-sm" style="margin-bottom:10px;"><i class="fas fa-plus"></i> Adicionar Parcela</button>
+                    <table class="data-table" id="paymentsTable">
+                        <thead>
+                            <tr>
+                                <th>Parcela</th>
+                                <th>Vencimento</th>
+                                <th>Valor (R$)</th>
+                                <th>Status</th>
+                                <th>Data Pagto.</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Pagamentos serão listados aqui -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="menuTab" class="tab-content">
+                <form id="menuForm" class="form-section">
+                    <h3>Cardápio Escolhido</h3>
+                     <div class="form-group">
+                        <label for="mainDishes">Pratos Principais (separados por vírgula):</label>
+                        <textarea id="mainDishes" name="mainDishes" rows="3"></textarea>
+                    </div>
+                     <div class="form-group">
+                        <label for="sideDishes">Acompanhamentos (separados por vírgula):</label>
+                        <textarea id="sideDishes" name="sideDishes" rows="3"></textarea>
+                    </div>
+                     <div class="form-group">
+                        <label for="desserts">Sobremesas (separadas por vírgula):</label>
+                        <textarea id="desserts" name="desserts" rows="3"></textarea>
+                    </div>
+                     <div class="form-group">
+                        <label for="drinks">Bebidas (separadas por vírgula):</label>
+                        <textarea id="drinks" name="drinks" rows="3"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="specialRequirements">Requisitos Especiais / Observações do Cardápio:</label>
+                        <textarea id="specialRequirements" name="specialRequirements" rows="3"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Salvar Cardápio</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../../public/assets/js/firebase-config.js"></script>
+    <script src="../../../public/assets/js/auth-admin.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('isAdminLoggedIn') !== 'true') {
+                window.location.href = '../login.html';
+            }
+            const adminName = localStorage.getItem('adminUserName') || 'Admin';
+            document.getElementById('adminUserName').textContent = adminName;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const eventId = urlParams.get('eventId') || localStorage.getItem('selectedWeddingEventId');
+            const eventName = localStorage.getItem('selectedWeddingEventName') || "Evento Desconhecido";
+            
+            document.getElementById('weddingNameDisplay').textContent = eventName;
+            if (!eventId) {
+                alert("ID do casamento não encontrado.");
+                window.location.href = 'index.html';
+                return;
+            }
+            // Atualizar links do submenu
+            document.getElementById('subDetailsLink').href = `details.html?eventId=${eventId}`;
+            document.getElementById('subChecklistLink').href = `checklist.html?eventId=${eventId}`;
+
+
+            // Lógica das Abas
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+
+                    button.classList.add('active');
+                    document.getElementById(button.dataset.tab + 'Tab').classList.add('active');
+                });
+            });
+
+            // Simulação de carregamento e salvamento de dados
+            const mockWeddingDetails = {
+                "weddingEvent1": {
+                    contract: { number: "C2024-001", date: "2024-01-15", status: "signed", fileUrl: "contrato_lauramarcos.pdf", terms: "Buffet completo incluso." },
+                    payment: { guestsCount: 120, pricePerGuest: 220.50, method: "pix", installmentsNumber: 1, amountPaid: 26460.00, 
+                                history: [
+                                    { id:"p1", installment: 1, dueDate: "2024-02-01", amount: 26460.00, status: "paid", paidDate: "2024-01-30"}
+                                ] },
+                    menu: { mainDishes: "Filet Mignon ao Molho Madeira, Salmão Grelhado", sideDishes: "Arroz à Piamontese, Batata Sauté", desserts: "Bolo de Casamento, Docinhos Finos", drinks: "Refrigerante, Água, Cerveja, Vinho", specialRequirements: "Opção vegetariana para 5 convidados."}
+                },
+                "weddingEvent2": {
+                    contract: { status: "draft" },
+                    payment: { guestsCount: 150, pricePerGuest: 190.00, history: [] },
+                    menu: {}
+                }
+            };
+
+            function loadWeddingData() {
+                const data = mockWeddingDetails[eventId];
+                if (!data) {
+                    console.warn("Nenhum detalhe encontrado para o casamento ID:", eventId);
+                    return;
+                }
+
+                // Aba Contrato
+                if (data.contract) {
+                    document.getElementById('contractNumber').value = data.contract.number || '';
+                    document.getElementById('contractDate').value = data.contract.date || '';
+                    document.getElementById('contractStatus').value = data.contract.status || 'draft';
+                    document.getElementById('currentContractFileDisplay').textContent = data.contract.fileUrl ? `Atual: ${data.contract.fileUrl}` : 'Nenhum arquivo.';
+                    document.getElementById('contractTerms').value = data.contract.terms || '';
+                }
+
+                // Aba Pagamentos
+                const guestsCountInput = document.getElementById('guestsCount');
+                const pricePerGuestInput = document.getElementById('pricePerGuest');
+                const totalEventValueInput = document.getElementById('totalEventValue');
+
+                function calculateTotal() {
+                    const guests = parseFloat(guestsCountInput.value) || 0;
+                    const price = parseFloat(pricePerGuestInput.value) || 0;
+                    totalEventValueInput.value = (guests * price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                }
+                guestsCountInput.addEventListener('input', calculateTotal);
+                pricePerGuestInput.addEventListener('input', calculateTotal);
+
+                if (data.payment) {
+                    guestsCountInput.value = data.payment.guestsCount || '';
+                    pricePerGuestInput.value = data.payment.pricePerGuest || '';
+                    document.getElementById('paymentMethod').value = data.payment.method || 'pix';
+                    document.getElementById('installmentsNumber').value = data.payment.installmentsNumber || '';
+                    document.getElementById('amountPaid').value = data.payment.amountPaid || '';
+                    calculateTotal(); // Calcula o total inicial
+                    renderPaymentHistory(data.payment.history || []);
+                }
+
+                // Aba Cardápio
+                if (data.menu) {
+                    document.getElementById('mainDishes').value = data.menu.mainDishes || '';
+                    document.getElementById('sideDishes').value = data.menu.sideDishes || '';
+                    document.getElementById('desserts').value = data.menu.desserts || '';
+                    document.getElementById('drinks').value = data.menu.drinks || '';
+                    document.getElementById('specialRequirements').value = data.menu.specialRequirements || '';
+                }
+            }
+
+            function renderPaymentHistory(history) {
+                const tableBody = document.querySelector('#paymentsTable tbody');
+                tableBody.innerHTML = '';
+                history.forEach(p => {
+                    const row = tableBody.insertRow();
+                    row.innerHTML = `
+                        <td>${p.installment}</td>
+                        <td>${p.dueDate ? new Date(p.dueDate + 'T00:00:00').toLocaleDateString('pt-BR') : 'N/A'}</td>
+                        <td>${p.amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                        <td><span class="status-badge status-${p.status}">${p.status === 'paid' ? 'Pago' : (p.status === 'pending' ? 'Pendente' : p.status)}</span></td>
+                        <td>${p.paidDate ? new Date(p.paidDate + 'T00:00:00').toLocaleDateString('pt-BR') : '-'}</td>
+                        <td class="action-buttons">
+                            <button class="btn-edit btn-sm" title="Editar Parcela"><i class="fas fa-edit"></i></button>
+                            ${p.status === 'pending' ? '<button class="btn-complete btn-sm" title="Marcar como Paga"><i class="fas fa-check-circle"></i></button>' : ''}
+                        </td>
+                    `;
+                });
+            }
+            
+            document.getElementById('contractForm').addEventListener('submit', e => {
+                e.preventDefault(); console.log("Salvando Contrato (Simulado)", eventId); alert("Contrato Salvo! (Simulado)");
+            });
+            document.getElementById('paymentInfoForm').addEventListener('submit', e => {
+                e.preventDefault(); console.log("Salvando Pagamentos (Simulado)", eventId); alert("Pagamentos Salvos! (Simulado)");
+            });
+            document.getElementById('menuForm').addEventListener('submit', e => {
+                e.preventDefault(); console.log("Salvando Cardápio (Simulado)", eventId); alert("Cardápio Salvo! (Simulado)");
+            });
+            document.getElementById('addPaymentInstallmentBtn').addEventListener('click', () => {
+                 alert("Adicionar Parcela: Funcionalidade não implementada neste exemplo.");
+                 // Aqui abriria um modal para adicionar uma nova parcela
+            });
+
+
+            loadWeddingData();
+        });
+    </script>
+</body>
+</html>

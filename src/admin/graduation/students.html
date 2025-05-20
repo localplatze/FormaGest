@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Formandos - Admin Érika Produções</title>
+    <link rel="stylesheet" href="../../../public/assets/css/admin-style.css">
+    <link rel="icon" href="../../../public/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body class="dashboard-body">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>Érika Produções</h3>
+        </div>
+        <nav class="sidebar-nav">
+             <ul>
+                <li><a href="../dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="../events/list.html"><i class="fas fa-calendar-alt"></i> Gerenciar Eventos</a></li>
+                <li><a href="../events/new.html"><i class="fas fa-plus-circle"></i> Novo Evento</a></li>
+                <li class="active">
+                    <a href="index.html"><i class="fas fa-graduation-cap"></i> Formaturas</a>
+                    <!-- Submenu poderia ser adicionado aqui com JS se necessário -->
+                    <ul class="submenu" style="padding-left: 20px; list-style: none;">
+                        <li><a href="#" id="subStudentsLink" style="color:#ccc; padding: 10px 15px; display:block;" class="active-submenu">Formandos</a></li>
+                        <li><a href="#" id="subImportLink" style="color:#ccc; padding: 10px 15px; display:block;">Importar</a></li>
+                        <li><a href="#" id="subTablesLink" style="color:#ccc; padding: 10px 15px; display:block;">Mesas</a></li>
+                        <li><a href="#" id="subChecklistLink" style="color:#ccc; padding: 10px 15px; display:block;">Checklist</a></li>
+                    </ul>
+                </li>
+                <li><a href="../weddings/index.html"><i class="fas fa-heart"></i> Casamentos</a></li>
+                <li><a href="../birthdays/index.html"><i class="fas fa-birthday-cake"></i> Aniversários</a></li>
+                <li><a href="../general/index.html"><i class="fas fa-concierge-bell"></i> Eventos Gerais</a></li>
+                <li><a href="#"><i class="fas fa-users"></i> Clientes</a></li>
+                <li><a href="../settings/index.html"><i class="fas fa-cogs"></i> Configurações</a></li>
+                <li><a href="#" id="adminLogoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <header class="main-header">
+            <div class="header-title">
+                <h2>Gerenciar Formandos: <span id="eventNameDisplay">Carregando...</span></h2>
+            </div>
+            <div class="user-info">
+                <span>Olá, <span id="adminUserName">Admin</span></span>
+                <i class="fas fa-user-circle fa-2x"></i>
+            </div>
+        </header>
+
+        <div class="content-area">
+            <div class="list-actions-filters">
+                <div class="filter-group">
+                    <input type="text" id="searchStudent" placeholder="Buscar por nome, email...">
+                    <button class="btn btn-primary" id="applyStudentFiltersBtn"><i class="fas fa-filter"></i> Filtrar</button>
+                </div>
+                <div>
+                    <a href="#" id="manualRegisterStudentBtn" class="btn btn-primary"><i class="fas fa-user-plus"></i> Cadastrar Manualmente</a>
+                    <a href="#" id="importStudentsBtnPage" class="btn btn-secondary"><i class="fas fa-file-import"></i> Importar Planilha</a>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table" id="studentsTable">
+                    <thead>
+                        <tr>
+                            <th>Nome Completo</th>
+                            <th>Email</th>
+                            <th>Curso</th>
+                            <th>Contrato</th>
+                            <th>Pagamento (Progresso)</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Dados mocados. Serão carregados por JS -->
+                        <tr>
+                            <td>Ana Júlia Silva</td>
+                            <td>ana.j@email.com</td>
+                            <td>Análise e Des. de Sistemas</td>
+                            <td><span class="status-badge status-active">Assinado</span></td>
+                            <td>R$ 2500/5000 (50%)</td>
+                            <td class="action-buttons">
+                                <a href="#" class="btn-view" title="Ver Detalhes"><i class="fas fa-eye"></i></a>
+                                <a href="#" class="btn-edit" title="Editar Formando"><i class="fas fa-edit"></i></a>
+                                <a href="#" class="btn-secondary" title="Gerar Carnê" style="background-color: #6f42c1; color:white;"><i class="fas fa-barcode"></i></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Bruno Costa</td>
+                            <td>bruno.costa@email.com</td>
+                            <td>Direito</td>
+                            <td><span class="status-badge status-planning">Pendente</span></td>
+                            <td>R$ 0/6000 (0%)</td>
+                             <td class="action-buttons">
+                                <a href="#" class="btn-view" title="Ver Detalhes"><i class="fas fa-eye"></i></a>
+                                <a href="#" class="btn-edit" title="Editar Formando"><i class="fas fa-edit"></i></a>
+                                <a href="#" class="btn-secondary" title="Gerar Carnê" style="background-color: #6f42c1; color:white;"><i class="fas fa-barcode"></i></a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                 <div id="noStudentsMessage" style="text-align: center; padding: 20px; display: none;">
+                    Nenhum formando encontrado para este evento ou com os filtros aplicados.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Cadastro/Edição de Formando (simplificado) -->
+    <div id="studentModal" class="modal" style="display:none; position:fixed; z-index:1001; left:0; top:0; width:100%; height:100%; overflow:auto; background-color:rgba(0,0,0,0.4);">
+        <div class="modal-content" style="background-color:#fefefe; margin:10% auto; padding:20px; border:1px solid #888; width:80%; max-width:700px; border-radius:8px; position:relative;">
+            <span class="close-modal" style="color:#aaa; float:right; font-size:28px; font-weight:bold; cursor:pointer;">×</span>
+            <h3 id="modalTitle">Cadastrar Novo Formando</h3>
+            <form id="studentForm" class="form-section" style="box-shadow:none; padding:0;">
+                <input type="hidden" id="studentId">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="studentName">Nome Completo:</label>
+                        <input type="text" id="studentName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="studentEmail">Email:</label>
+                        <input type="email" id="studentEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="studentPhone">Telefone:</label>
+                        <input type="tel" id="studentPhone">
+                    </div>
+                    <div class="form-group">
+                        <label for="studentCourse">Curso:</label>
+                        <input type="text" id="studentCourse">
+                    </div>
+                    <div class="form-group">
+                        <label for="contractStatus">Status do Contrato:</label>
+                        <select id="contractStatus">
+                            <option value="pending">Pendente</option>
+                            <option value="sent">Enviado</option>
+                            <option value="signed">Assinado</option>
+                            <option value="cancelled">Cancelado</option>
+                        </select>
+                    </div>
+                     <div class="form-group">
+                        <label for="contractFile">Arquivo do Contrato (PDF):</label>
+                        <input type="file" id="contractFile" accept=".pdf">
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentTotal">Valor Total (R$):</label>
+                        <input type="number" id="paymentTotal" step="0.01" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentInstallments">Nº de Parcelas:</label>
+                        <input type="number" id="paymentInstallments" min="1">
+                    </div>
+                     <div class="form-group full-width">
+                        <label for="paymentNotes">Observações de Pagamento:</label>
+                        <textarea id="paymentNotes" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary close-modal-btn">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Formando</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <script src="../../../public/assets/js/firebase-config.js"></script>
+    <script src="../../../public/assets/js/auth-admin.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('isAdminLoggedIn') !== 'true') {
+                window.location.href = '../login.html';
+            }
+            const adminName = localStorage.getItem('adminUserName') || 'Admin';
+            document.getElementById('adminUserName').textContent = adminName;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const eventId = urlParams.get('eventId') || localStorage.getItem('selectedGraduationEventId');
+            const eventName = localStorage.getItem('selectedGraduationEventName') || "Evento Desconhecido";
+            
+            document.getElementById('eventNameDisplay').textContent = eventName;
+            if (!eventId) {
+                alert("ID do evento de formatura não encontrado. Por favor, selecione um evento na página de Gestão de Formaturas.");
+                window.location.href = 'index.html';
+                return;
+            }
+            // Atualizar links do submenu
+            document.getElementById('subStudentsLink').href = `students.html?eventId=${eventId}`;
+            document.getElementById('subImportLink').href = `import.html?eventId=${eventId}`;
+            document.getElementById('subTablesLink').href = `tables.html?eventId=${eventId}`;
+            document.getElementById('subChecklistLink').href = `checklist.html?eventId=${eventId}`;
+            document.getElementById('importStudentsBtnPage').href = `import.html?eventId=${eventId}`;
+
+
+            // Modal Logic
+            const modal = document.getElementById('studentModal');
+            const manualRegisterBtn = document.getElementById('manualRegisterStudentBtn');
+            const closeModalSpans = document.querySelectorAll('.close-modal, .close-modal-btn');
+            const studentForm = document.getElementById('studentForm');
+            const modalTitle = document.getElementById('modalTitle');
+
+            manualRegisterBtn.onclick = function() {
+                modalTitle.textContent = "Cadastrar Novo Formando";
+                studentForm.reset();
+                document.getElementById('studentId').value = ''; // Clear studentId for new entry
+                modal.style.display = "block";
+            }
+            closeModalSpans.forEach(span => {
+                span.onclick = function() {
+                    modal.style.display = "none";
+                }
+            });
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+
+            studentForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const studentId = document.getElementById('studentId').value;
+                const studentData = {
+                    name: document.getElementById('studentName').value,
+                    email: document.getElementById('studentEmail').value,
+                    phone: document.getElementById('studentPhone').value,
+                    course: document.getElementById('studentCourse').value,
+                    contractStatus: document.getElementById('contractStatus').value,
+                    paymentTotal: document.getElementById('paymentTotal').value,
+                    paymentInstallments: document.getElementById('paymentInstallments').value,
+                    paymentNotes: document.getElementById('paymentNotes').value,
+                    // contractFile: document.getElementById('contractFile').files[0] // Handle file upload
+                };
+                if (studentId) {
+                    console.log("Atualizando formando (simulado):", studentId, studentData);
+                    alert("Formando atualizado com sucesso! (Simulado)");
+                } else {
+                    console.log("Salvando novo formando (simulado):", studentData);
+                    alert("Formando salvo com sucesso! (Simulado)");
+                }
+                modal.style.display = "none";
+                loadStudents(); // Recarrega a lista
+            });
+
+
+            // Simulação de dados de formandos
+            const mockStudents = {
+                "gradEvent1": [
+                    { id: "stud1", name: "Ana Júlia Silva", email: "ana.j@email.com", course: "Análise e Des. de Sistemas", contract: "Assinado", contractVal: "signed", paymentProgress: "R$ 2500/5000 (50%)" },
+                    { id: "stud2", name: "Carlos Eduardo Pereira", email: "c.edu@email.com", course: "Análise e Des. de Sistemas", contract: "Pendente", contractVal: "pending", paymentProgress: "R$ 500/5000 (10%)" }
+                ],
+                "gradEvent2": [
+                     { id: "stud3", name: "Bruno Costa", email: "bruno.costa@email.com", course: "Direito", contract: "Enviado", contractVal: "sent", paymentProgress: "R$ 0/6000 (0%)" }
+                ]
+            };
+
+            function loadStudents() {
+                const studentsTableBody = document.querySelector('#studentsTable tbody');
+                const noStudentsMessage = document.getElementById('noStudentsMessage');
+                studentsTableBody.innerHTML = ''; // Limpa
+                
+                const currentEventStudents = mockStudents[eventId] || [];
+                const searchTerm = document.getElementById('searchStudent').value.toLowerCase();
+
+                const filteredStudents = currentEventStudents.filter(stud => 
+                    stud.name.toLowerCase().includes(searchTerm) ||
+                    stud.email.toLowerCase().includes(searchTerm) ||
+                    (stud.course && stud.course.toLowerCase().includes(searchTerm))
+                );
+
+                if (filteredStudents.length === 0) {
+                    noStudentsMessage.style.display = 'block';
+                    return;
+                }
+                noStudentsMessage.style.display = 'none';
+
+                filteredStudents.forEach(student => {
+                    const row = studentsTableBody.insertRow();
+                    row.innerHTML = `
+                        <td>${student.name}</td>
+                        <td>${student.email}</td>
+                        <td>${student.course || 'N/A'}</td>
+                        <td><span class="status-badge status-${student.contractVal}">${student.contract}</span></td>
+                        <td>${student.paymentProgress}</td>
+                        <td class="action-buttons">
+                            <button class="btn-view" title="Ver Detalhes" data-id="${student.id}"><i class="fas fa-eye"></i></button>
+                            <button class="btn-edit edit-student-btn" title="Editar Formando" data-id="${student.id}"><i class="fas fa-edit"></i></button>
+                            <button class="btn-secondary" title="Gerar Carnê" style="background-color: #6f42c1; color:white;" data-id="${student.id}"><i class="fas fa-barcode"></i></button>
+                        </td>
+                    `;
+                });
+                addStudentActionListeners();
+            }
+            
+            function addStudentActionListeners() {
+                document.querySelectorAll('.edit-student-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const studentId = this.dataset.id;
+                        // Simular carregamento de dados do formando para edição
+                        const studentsForEvent = mockStudents[eventId] || [];
+                        const studentData = studentsForEvent.find(s => s.id === studentId);
+                        if (studentData) {
+                            modalTitle.textContent = "Editar Formando";
+                            document.getElementById('studentId').value = studentData.id;
+                            document.getElementById('studentName').value = studentData.name;
+                            document.getElementById('studentEmail').value = studentData.email;
+                            // ... preencher outros campos do formulário ...
+                            document.getElementById('studentCourse').value = studentData.course || '';
+                            document.getElementById('contractStatus').value = studentData.contractVal || 'pending';
+                            // Simular dados de pagamento (precisaria de mais detalhes na estrutura mock)
+                            document.getElementById('paymentTotal').value = studentData.paymentProgress ? studentData.paymentProgress.split('/')[1].replace('R$ ', '').replace(' (', '') : '';
+                            modal.style.display = "block";
+                        }
+                    });
+                });
+                // Adicionar listeners para view, carnê, etc.
+            }
+
+            document.getElementById('applyStudentFiltersBtn').addEventListener('click', loadStudents);
+            document.getElementById('searchStudent').addEventListener('keyup', (e) => {
+                 if (e.key === "Enter" || document.getElementById('searchStudent').value.length === 0 || document.getElementById('searchStudent').value.length > 2) {
+                    loadStudents();
+                }
+            });
+
+            loadStudents(); // Carga inicial
+        });
+    </script>
+</body>
+</html>
